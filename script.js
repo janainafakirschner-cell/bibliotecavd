@@ -29,9 +29,8 @@ let html5QrCode = null;
 
 
 // ============================================================================
-// 4. CONTROLE DE INTERFACE E PRIMEIRO ACESSO (DIRETO VIA STYLES)
+// 4. CONTROLE DE INTERFACE E PRIMEIRO ACESSO
 // ============================================================================
-
 window.addEventListener('DOMContentLoaded', function() {
   const selectPerfil = document.getElementById('selectTipoPerfil');
   if (selectPerfil) {
@@ -83,7 +82,7 @@ function alternarModoAcesso() {
 
 
 // ============================================================================
-// 5. AUTENTICAÇÃO E CADASTRO
+// 5. AUTENTICAÇÃO E CADASTRO (ENVIOS EM PARÂMETROS PARA EVITAR CORS)
 // ============================================================================
 async function processarAcesso() {
   const perfil = document.getElementById('selectTipoPerfil').value;
@@ -108,6 +107,7 @@ async function processarAcesso() {
     return;
   }
 
+  // MODO PRIMEIRO ACESSO (CADASTRO)
   if (modoCadastro) {
     const nome = document.getElementById('inputNomeUsuario').value.trim();
     const email = document.getElementById('inputEmailUsuario').value.trim();
@@ -120,15 +120,16 @@ async function processarAcesso() {
     msg.innerText = "A criar o seu cadastro...";
 
     try {
+      const params = new URLSearchParams();
+      params.append("acao", "cadastrarUsuario");
+      params.append("nome", nome);
+      params.append("email", email);
+      params.append("telefone", telInput);
+      params.append("perfil", perfil);
+
       const res = await fetch(API_URL, {
         method: "POST",
-        body: JSON.stringify({
-          acao: "cadastrarUsuario",
-          nome: nome,
-          email: email,
-          telefone: telInput,
-          perfil: perfil
-        })
+        body: params
       });
 
       const data = await res.json();
@@ -143,11 +144,13 @@ async function processarAcesso() {
         msg.innerText = data.mensagem;
       }
     } catch (err) {
-      msg.innerText = "Erro ao realizar o cadastro no servidor.";
+      console.error(err);
+      msg.innerText = "Erro ao conectar ao servidor. Verifique a URL do Web App e as permissões.";
     }
     return;
   }
 
+  // MODO LOGIN
   msg.innerText = "A validar cadastro...";
   try {
     const res = await fetch(`${API_URL}?acao=loginAluno&telefone=${encodeURIComponent(telInput)}`);
