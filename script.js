@@ -1,8 +1,8 @@
 // ============================================================================
 // 1. LINK DA SUA PLANILHA / GOOGLE APPS SCRIPT
 // ============================================================================
-// IMPORTANTE: Cole abaixo a URL da sua implantação do Apps Script
-const API_URL = "https://script.google.com/macros/s/AKfycbx9zI-QabnzVva5hArpMxwvUtn2F_G5xV32I-UAEF_Hz5VSqiMj58JVH5vKYu-6He4xMg/exec"; 
+// IMPORTANTE: Substitua a URL abaixo pela sua URL da implantação do Apps Script
+const API_URL = "https://script.google.com/macros/s/AKfycbyCuX1AAIvOlUwpchCLSrE1GcRUCBAhI16T9pK_32XuntGE7ZDDEbDNxac9YglO-drw1w/exec"; 
 
 
 // ============================================================================
@@ -83,7 +83,7 @@ function alternarModoAcesso() {
 
 
 // ============================================================================
-// 5. AUTENTICAÇÃO E CADASTRO (CORS / FORM DATA)
+// 5. AUTENTICAÇÃO E CADASTRO DE USUÁRIOS
 // ============================================================================
 async function processarAcesso() {
   const perfil = document.getElementById('selectTipoPerfil').value;
@@ -146,7 +146,7 @@ async function processarAcesso() {
       }
     } catch (err) {
       console.error(err);
-      msg.innerText = "Erro ao conectar ao servidor. Verifique a URL do Web App e as permissões.";
+      msg.innerText = "Erro ao conectar ao servidor. Verifique a URL do Web App.";
     }
     return;
   }
@@ -173,7 +173,7 @@ async function processarAcesso() {
 
 
 // ============================================================================
-// 6. ACERVO DE LIVROS (EXIBIÇÃO DE QUANTIDADE E AUTOR CORRIGIDA)
+// 6. ACERVO DE LIVROS E RESERVAS (ATUALIZADO)
 // ============================================================================
 async function carregarAcervo() {
   const grid = document.getElementById('gridLivros');
@@ -213,24 +213,33 @@ async function carregarAcervo() {
 }
 
 async function reservarLivro(idLivro) {
-  if (!usuarioLogado) return;
+  if (!usuarioLogado) {
+    alert("Precisa de fazer login antes de reservar um livro!");
+    return;
+  }
+
   if (!confirm("Confirmar a reserva deste livro?")) return;
 
   try {
+    const params = new URLSearchParams();
+    params.append("acao", "reservarLivro");
+    params.append("idLivro", idLivro);
+    params.append("idAluno", usuarioLogado.id);
+
     const res = await fetch(API_URL, {
       method: "POST",
-      body: JSON.stringify({
-        acao: "reservarLivro",
-        idLivro: idLivro,
-        idAluno: usuarioLogado.id
-      })
+      body: params
     });
 
     const data = await res.json();
     alert(data.mensagem);
-    carregarAcervo();
+
+    if (data.status === "sucesso") {
+      carregarAcervo(); // Atualiza a lista na tela imediatamente
+    }
   } catch (err) {
-    alert("Erro ao realizar a reserva.");
+    console.error(err);
+    alert("Erro ao realizar a reserva. Verifique a ligação com o servidor.");
   }
 }
 
@@ -260,7 +269,7 @@ async function iniciarScanner() {
       (errorMessage) => {}
     );
   } catch (err) {
-    alert("Erro ao abrir a câmera! Verifique se deu permissão de acesso à câmera no seu navegador.");
+    alert("Erro ao abrir a câmera! Verifique as permissões de acesso.");
     console.error(err);
     fecharScanner();
   }
@@ -339,16 +348,17 @@ async function cadastrarLivro() {
   if (!titulo) return alert("Por favor, digite o título do livro!");
 
   try {
+    const params = new URLSearchParams();
+    params.append("acao", "cadastrarLivro");
+    params.append("senhaAdmin", senhaAdminLogado);
+    params.append("isbn", isbn);
+    params.append("titulo", titulo);
+    params.append("autor", autor);
+    params.append("qtdTotal", qtd);
+
     const res = await fetch(API_URL, {
       method: "POST",
-      body: JSON.stringify({
-        acao: "cadastrarLivro",
-        senhaAdmin: senhaAdminLogado,
-        isbn: isbn,
-        titulo: titulo,
-        autor: autor,
-        qtdTotal: qtd
-      })
+      body: params
     });
 
     const data = await res.json();
