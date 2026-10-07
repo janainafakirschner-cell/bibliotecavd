@@ -24,11 +24,10 @@
 <body>
 
   <div class="container">
-    <!-- TELA DE LOGIN / SELEÇÃO DE PERFIL -->
+    <!-- TELA DE LOGIN / PRIMEIRO ACESSO -->
     <div id="loginAlunoCard" class="card">
-      <h2>Acesso à Biblioteca</h2>
-      <p>Selecione o seu perfil e informe os dados para entrar:</p>
-
+      <h2 id="tituloAcesso">Acesso à Biblioteca</h2>
+      
       <div class="form-group">
         <label for="selectTipoPerfil">Tipo de Perfil:</label>
         <select id="selectTipoPerfil">
@@ -38,11 +37,22 @@
         </select>
       </div>
 
-      <!-- Campo de Telefone (Alunos e Professores) -->
+      <!-- Campo Nome (Primeiro Acesso) -->
+      <div id="boxNome" class="form-group hidden">
+        <label for="inputNomeUsuario">Seu Nome Completo:</label>
+        <input type="text" id="inputNomeUsuario" placeholder="Digite seu nome completo">
+      </div>
+
+      <!-- Campo E-mail (Primeiro Acesso) -->
+      <div id="boxEmail" class="form-group hidden">
+        <label for="inputEmailUsuario">Seu E-mail (para lembretes):</label>
+        <input type="email" id="inputEmailUsuario" placeholder="exemplo@escola.com">
+      </div>
+
+      <!-- Campo de Telefone -->
       <div id="boxTelefone" class="form-group">
         <label for="inputTelAluno">Telefone / WhatsApp (com DDD):</label>
         <input type="tel" id="inputTelAluno" value="5581" placeholder="5581999998888" maxlength="13">
-        <small style="color: #666; margin-top: 4px;">Exemplo: <b>5581999998888</b></small>
       </div>
 
       <!-- Campo de Senha (Admin) -->
@@ -51,7 +61,14 @@
         <input type="password" id="inputSenhaAdminPerfil" placeholder="Digite a senha do Admin">
       </div>
 
-      <button onclick="processarAcesso()">Entrar no Sistema</button>
+      <button id="btnAcesso" onclick="processarAcesso()">Entrar no Sistema</button>
+      
+      <p style="margin-top: 15px; font-size: 0.9rem;">
+        <a href="#" id="linkModoAcesso" onclick="alternarModoAcesso(event)" style="color: #2e7d32; font-weight: bold;">
+          Primeiro acesso? Cadastre-se aqui.
+        </a>
+      </p>
+
       <p id="msgLoginAluno" class="msg-erro"></p>
     </div>
 
