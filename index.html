@@ -17,7 +17,7 @@
       display: none !important;
     }
 
-    /* TELA INICIAL DE LOGIN (CONFORME ESBOÇO ANEXO 2) */
+    /* TELA INICIAL DE LOGIN */
     .container-login {
       max-width: 420px;
       margin: 40px auto;
@@ -57,7 +57,6 @@
       outline: none;
     }
 
-    /* BOTÃO ENTRAR (VERDE DO ESBOÇO) */
     .btn-entrar {
       background-color: #a6e22e;
       color: #000000;
@@ -75,7 +74,6 @@
       background-color: #8ed018;
     }
 
-    /* LINK CADASTRAR 1º ACESSO (VERMELHO DO ESBOÇO) */
     .link-cadastro {
       margin-top: 15px;
     }
@@ -91,9 +89,8 @@
       text-decoration: underline;
     }
 
-    /* CONTAINERS DOS PAINÉIS PÓS-LOGIN */
     .container {
-      max-width: 800px;
+      max-width: 900px;
       margin: 20px auto;
       background: #ffffff;
       padding: 25px;
@@ -119,7 +116,6 @@
       font-weight: bold;
     }
 
-    /* MENU ADMIN EM CARTÕES 2x2 */
     .grid-admin {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -159,6 +155,30 @@
       margin-bottom: 10px;
     }
 
+    /* CAIXA DE CONFIRMAÇÃO DO NOME DO UTILIZADOR */
+    .caixa-confirmacao-nome {
+      background-color: #e8f5e9;
+      border: 2px dashed #2e7d32;
+      border-radius: 10px;
+      padding: 12px;
+      margin: 10px 0 15px 0;
+      color: #1b5e20;
+      font-size: 1.05rem;
+    }
+
+    .btn-voltar-menu {
+      padding: 10px 18px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      font-weight: bold;
+      cursor: pointer;
+      background-color: #f0f0f0;
+    }
+
+    .btn-voltar-menu:hover {
+      background-color: #e0e0e0;
+    }
+
     /* MODAL DE PRIMEIRO ACESSO */
     .modal {
       position: fixed;
@@ -192,11 +212,10 @@
 </head>
 <body>
 
-  <!-- 1. TELA INICIAL / LOGIN (ISOLADA) -->
+  <!-- 1. TELA INICIAL / LOGIN -->
   <div id="telaLogin" class="container-login">
     <h2>Sistema de Biblioteca</h2>
 
-    <!-- MENU SUSPENSO DE PERFIL -->
     <div class="campo-grupo">
       <label for="selectPerfil">Perfil de Acesso:</label>
       <select id="selectPerfil" onchange="mudarPerfilLogin()">
@@ -206,29 +225,25 @@
       </select>
     </div>
 
-    <!-- CAMPO CELULAR (EXIBIDO PARA ALUNO E PROFESSOR) -->
     <div id="grupoCelular" class="campo-grupo">
       <label for="telLogin">Celular:</label>
       <input type="text" id="telLogin" value="5581" placeholder="55819XXXXXXXX">
     </div>
 
-    <!-- CAMPO SENHA ADM (EXIBIDO APENAS SE SELECIONAR ADMINISTRADOR) -->
     <div id="grupoSenhaAdmin" class="campo-grupo hidden">
       <label for="senhaAdmin">Senha de Administrador:</label>
       <input type="password" id="senhaAdmin" placeholder="Digite a senha">
     </div>
 
-    <!-- BOTÃO ENTRAR -->
     <button id="btnEntrar" onclick="processarLogin()" class="btn-entrar">Entrar</button>
 
-    <!-- LINK CADASTRAR 1º ACESSO -->
     <div class="link-cadastro">
       <a href="#" onclick="abrirModalPrimeiroAcesso(); return false;">cadastrar 1º acesso</a>
     </div>
   </div>
 
 
-  <!-- 2. PAINEL DO ALUNO / PROFESSOR -->
+  <!-- 2. PAINEL DO LEITOR (ALUNO / PROFESSOR) -->
   <div id="painelUsuario" class="container hidden">
     <div class="header-user">
       <div>
@@ -256,7 +271,7 @@
       <button class="card-btn" onclick="mostrarSecaoAdmin('secaoReservas')">reservas</button>
     </div>
 
-    <!-- SECÇÃO CADASTRAR LIVRO -->
+    <!-- CADASTRAR LIVRO -->
     <div id="secaoCadastrar" class="secao-admin hidden">
       <h3>Cadastrar Novo Livro</h3>
       <input type="text" id="isbnLivro" placeholder="ISBN do Livro">
@@ -267,38 +282,64 @@
       <input type="number" id="qtdLivro" value="1" style="width: 70px;">
       <br><br>
       <button onclick="cadastrarLivro()" class="btn-entrar">Salvar Livro</button>
-      <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
+      <button onclick="voltarMenuAdmin()" class="btn-voltar-menu">← Voltar ao Menu</button>
     </div>
 
-    <!-- SECÇÃO REGISTRAR EMPRÉSTIMO -->
+    <!-- REGISTRAR EMPRÉSTIMO -->
     <div id="secaoEmprestimo" class="secao-admin hidden">
       <h3>Registrar Empréstimo Manual</h3>
-      <label>Telefone Aluno/Prof:</label><br>
-      <input type="text" id="empTelAluno" value="5581" placeholder="55819XXXXXXXX"><br><br>
-      
+      <label>Telefone do Utilizador (DDD + Número):</label><br>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <input type="text" id="empTelAluno" value="5581" placeholder="55819XXXXXXXX" style="margin-bottom:0;">
+        <button onclick="buscarNomePorTelefone('emp')" style="padding:10px 15px; cursor:pointer;">Procurar Nome</button>
+      </div>
+
+      <!-- ESPAÇO PARA A CONFIRMAÇÃO DO NOME DO UTILIZADOR -->
+      <div id="empConfirmacaoNome" class="caixa-confirmacao-nome hidden">
+        Utilizador: <b id="empNomeCompleto">---</b>
+      </div>
+      <br>
+
       <label>ISBN do Livro:</label><br>
       <input type="text" id="empIsbnLivro" placeholder="Digite ou escaneie o ISBN"><br><br>
       
       <button onclick="adminConfirmarEmprestimo()" class="btn-entrar">Confirmar Empréstimo</button>
-      <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
+      <button onclick="voltarMenuAdmin()" class="btn-voltar-menu">← Voltar ao Menu</button>
     </div>
 
-    <!-- SECÇÃO REGISTRAR DEVOLUÇÃO -->
+    <!-- REGISTRAR DEVOLUÇÃO -->
     <div id="secaoDevolucao" class="secao-admin hidden">
       <h3>Registrar Devolução de Livro</h3>
+      <label>Telefone do Utilizador (quem está com o livro):</label><br>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <input type="text" id="devTelAluno" value="5581" placeholder="55819XXXXXXXX" style="margin-bottom:0;">
+        <button onclick="buscarNomePorTelefone('dev')" style="padding:10px 15px; cursor:pointer;">Procurar Nome</button>
+      </div>
+
+      <!-- ESPAÇO PARA A CONFIRMAÇÃO DO NOME DO UTILIZADOR -->
+      <div id="devConfirmacaoNome" class="caixa-confirmacao-nome hidden">
+        Devolvido por: <b id="devNomeCompleto">---</b>
+      </div>
+      <br>
+
       <label>ISBN do Livro a Devolver:</label><br>
       <input type="text" id="devIsbnLivro" placeholder="Digite ou escaneie o ISBN"><br><br>
       
       <button onclick="adminConfirmarDevolucao()" class="btn-entrar">Confirmar Devolução</button>
-      <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
+      <button onclick="voltarMenuAdmin()" class="btn-voltar-menu">← Voltar ao Menu</button>
     </div>
 
-    <!-- SECÇÃO GERENCIAR RESERVAS -->
+    <!-- GERENCIAR RESERVAS / FILA DE ESPERA -->
     <div id="secaoReservas" class="secao-admin hidden">
       <h3>Fila de Espera / Reservas</h3>
+      
       <div id="listaReservasAdmin">A carregar reservas...</div>
-      <br>
-      <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
+      
+      <div style="margin-top: 20px;">
+        <button onclick="voltarMenuAdmin()" class="btn-voltar-menu">
+          ← Voltar ao Menu
+        </button>
+      </div>
     </div>
   </div>
 
@@ -329,9 +370,9 @@
     </div>
   </div>
 
-  <!-- SCRIPT INCORPORADO DIRETO NO HTML PARA EVITAR ERROS DE CARREGAMENTO -->
+  <!-- SCRIPT INCORPORADO PARA EVITAR ERROS DE CONEXÃO -->
   <script>
-    var API_URL = "Shttps://script.google.com/macros/s/AKfycbx1XqxWp61L6yEfIS1AWSaCyDJ8fbJ6lqaUbzIlpLZjkrjVvB7aJHX37Rc6cFOgr2PJjw/exec";
+    var API_URL = "https://script.google.com/macros/s/AKfycbxYVwGesxio2lTOHFJciw476xu1hRVRdlIGh0luLkM2wfVheRtXwzw-OuKVcEHsUWIcXA/exec";
 
     var usuarioLogado = null;
     var senhaAdminLogado = "";
@@ -465,6 +506,35 @@
 
       var menuCards = document.getElementById("menuAdminCards");
       if (menuCards) menuCards.classList.remove("hidden");
+
+      // Limpar campos de confirmação
+      document.getElementById('empConfirmacaoNome').classList.add('hidden');
+      document.getElementById('devConfirmacaoNome').classList.add('hidden');
+    }
+
+    // PROCURAR NOME PELO TELEMÓVEL (USADO EM EMPRÉSTIMO E DEVOLUÇÃO)
+    function buscarNomePorTelefone(tipo) {
+      var campoTelId = tipo === 'emp' ? 'empTelAluno' : 'devTelAluno';
+      var caixaId = tipo === 'emp' ? 'empConfirmacaoNome' : 'devConfirmacaoNome';
+      var nomeId = tipo === 'emp' ? 'empNomeCompleto' : 'devNomeCompleto';
+
+      var tel = document.getElementById(campoTelId).value.replace(/\D/g, "");
+      if (!tel || tel === "5581") return alert("Digite um número de celular válido com DDD!");
+
+      fetch(API_URL + "?acao=buscarUsuarioPorTelefone&telefone=" + encodeURIComponent(tel))
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.status === "sucesso") {
+            document.getElementById(nomeId).innerText = data.nome + " (" + data.perfil + ")";
+            document.getElementById(caixaId).classList.remove("hidden");
+          } else {
+            document.getElementById(caixaId).classList.add("hidden");
+            alert(data.mensagem);
+          }
+        })
+        .catch(function() {
+          alert("Erro ao procurar o nome do utilizador.");
+        });
     }
 
     function carregarAcervo() {
@@ -625,6 +695,7 @@
           if (data.status === "sucesso") {
             document.getElementById('empTelAluno').value = "5581";
             document.getElementById('empIsbnLivro').value = "";
+            document.getElementById('empConfirmacaoNome').classList.add("hidden");
             carregarAcervo();
             voltarMenuAdmin();
           }
@@ -645,5 +716,73 @@
         .then(function(data) {
           alert(data.mensagem);
           if (data.status === "sucesso") {
+            document.getElementById('devTelAluno').value = "5581";
             document.getElementById('devIsbnLivro').value = "";
-            carregar
+            document.getElementById('devConfirmacaoNome').classList.add("hidden");
+            carregarAcervo();
+            voltarMenuAdmin();
+          }
+        })
+        .catch(function() { alert("Erro ao registrar devolução."); });
+    }
+
+    function carregarReservasAdmin() {
+      var container = document.getElementById('listaReservasAdmin');
+      container.innerHTML = "<p>A carregar reservas...</p>";
+
+      fetch(API_URL + "?acao=getReservas")
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.status === "sucesso" && data.reservas && data.reservas.length > 0) {
+            var html = '<div style="overflow-x:auto;">' +
+              '<table border="1" style="width:100%; border-collapse:collapse; margin-top:10px; text-align:left;">' +
+                '<tr style="background:#f2f2f2; height:40px;">' +
+                  '<th style="padding:8px;">ID Reserva</th>' +
+                  '<th style="padding:8px;">Nome do Livro</th>' +
+                  '<th style="padding:8px;">Requerente</th>' +
+                  '<th style="padding:8px;">Perfil</th>' +
+                  '<th style="padding:8px;">Celular</th>' +
+                  '<th style="padding:8px;">Status</th>' +
+                  '<th style="padding:8px; text-align:center;">Ação</th>' +
+                '</tr>';
+            
+            data.reservas.forEach(function(r) {
+              html += '<tr>' +
+                '<td style="padding:8px;"><b>' + r.idReserva + '</b></td>' +
+                '<td style="padding:8px;">' + r.nomeLivro + '</td>' +
+                '<td style="padding:8px;">' + r.nomeRequerente + '</td>' +
+                '<td style="padding:8px;">' + r.perfilRequerente + '</td>' +
+                '<td style="padding:8px;">' + r.celularRequerente + '</td>' +
+                '<td style="padding:8px;">' + r.status + '</td>' +
+                '<td style="padding:8px; text-align:center;">' +
+                  '<button onclick="concluirReservaAdmin(\'' + r.idReserva + '\')" style="padding:5px 10px; cursor:pointer; background-color:#a6e22e; border:2px solid #000; border-radius:6px; font-weight:bold;">Concluir</button>' +
+                '</td>' +
+              '</tr>';
+            });
+
+            html += '</table></div>';
+            container.innerHTML = html;
+          } else {
+            container.innerHTML = "<p style='padding:15px; background:#f9f9f9; border:1px solid #ddd; border-radius:8px;'>Nenhuma reserva pendente encontrada.</p>";
+          }
+        })
+        .catch(function() {
+          container.innerHTML = "<p style='color:red;'>Erro ao carregar lista de reservas.</p>";
+        });
+    }
+
+    function concluirReservaAdmin(idReserva) {
+      var params = new URLSearchParams();
+      params.append("acao", "concluirReserva");
+      params.append("idReserva", idReserva);
+
+      fetch(API_URL, { method: "POST", body: params })
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          alert(data.mensagem);
+          if (data.status === "sucesso") carregarReservasAdmin();
+        });
+    }
+  </script>
+</body>
+</html>
