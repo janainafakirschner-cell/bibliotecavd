@@ -1,17 +1,12 @@
 // ============================================================================
-// 1. LINK DA SUA PLANILHA / GOOGLE APPS SCRIPT (COLE O SEU LINK AQUI ABAIXO)
+// 1. LINK DA SUA PLANILHA / GOOGLE APPS SCRIPT
 // ============================================================================
 const API_URL = "https://script.google.com/macros/s/AKfycbxjkauU-Y0eX8HXnmt9NOjytTLoMMOin_Qj6iBETq4XC77Er08z6D0_JaR61yd9pgi2fw/exec"; 
-// Exemplo de como deve ficar:
-// const API_URL = "https://script.google.com/macros/s/AKfycbx.../exec";
 
-
-// ============================================================================
-// 2. LÓGICA DO SISTEMA (NÃO PRECISA ALTERAR NADA ABAIXO)
-// ============================================================================
 let usuarioLogado = null;
 let senhaAdminLogado = "";
 let modoCadastro = false;
+let html5QrcodeScanner = null;
 
 // Alterna a interface de acordo com a seleção de perfil
 document.getElementById('selectTipoPerfil').addEventListener('change', function() {
@@ -31,7 +26,6 @@ document.getElementById('selectTipoPerfil').addEventListener('change', function(
   }
 });
 
-// Alterna entre a tela de Login e a tela de Primeiro Acesso
 function alternarModoAcesso(event) {
   event.preventDefault();
   modoCadastro = !modoCadastro;
@@ -57,16 +51,14 @@ function alternarModoAcesso(event) {
   }
 }
 
-// Processa a Entrada ou o Novo Cadastro
 async function processarAcesso() {
   const perfil = document.getElementById('selectTipoPerfil').value;
   const msg = document.getElementById('msgLoginAluno');
   msg.innerText = "";
 
-  // 1. ACESSO DO ADMINISTRADOR
   if (perfil === 'Admin') {
     const senha = document.getElementById('inputSenhaAdminPerfil').value;
-    if (senha === "123456") { // Senha padrão
+    if (senha === "123456") {
       senhaAdminLogado = senha;
       document.getElementById('loginAlunoCard').classList.add('hidden');
       document.getElementById('painelAdmin').classList.remove('hidden');
@@ -82,7 +74,6 @@ async function processarAcesso() {
     return;
   }
 
-  // 2. MODO PRIMEIRO ACESSO (CADASTRO)
   if (modoCadastro) {
     const nome = document.getElementById('inputNomeUsuario').value.trim();
     const email = document.getElementById('inputEmailUsuario').value.trim();
@@ -92,7 +83,7 @@ async function processarAcesso() {
       return;
     }
 
-    msg.innerText = "A criar o seu cadastro na planilha...";
+    msg.innerText = "Criando cadastro...";
 
     try {
       const res = await fetch(API_URL, {
@@ -118,13 +109,12 @@ async function processarAcesso() {
         msg.innerText = data.mensagem;
       }
     } catch (err) {
-      msg.innerText = "Erro ao realizar cadastro no servidor.";
+      msg.innerText = "Erro ao realizar cadastro.";
     }
     return;
   }
 
-  // 3. MODO LOGIN NORMAL
-  msg.innerText = "A validar o seu cadastro...";
+  msg.innerText = "Validando cadastro...";
   try {
     const res = await fetch(`${API_URL}?acao=loginAluno&telefone=${encodeURIComponent(telInput)}`);
     const data = await res.json();
@@ -143,10 +133,9 @@ async function processarAcesso() {
   }
 }
 
-// Carrega a lista de livros do acervo a partir da planilha
 async function carregarAcervo() {
   const grid = document.getElementById('gridLivros');
-  grid.innerHTML = "A carregar os livros...";
+  grid.innerHTML = "Carregando livros...";
 
   try {
     const res = await fetch(`${API_URL}?acao=getLivros`);
@@ -170,14 +159,12 @@ async function carregarAcervo() {
       });
     }
   } catch (err) {
-    grid.innerHTML = "Erro ao carregar o acervo de livros.";
+    grid.innerHTML = "Erro ao carregar o acervo.";
   }
 }
 
-// Executa a reserva e grava na planilha
 async function reservarLivro(idLivro) {
   if (!usuarioLogado) return;
-
   if (!confirm("Confirmar a reserva deste livro?")) return;
 
   try {
@@ -194,26 +181,53 @@ async function reservarLivro(idLivro) {
     alert(data.mensagem);
     carregarAcervo();
   } catch (err) {
-    alert("Erro ao realizar a reserva.");
+    alert("Erro ao realizar reserva.");
   }
 }
 
-// Busca direta de ISBN (Google Books + BrasilAPI)
+// ----------------------------------------------------------------------------
+// LEITOR DE CÂMERA (SCANNER)
+// ----------------------------------------------------------------------------
+function iniciarScanner() {
+  const readerDiv = document.getElementById('reader');
+  readerDiv.style.display = "block";
+
+  if (html5QrcodeScanner) {
+    html5QrcodeScanner.clear();
+  }
+
+  html5QrcodeScanner = new Html5QrcodeScanner(
+    "reader", 
+    { fps: 10, qrbox: { width: 250, height: 150 } },
+    /* verbose= */ false
+  );
+
+  html5QrcodeScanner.render((decodedText) => {
+    document.getElementById('isbnLivro').value = decodedText;
+    html5QrcodeScanner.clear();
+    readerDiv.style.display = "none";
+    buscarISBN();
+  }, (errorMessage) => {
+    // Erro ao ler frame (normal enquanto busca o código)
+  });
+}
+
+// ----------------------------------------------------------------------------
+// BUSCA DIRETA DE ISBN NO FRONTEND
+// ----------------------------------------------------------------------------
 async function buscarISBN(event) {
+  if (event) event.preventDefault();
+
   const inputIsbn = document.getElementById('isbnLivro');
   const isbn = inputIsbn.value.replace(/\D/g, "");
 
   if (!isbn) {
-    alert("Por favor, digite o número do ISBN!");
+    alert("Por favor, digite ou escaneie o número do ISBN!");
     return;
   }
 
-  const btn = event.target;
-  btn.innerText = "A buscar...";
-  btn.disabled = true;
-
   try {
-    // 1. Consulta a API do Google Books
+    // 1. Google Books
     let res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
     let data = await res.json();
 
@@ -221,46 +235,40 @@ async function buscarISBN(event) {
       const info = data.items[0].volumeInfo;
       document.getElementById('tituloLivro').value = info.title || "";
       document.getElementById('autorLivro').value = info.authors ? info.authors.join(", ") : "";
-      alert("Livro encontrado com sucesso!");
-      btn.innerText = "Buscar Dados do Livro";
-      btn.disabled = false;
+      alert("Livro encontrado no Google Books!");
       return;
     }
 
-    // 2. Consulta a BrasilAPI
+    // 2. BrasilAPI
     res = await fetch(`https://brasilapi.com.br/api/isbn/v1/${isbn}`);
     if (res.ok) {
       data = await res.json();
       document.getElementById('tituloLivro').value = data.title || "";
       document.getElementById('autorLivro').value = data.authors ? data.authors.join(", ") : "";
-      alert("Livro encontrado com sucesso!");
-      btn.innerText = "Buscar Dados do Livro";
-      btn.disabled = false;
+      alert("Livro encontrado na BrasilAPI!");
       return;
     }
 
-    alert("ISBN não encontrado nas bases automáticas. Pode preencher o Título e o Autor manualmente!");
+    alert("ISBN não localizado nas bases de dados. Pode preencher o Título e Autor manualmente!");
   } catch (err) {
-    alert("Não foi possível consultar o ISBN automaticamente. Por favor, digite o título e autor manualmente.");
-  } finally {
-    btn.innerText = "Buscar Dados do Livro";
-    btn.disabled = false;
+    alert("Erro ao consultar o ISBN. Por favor, digite os dados manualmente.");
   }
 }
 
-// Salva um novo livro na planilha (Painel Admin)
 async function cadastrarLivro() {
   const titulo = document.getElementById('tituloLivro').value;
   const autor = document.getElementById('autorLivro').value;
   const qtd = document.getElementById('qtdLivro').value;
+  const isbn = document.getElementById('isbnLivro').value;
 
-  if (!titulo) return alert("Digite o título do livro!");
+  if (!titulo) return alert("Digite o título!");
 
   const res = await fetch(API_URL, {
     method: "POST",
     body: JSON.stringify({
       acao: "cadastrarLivro",
       senhaAdmin: senhaAdminLogado,
+      isbn: isbn,
       titulo: titulo,
       autor: autor,
       qtdTotal: qtd
