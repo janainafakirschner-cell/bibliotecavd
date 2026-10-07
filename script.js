@@ -1,14 +1,24 @@
 // ============================================================================
-// 1. LINK DA SUA PLANILHA / GOOGLE APPS SCRIPT
+// 1. LINK DA SUA PLANILHA / GOOGLE APPS SCRIPT (COLE A SUA URL ABAIXO)
 // ============================================================================
 const API_URL = "https://script.google.com/macros/s/AKfycbxjkauU-Y0eX8HXnmt9NOjytTLoMMOin_Qj6iBETq4XC77Er08z6D0_JaR61yd9pgi2fw/exec"; 
+// Exemplo: const API_URL = "https://script.google.com/macros/s/AKfycbx.../exec";
 
+
+// ============================================================================
+// 2. VARIÁVEIS GLOBAIS DE CONTROLE
+// ============================================================================
 let usuarioLogado = null;
 let senhaAdminLogado = "";
 let modoCadastro = false;
-let html5QrcodeScanner = null;
+let html5QrCode = null;
 
-// Alterna a interface de acordo com a seleção de perfil
+
+// ============================================================================
+// 3. INTERFACE E CONTROLE DE NAVEGAÇÃO
+// ============================================================================
+
+// Alterna os campos exibidos no login com base no perfil selecionado
 document.getElementById('selectTipoPerfil').addEventListener('change', function() {
   const perfil = this.value;
   const boxTel = document.getElementById('boxTelefone');
@@ -26,6 +36,7 @@ document.getElementById('selectTipoPerfil').addEventListener('change', function(
   }
 });
 
+// Alterna a tela entre Modo Login e Modo Primeiro Acesso
 function alternarModoAcesso(event) {
   event.preventDefault();
   modoCadastro = !modoCadastro;
@@ -51,14 +62,19 @@ function alternarModoAcesso(event) {
   }
 }
 
+
+// ============================================================================
+// 4. AUTENTICAÇÃO E PRIMEIRO ACESSO (INTEGRAÇÃO COM A PLANILHA)
+// ============================================================================
 async function processarAcesso() {
   const perfil = document.getElementById('selectTipoPerfil').value;
   const msg = document.getElementById('msgLoginAluno');
   msg.innerText = "";
 
+  // A) LOGIN DE ADMINISTRADOR
   if (perfil === 'Admin') {
     const senha = document.getElementById('inputSenhaAdminPerfil').value;
-    if (senha === "123456") {
+    if (senha === "123456") { // Altere se definiu outra senha no Apps Script
       senhaAdminLogado = senha;
       document.getElementById('loginAlunoCard').classList.add('hidden');
       document.getElementById('painelAdmin').classList.remove('hidden');
@@ -74,6 +90,7 @@ async function processarAcesso() {
     return;
   }
 
+  // B) PRIMEIRO ACESSO / NOVO CADASTRO
   if (modoCadastro) {
     const nome = document.getElementById('inputNomeUsuario').value.trim();
     const email = document.getElementById('inputEmailUsuario').value.trim();
@@ -83,7 +100,7 @@ async function processarAcesso() {
       return;
     }
 
-    msg.innerText = "Criando cadastro...";
+    msg.innerText = "A criar o seu cadastro na planilha...";
 
     try {
       const res = await fetch(API_URL, {
@@ -109,12 +126,13 @@ async function processarAcesso() {
         msg.innerText = data.mensagem;
       }
     } catch (err) {
-      msg.innerText = "Erro ao realizar cadastro.";
+      msg.innerText = "Erro ao realizar o cadastro no servidor.";
     }
     return;
   }
 
-  msg.innerText = "Validando cadastro...";
+  // C) LOGIN NORMAL
+  msg.innerText = "A validar cadastro...";
   try {
     const res = await fetch(`${API_URL}?acao=loginAluno&telefone=${encodeURIComponent(telInput)}`);
     const data = await res.json();
@@ -122,163 +140,4 @@ async function processarAcesso() {
     if (data.status === "sucesso") {
       usuarioLogado = data.aluno;
       document.getElementById('nomeAlunoLogado').innerText = `${usuarioLogado.nome} (${perfil})`;
-      document.getElementById('loginAlunoCard').classList.add('hidden');
-      document.getElementById('painelAluno').classList.remove('hidden');
-      carregarAcervo();
-    } else {
-      msg.innerText = data.mensagem;
-    }
-  } catch (err) {
-    msg.innerText = "Erro ao conectar ao servidor.";
-  }
-}
-
-async function carregarAcervo() {
-  const grid = document.getElementById('gridLivros');
-  grid.innerHTML = "Carregando livros...";
-
-  try {
-    const res = await fetch(`${API_URL}?acao=getLivros`);
-    const data = await res.json();
-
-    if (data.status === "sucesso") {
-      grid.innerHTML = "";
-      data.livros.forEach(livro => {
-        const div = document.createElement('div');
-        div.className = "livro-card";
-        div.innerHTML = `
-          <img src="${livro.capaUrl || 'https://via.placeholder.com/120x160?text=Sem+Capa'}" alt="Capa">
-          <h4>${livro.titulo}</h4>
-          <p><small>${livro.autor}</small></p>
-          <p>Disponíveis: ${livro.qtdDisponivel}</p>
-          <button onclick="reservarLivro('${livro.id}')" ${livro.qtdDisponivel < 1 ? 'disabled style="background:#ccc;"' : ''}>
-            ${livro.qtdDisponivel < 1 ? 'Esgotado' : 'Reservar'}
-          </button>
-        `;
-        grid.appendChild(div);
-      });
-    }
-  } catch (err) {
-    grid.innerHTML = "Erro ao carregar o acervo.";
-  }
-}
-
-async function reservarLivro(idLivro) {
-  if (!usuarioLogado) return;
-  if (!confirm("Confirmar a reserva deste livro?")) return;
-
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({
-        acao: "reservarLivro",
-        idLivro: idLivro,
-        idAluno: usuarioLogado.id
-      })
-    });
-
-    const data = await res.json();
-    alert(data.mensagem);
-    carregarAcervo();
-  } catch (err) {
-    alert("Erro ao realizar reserva.");
-  }
-}
-
-// ----------------------------------------------------------------------------
-// LEITOR DE CÂMERA (SCANNER)
-// ----------------------------------------------------------------------------
-function iniciarScanner() {
-  const readerDiv = document.getElementById('reader');
-  readerDiv.style.display = "block";
-
-  if (html5QrcodeScanner) {
-    html5QrcodeScanner.clear();
-  }
-
-  html5QrcodeScanner = new Html5QrcodeScanner(
-    "reader", 
-    { fps: 10, qrbox: { width: 250, height: 150 } },
-    /* verbose= */ false
-  );
-
-  html5QrcodeScanner.render((decodedText) => {
-    document.getElementById('isbnLivro').value = decodedText;
-    html5QrcodeScanner.clear();
-    readerDiv.style.display = "none";
-    buscarISBN();
-  }, (errorMessage) => {
-    // Erro ao ler frame (normal enquanto busca o código)
-  });
-}
-
-// ----------------------------------------------------------------------------
-// BUSCA DIRETA DE ISBN NO FRONTEND
-// ----------------------------------------------------------------------------
-async function buscarISBN(event) {
-  if (event) event.preventDefault();
-
-  const inputIsbn = document.getElementById('isbnLivro');
-  const isbn = inputIsbn.value.replace(/\D/g, "");
-
-  if (!isbn) {
-    alert("Por favor, digite ou escaneie o número do ISBN!");
-    return;
-  }
-
-  try {
-    // 1. Google Books
-    let res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
-    let data = await res.json();
-
-    if (data.totalItems > 0 && data.items && data.items.length > 0) {
-      const info = data.items[0].volumeInfo;
-      document.getElementById('tituloLivro').value = info.title || "";
-      document.getElementById('autorLivro').value = info.authors ? info.authors.join(", ") : "";
-      alert("Livro encontrado no Google Books!");
-      return;
-    }
-
-    // 2. BrasilAPI
-    res = await fetch(`https://brasilapi.com.br/api/isbn/v1/${isbn}`);
-    if (res.ok) {
-      data = await res.json();
-      document.getElementById('tituloLivro').value = data.title || "";
-      document.getElementById('autorLivro').value = data.authors ? data.authors.join(", ") : "";
-      alert("Livro encontrado na BrasilAPI!");
-      return;
-    }
-
-    alert("ISBN não localizado nas bases de dados. Pode preencher o Título e Autor manualmente!");
-  } catch (err) {
-    alert("Erro ao consultar o ISBN. Por favor, digite os dados manualmente.");
-  }
-}
-
-async function cadastrarLivro() {
-  const titulo = document.getElementById('tituloLivro').value;
-  const autor = document.getElementById('autorLivro').value;
-  const qtd = document.getElementById('qtdLivro').value;
-  const isbn = document.getElementById('isbnLivro').value;
-
-  if (!titulo) return alert("Digite o título!");
-
-  const res = await fetch(API_URL, {
-    method: "POST",
-    body: JSON.stringify({
-      acao: "cadastrarLivro",
-      senhaAdmin: senhaAdminLogado,
-      isbn: isbn,
-      titulo: titulo,
-      autor: autor,
-      qtdTotal: qtd
-    })
-  });
-
-  const data = await res.json();
-  alert(data.mensagem);
-}
-
-function sair() {
-  location.reload();
-}
+      document.getElementById('login
