@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Biblioteca Escolar</title>
+  <style>
+    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+    body { background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
+    .container { max-width: 800px; margin: 0 auto; }
+    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+    .hidden { display: none !important; }
+    .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
+    label { margin-bottom: 5px; font-weight: bold; }
+    input, select, button { padding: 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 1rem; }
+    button { background-color: #2e7d32; color: white; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; }
+    button:hover { background-color: #1b5e20; }
+    .grid-livros { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
+    .livro-card { border: 1px solid #e0e0e0; padding: 10px; border-radius: 6px; text-align: center; background: #fff; }
+    .livro-card img { max-width: 100%; height: 140px; object-fit: cover; border-radius: 4px; }
+    .msg-erro { color: #d32f2f; font-weight: bold; margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- TELA DE LOGIN / SELEÇÃO DE PERFIL -->
+    <div id="loginAlunoCard" class="card">
+      <h2>Acesso à Biblioteca</h2>
+      <p>Selecione o seu perfil e informe os dados para entrar:</p>
+
+      <div class="form-group">
+        <label for="selectTipoPerfil">Tipo de Perfil:</label>
+        <select id="selectTipoPerfil">
+          <option value="Aluno">Aluno (Prazo: 7 dias)</option>
+          <option value="Professor">Professor (Prazo: 15 dias)</option>
+          <option value="Admin">Administrador / Bibliotecário</option>
+        </select>
+      </div>
+
+      <!-- Campo de Telefone (Alunos e Professores) -->
+      <div id="boxTelefone" class="form-group">
+        <label for="inputTelAluno">Telefone / WhatsApp (com DDD):</label>
+        <input type="tel" id="inputTelAluno" value="5581" placeholder="5581999998888" maxlength="13">
+        <small style="color: #666; margin-top: 4px;">Exemplo: <b>5581999998888</b></small>
+      </div>
+
+      <!-- Campo de Senha (Admin) -->
+      <div id="boxSenhaAdmin" class="form-group hidden">
+        <label for="inputSenhaAdminPerfil">Senha do Administrador:</label>
+        <input type="password" id="inputSenhaAdminPerfil" placeholder="Digite a senha do Admin">
+      </div>
+
+      <button onclick="processarAcesso()">Entrar no Sistema</button>
+      <p id="msgLoginAluno" class="msg-erro"></p>
+    </div>
+
+    <!-- PAINEL DO ALUNO / PROFESSOR -->
+    <div id="painelAluno" class="card hidden">
+      <h2>Bem-vindo(a), <span id="nomeAlunoLogado"></span>!</h2>
+      <button onclick="sair()" style="background-color: #c62828;">Sair</button>
+      <hr style="margin: 15px 0;">
+      <h3>Acervo de Livros</h3>
+      <div id="gridLivros" class="grid-livros"></div>
+    </div>
+
+    <!-- PAINEL DO ADMIN -->
+    <div id="painelAdmin" class="card hidden">
+      <h2>Painel do Administrador</h2>
+      <button onclick="sair()" style="background-color: #c62828;">Sair</button>
+      <hr style="margin: 15px 0;">
+      <h3>Cadastrar Novo Livro</h3>
+      <div class="form-group">
+        <label for="isbnLivro">Buscar por ISBN:</label>
+        <input type="text" id="isbnLivro" placeholder="Digite o ISBN">
+        <button onclick="buscarISBN()">Buscar Dados do Livro</button>
+      </div>
+      <div class="form-group">
+        <label for="tituloLivro">Título:</label>
+        <input type="text" id="tituloLivro">
+        <label for="autorLivro">Autor:</label>
+        <input type="text" id="autorLivro">
+        <label for="qtdLivro">Quantidade Total:</label>
+        <input type="number" id="qtdLivro" value="1">
+        <button onclick="cadastrarLivro()">Salvar Livro</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
