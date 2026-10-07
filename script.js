@@ -1,7 +1,8 @@
 // ============================================================================
 // 1. LINK DA SUA PLANILHA / GOOGLE APPS SCRIPT
 // ============================================================================
-const API_URL = "https://script.google.com/macros/s/AKfycbwptlsouQZAEKrkBwzy0fRB0L8CqGaIiemdJEz-te-i4Sd_e9d76bTrxdI6c9LI2e-3Mg/exec"; 
+// IMPORTANTE: Cole abaixo a URL da sua implantação do Apps Script
+const API_URL = "https://script.google.com/macros/s/AKfycbx9zI-QabnzVva5hArpMxwvUtn2F_G5xV32I-UAEF_Hz5VSqiMj58JVH5vKYu-6He4xMg/exec"; 
 
 
 // ============================================================================
@@ -82,7 +83,7 @@ function alternarModoAcesso() {
 
 
 // ============================================================================
-// 5. AUTENTICAÇÃO E CADASTRO (ENVIOS EM PARÂMETROS PARA EVITAR CORS)
+// 5. AUTENTICAÇÃO E CADASTRO (CORS / FORM DATA)
 // ============================================================================
 async function processarAcesso() {
   const perfil = document.getElementById('selectTipoPerfil').value;
@@ -172,7 +173,7 @@ async function processarAcesso() {
 
 
 // ============================================================================
-// 6. ACERVO E RESERVAS
+// 6. ACERVO DE LIVROS (EXIBIÇÃO DE QUANTIDADE E AUTOR CORRIGIDA)
 // ============================================================================
 async function carregarAcervo() {
   const grid = document.getElementById('gridLivros');
@@ -187,20 +188,27 @@ async function carregarAcervo() {
       data.livros.forEach(livro => {
         const div = document.createElement('div');
         div.className = "livro-card";
+        
+        const disponivel = parseInt(livro.qtdDisponivel);
+        const estaEsgotado = isNaN(disponivel) || disponivel < 1;
+
         div.innerHTML = `
           <img src="${livro.capaUrl || 'https://via.placeholder.com/120x160?text=Sem+Capa'}" alt="Capa">
           <h4>${livro.titulo}</h4>
-          <p><small>${livro.autor}</small></p>
-          <p>Disponíveis: ${livro.qtdDisponivel}</p>
-          <button onclick="reservarLivro('${livro.id}')" ${livro.qtdDisponivel < 1 ? 'disabled style="background:#ccc;"' : ''}>
-            ${livro.qtdDisponivel < 1 ? 'Esgotado' : 'Reservar'}
+          <p><small>Autor: ${livro.autor}</small></p>
+          <p>Disponíveis: <strong>${isNaN(disponivel) ? 0 : disponivel}</strong></p>
+          <button onclick="reservarLivro('${livro.id}')" ${estaEsgotado ? 'disabled style="background:#ccc; cursor:not-allowed;"' : ''}>
+            ${estaEsgotado ? 'Esgotado' : 'Reservar'}
           </button>
         `;
         grid.appendChild(div);
       });
+    } else {
+      grid.innerHTML = "Erro ao carregar o acervo: " + data.mensagem;
     }
   } catch (err) {
-    grid.innerHTML = "Erro ao carregar o acervo de livros.";
+    console.error(err);
+    grid.innerHTML = "Erro ao conectar ao servidor para carregar os livros.";
   }
 }
 
