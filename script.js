@@ -140,4 +140,128 @@ async function processarAcesso() {
     if (data.status === "sucesso") {
       usuarioLogado = data.aluno;
       document.getElementById('nomeAlunoLogado').innerText = `${usuarioLogado.nome} (${perfil})`;
-      document.getElementById('login
+      document.getElementById('loginAlunoCard').classList.add('hidden');
+      document.getElementById('painelAluno').classList.remove('hidden');
+      carregarAcervo();
+    } else {
+      msg.innerText = data.mensagem;
+    }
+  } catch (err) {
+    msg.innerText = "Erro ao conectar ao servidor.";
+  }
+}
+
+
+// ============================================================================
+// 5. ACERVO DE LIVROS E RESERVAS
+// ============================================================================
+
+// Busca livros cadastrados na aba "Livros" da planilha
+async function carregarAcervo() {
+  const grid = document.getElementById('gridLivros');
+  grid.innerHTML = "A carregar os livros...";
+
+  try {
+    const res = await fetch(`${API_URL}?acao=getLivros`);
+    const data = await res.json();
+
+    if (data.status === "sucesso") {
+      grid.innerHTML = "";
+      data.livros.forEach(livro => {
+        const div = document.createElement('div');
+        div.className = "livro-card";
+        div.innerHTML = `
+          <img src="${livro.capaUrl || 'https://via.placeholder.com/120x160?text=Sem+Capa'}" alt="Capa">
+          <h4>${livro.titulo}</h4>
+          <p><small>${livro.autor}</small></p>
+          <p>Disponíveis: ${livro.qtdDisponivel}</p>
+          <button onclick="reservarLivro('${livro.id}')" ${livro.qtdDisponivel < 1 ? 'disabled style="background:#ccc;"' : ''}>
+            ${livro.qtdDisponivel < 1 ? 'Esgotado' : 'Reservar'}
+          </button>
+        `;
+        grid.appendChild(div);
+      });
+    }
+  } catch (err) {
+    grid.innerHTML = "Erro ao carregar o acervo de livros.";
+  }
+}
+
+// Grava uma nova reserva na aba "Reservas" da planilha
+async function reservarLivro(idLivro) {
+  if (!usuarioLogado) return;
+  if (!confirm("Confirmar a reserva deste livro?")) return;
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        acao: "reservarLivro",
+        idLivro: idLivro,
+        idAluno: usuarioLogado.id
+      })
+    });
+
+    const data = await res.json();
+    alert(data.mensagem);
+    carregarAcervo();
+  } catch (err) {
+    alert("Erro ao realizar a reserva.");
+  }
+}
+
+
+// ============================================================================
+// 6. SCANNER DE CÂMERA (CÓDIGO DE BARRAS / ISBN)
+// ============================================================================
+async function iniciarScanner() {
+  const areaScanner = document.getElementById('areaScanner');
+  areaScanner.classList.remove('hidden');
+
+  try {
+    if (!html5QrCode) {
+      html5QrCode = new Html5Qrcode("reader");
+    }
+
+    const config = { fps: 10, qrbox: { width: 250, height: 150 } };
+
+    await html5QrCode.start(
+      { facingMode: "environment" }, // Prioriza a câmera traseira
+      config,
+      (decodedText) => {
+        // Ao realizar a leitura do código com sucesso:
+        document.getElementById('isbnLivro').value = decodedText;
+        fecharScanner();
+        buscarISBN();
+      },
+      (errorMessage) => {
+        // Quadro processado sem leitura (comportamento normal)
+      }
+    );
+  } catch (err) {
+    alert("Erro ao abrir a câmera! Verifique se deu permissão de acesso à câmera no seu navegador.");
+    console.error(err);
+    fecharScanner();
+  }
+}
+
+async function fecharScanner() {
+  const areaScanner = document.getElementById('areaScanner');
+  areaScanner.classList.add('hidden');
+
+  if (html5QrCode && html5QrCode.isScanning) {
+    await html5QrCode.stop();
+  }
+}
+
+
+// ============================================================================
+// 7. BUSCA MULTIBASES DE ISBN (BRASILAPI -> GOOGLE BOOKS -> OPEN LIBRARY)
+// ============================================================================
+async function buscarISBN(event) {
+  if (event) event.preventDefault();
+
+  const inputIsbn = document.getElementById('isbnLivro');
+  const isbn = inputIsbn.value.replace(/\D/g, "");
+
+  if (!isbn) {
