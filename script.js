@@ -1,7 +1,7 @@
 // ============================================================================
 // CONFIGURAÇÕES GERAIS E VARIÁVEIS DE ESTADO
 // ============================================================================
-var API_URL = "https://script.google.com/macros/s/AKfycbzB0IzYNnESMkdi2jPvTFt1_we3sicR5wBjsEkkqsia40iifFGBGGJ57NOPJ0FrSFONaw/exec";
+var API_URL = "https://script.google.com/macros/s/AKfycbybjeXiOb11LIg6Us-6AH2lcDSbyTFrRGyGXM7NiCALYPbKhvbTuWoSpetC56W7v3Y59g/exec";
 
 var usuarioLogado = null;
 var senhaAdminLogado = "";
@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", function() {
 function fazerLoginAluno() {
   var telInput = document.getElementById("telLogin");
   var tel = telInput ? telInput.value.replace(/\D/g, "") : "";
-  if (!tel) return alert("Por favor, digite seu telefone!");
+  if (!tel || tel === "5581") return alert("Por favor, digite seu telefone!");
 
   fetch(API_URL + "?acao=loginAluno&telefone=" + encodeURIComponent(tel))
     .then(function(res) { return res.json(); })
@@ -68,9 +68,12 @@ function mostrarTela(idTela) {
 }
 
 // ============================================================================
-// CONTROLE DE NAVEGAÇÃO DO PAINEL ADMIN
+// CONTROLE DE NAVEGAÇÃO DO PAINEL ADMIN (CARTOES 2x2)
 // ============================================================================
 function mostrarSecaoAdmin(idSecao) {
+  var menuCards = document.getElementById("menuAdminCards");
+  if (menuCards) menuCards.classList.add("hidden");
+
   var secoes = document.querySelectorAll(".secao-admin");
   secoes.forEach(function(s) { s.classList.add("hidden"); });
 
@@ -85,13 +88,13 @@ function mostrarSecaoAdmin(idSecao) {
 function voltarMenuAdmin() {
   var secoes = document.querySelectorAll(".secao-admin");
   secoes.forEach(function(s) { s.classList.add("hidden"); });
-  
-  var secaoPadrao = document.getElementById("secaoCadastrar");
-  if (secaoPadrao) secaoPadrao.classList.remove("hidden");
+
+  var menuCards = document.getElementById("menuAdminCards");
+  if (menuCards) menuCards.classList.remove("hidden");
 }
 
 // ============================================================================
-// EXIBIÇÃO DO ACERVO PARA ALUNOS / PROFESSORES (APENAS SOLICITAR OU RESERVAR)
+// EXIBIÇÃO DO ACERVO
 // ============================================================================
 function carregarAcervo() {
   var grid = document.getElementById("gridLivros");
@@ -196,20 +199,14 @@ function solicitarOuReservar(idLivro, ehReserva) {
     .then(function(res) { return res.json(); })
     .then(function(data) {
       alert(data.mensagem);
-      if (data.status === "sucesso") {
-        carregarAcervo();
-      }
+      if (data.status === "sucesso") carregarAcervo();
     })
-    .catch(function() {
-      alert("Erro ao processar a solicitação.");
-    });
+    .catch(function() { alert("Erro ao processar a solicitação."); });
 }
 
 // ============================================================================
-// AÇÕES ADMINISTRATIVAS (NAVEGAÇÃO INTERNA)
+// AÇÕES ADMINISTRATIVAS (POR ISBN E TELEFONE)
 // ============================================================================
-
-// 1. CADASTRAR LIVROS (Permanece na tela para permitir múltiplos cadastros)
 function cadastrarLivro() {
   var titulo = document.getElementById('tituloLivro') ? document.getElementById('tituloLivro').value : "";
   var autor = document.getElementById('autorLivro') ? document.getElementById('autorLivro').value : "";
@@ -236,69 +233,63 @@ function cadastrarLivro() {
       if (document.getElementById('autorLivro')) document.getElementById('autorLivro').value = "";
       if (document.getElementById('qtdLivro')) document.getElementById('qtdLivro').value = "1";
       
-      if (typeof fecharScanner === "function") fecharScanner();
       carregarAcervo();
     })
-    .catch(function() {
-      alert("Erro ao gravar livro na planilha.");
-    });
+    .catch(function() { alert("Erro ao gravar livro na planilha."); });
 }
 
-// 2. REGISTRO DE EMPRÉSTIMO (Volta ao menu Admin ao concluir)
 function adminConfirmarEmprestimo() {
-  var idAluno = document.getElementById('empIdAluno') ? document.getElementById('empIdAluno').value : "";
-  var idLivro = document.getElementById('empIdLivro') ? document.getElementById('empIdLivro').value : "";
+  var telInput = document.getElementById('empTelAluno') ? document.getElementById('empTelAluno').value : "";
+  var isbnInput = document.getElementById('empIsbnLivro') ? document.getElementById('empIsbnLivro').value : "";
 
-  if (!idAluno || !idLivro) return alert("Preencha todos os campos!");
+  var tel = telInput.replace(/\D/g, "");
+  var isbn = isbnInput.trim();
+
+  if (!tel || tel === "5581") return alert("Por favor, digite o número do telefone completo!");
+  if (!isbn) return alert("Por favor, digite ou escaneie o ISBN do livro!");
 
   var params = new URLSearchParams();
-  params.append("acao", "reservarLivro");
-  params.append("idLivro", idLivro);
-  params.append("idAluno", idAluno);
+  params.append("acao", "emprestarPorIsbn");
+  params.append("telefoneAluno", tel);
+  params.append("isbn", isbn);
 
   fetch(API_URL, { method: "POST", body: params })
     .then(function(res) { return res.json(); })
     .then(function(data) {
       alert(data.mensagem);
-
       if (data.status === "sucesso") {
-        document.getElementById('empIdAluno').value = "";
-        document.getElementById('empIdLivro').value = "";
+        document.getElementById('empTelAluno').value = "5581";
+        document.getElementById('empIsbnLivro').value = "";
         carregarAcervo();
         voltarMenuAdmin();
       }
     })
-    .catch(function() {
-      alert("Erro ao registrar empréstimo.");
-    });
+    .catch(function() { alert("Erro ao registrar empréstimo."); });
 }
 
-// 3. REGISTRO DE DEVOLUÇÃO (Volta ao menu Admin ao concluir)
 function adminConfirmarDevolucao() {
-  var idLivro = document.getElementById('devIdLivro') ? document.getElementById('devIdLivro').value : "";
-  if (!idLivro) return alert("Digite o ID do livro a devolver!");
+  var isbnInput = document.getElementById('devIsbnLivro') ? document.getElementById('devIsbnLivro').value : "";
+  var isbn = isbnInput.trim();
+
+  if (!isbn) return alert("Digite o ISBN do livro a devolver!");
 
   var params = new URLSearchParams();
-  params.append("acao", "devolverLivro");
-  params.append("idLivro", idLivro);
+  params.append("acao", "devolverPorIsbn");
+  params.append("isbn", isbn);
 
   fetch(API_URL, { method: "POST", body: params })
     .then(function(res) { return res.json(); })
     .then(function(data) {
       alert(data.mensagem);
-
       if (data.status === "sucesso") {
-        document.getElementById('devIdLivro').value = "";
+        document.getElementById('devIsbnLivro').value = "";
         carregarAcervo();
         voltarMenuAdmin();
       }
     })
-    .catch(function() {
-      alert("Erro ao registrar devolução.");
-    });
+    .catch(function() { alert("Erro ao registrar devolução."); });
 }
 
-// 4. RESERVAS ADMIN (Volta ao menu Admin ao concluir)
 function carregarReservasAdmin() {
   var container = document.getElementById('listaReservasAdmin');
   if (!container) return;
@@ -340,4 +331,27 @@ function carregarReservasAdmin() {
         html += '</tbody></table>';
         container.innerHTML = html;
       } else {
-        container.innerHTML = "<p>Nenhuma reserva
+        container.innerHTML = "<p>Nenhuma reserva ativa encontrada.</p>";
+      }
+    })
+    .catch(function() { container.innerHTML = "Não foi possível carregar a lista de reservas."; });
+}
+
+function concluirReservaAdmin(idReserva) {
+  if (!confirm("Deseja marcar esta reserva como concluída?")) return;
+
+  var params = new URLSearchParams();
+  params.append("acao", "concluirReserva");
+  params.append("idReserva", idReserva);
+
+  fetch(API_URL, { method: "POST", body: params })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      alert(data.mensagem);
+      if (data.status === "sucesso") {
+        carregarAcervo();
+        voltarMenuAdmin();
+      }
+    })
+    .catch(function() { alert("Erro ao concluir reserva."); });
+}
