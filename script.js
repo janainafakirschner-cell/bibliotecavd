@@ -29,31 +29,34 @@ let html5QrCode = null;
 
 
 // ============================================================================
-// 4. CONTROLE DE INTERFACE E PRIMEIRO ACESSO
+// 4. CONTROLE DE INTERFACE E PRIMEIRO ACESSO (DIRETO VIA STYLES)
 // ============================================================================
 
-// Alterna a exibição de acordo com o perfil selecionado
-document.getElementById('selectTipoPerfil').addEventListener('change', function() {
-  const perfil = this.value;
+window.addEventListener('DOMContentLoaded', function() {
+  const selectPerfil = document.getElementById('selectTipoPerfil');
+  if (selectPerfil) {
+    selectPerfil.addEventListener('change', atualizarPerfil);
+  }
+});
+
+function atualizarPerfil() {
+  const perfil = document.getElementById('selectTipoPerfil').value;
   const boxTel = document.getElementById('boxTelefone');
   const boxSenha = document.getElementById('boxSenhaAdmin');
   const btnModo = document.getElementById('btnModoAcesso');
 
   if (perfil === 'Admin') {
-    boxTel.classList.add('hidden');
-    boxSenha.classList.remove('hidden');
-    btnModo.classList.add('hidden');
-    
-    // Se estava em modo cadastro e trocou para Admin, reseta o modo cadastro
+    boxTel.style.display = 'none';
+    boxSenha.style.display = 'flex';
+    btnModo.style.display = 'none';
     if (modoCadastro) alternarModoAcesso();
   } else {
-    boxTel.classList.remove('hidden');
-    boxSenha.classList.add('hidden');
-    btnModo.classList.remove('hidden');
+    boxTel.style.display = 'flex';
+    boxSenha.style.display = 'none';
+    btnModo.style.display = 'inline';
   }
-});
+}
 
-// Função acionada ao clicar em "Primeiro acesso? Cadastre-se aqui"
 function alternarModoAcesso() {
   modoCadastro = !modoCadastro;
 
@@ -67,14 +70,14 @@ function alternarModoAcesso() {
     titulo.innerText = "Primeiro Acesso - Criar Conta";
     btnAcesso.innerText = "Concluir Cadastro";
     btnModo.innerText = "Já tem cadastro? Faça login aqui.";
-    boxNome.classList.remove('hidden');
-    boxEmail.classList.remove('hidden');
+    boxNome.style.display = 'flex';
+    boxEmail.style.display = 'flex';
   } else {
     titulo.innerText = "Acesso à Biblioteca";
     btnAcesso.innerText = "Entrar no Sistema";
     btnModo.innerText = "Primeiro acesso? Cadastre-se aqui.";
-    boxNome.classList.add('hidden');
-    boxEmail.classList.add('hidden');
+    boxNome.style.display = 'none';
+    boxEmail.style.display = 'none';
   }
 }
 
@@ -87,7 +90,6 @@ async function processarAcesso() {
   const msg = document.getElementById('msgLoginAluno');
   msg.innerText = "";
 
-  // LOGIN ADMIN
   if (perfil === 'Admin') {
     const senha = document.getElementById('inputSenhaAdminPerfil').value;
     if (senha === "123456") {
@@ -106,7 +108,6 @@ async function processarAcesso() {
     return;
   }
 
-  // MODO PRIMEIRO ACESSO (CRIAÇÃO DE CONTA)
   if (modoCadastro) {
     const nome = document.getElementById('inputNomeUsuario').value.trim();
     const email = document.getElementById('inputEmailUsuario').value.trim();
@@ -147,7 +148,6 @@ async function processarAcesso() {
     return;
   }
 
-  // MODO LOGIN NORMAL
   msg.innerText = "A validar cadastro...";
   try {
     const res = await fetch(`${API_URL}?acao=loginAluno&telefone=${encodeURIComponent(telInput)}`);
@@ -343,7 +343,6 @@ async function cadastrarLivro() {
     const data = await res.json();
     alert(data.mensagem);
 
-    // LIMPEZA COMPLETA DOS CAMPOS
     document.getElementById('isbnLivro').value = "";
     document.getElementById('tituloLivro').value = "";
     document.getElementById('autorLivro').value = "";
