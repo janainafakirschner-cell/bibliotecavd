@@ -17,9 +17,9 @@
       display: none !important;
     }
 
-    /* CONTAINER DE LOGIN (TELA INICIAL CONFORME ANEXO 2) */
+    /* TELA INICIAL DE LOGIN (CONFORME ESBOÇO ANEXO 2) */
     .container-login {
-      max-width: 450px;
+      max-width: 420px;
       margin: 40px auto;
       padding: 25px;
       border: 3px solid #000000;
@@ -29,7 +29,9 @@
 
     .container-login h2 {
       text-align: center;
+      margin-top: 0;
       margin-bottom: 25px;
+      font-size: 1.5rem;
     }
 
     .campo-grupo {
@@ -40,6 +42,7 @@
       display: block;
       font-weight: bold;
       margin-bottom: 6px;
+      font-size: 1rem;
     }
 
     .campo-grupo select,
@@ -51,6 +54,7 @@
       border-radius: 12px;
       font-size: 1rem;
       box-sizing: border-box;
+      outline: none;
     }
 
     /* BOTÃO ENTRAR (VERDE DO ESBOÇO) */
@@ -59,7 +63,7 @@
       color: #000000;
       border: 3px solid #000000;
       border-radius: 12px;
-      padding: 10px 24px;
+      padding: 10px 28px;
       font-size: 1.1rem;
       font-weight: bold;
       cursor: pointer;
@@ -87,30 +91,48 @@
       text-decoration: underline;
     }
 
-    /* CONTAINER PAINÉIS GERAIS */
+    /* CONTAINERS DOS PAINÉIS PÓS-LOGIN */
     .container {
       max-width: 800px;
       margin: 20px auto;
       background: #ffffff;
-      padding: 20px;
-      border: 2px solid #ccc;
-      border-radius: 12px;
+      padding: 25px;
+      border: 3px solid #000000;
+      border-radius: 16px;
     }
 
-    /* MENU EM CARTÕES 2x2 PARA O PAINEL ADMIN */
+    .header-user {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 12px;
+    }
+
+    .btn-sair {
+      background-color: #d32f2f;
+      color: white;
+      border: 2px solid #000;
+      padding: 8px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    /* MENU ADMIN EM CARTÕES 2x2 */
     .grid-admin {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 20px;
       max-width: 450px;
-      margin: 20px 0;
+      margin: 25px 0;
     }
 
     .card-btn {
       background-color: #ffffff;
       border: 3px solid #000000;
       border-radius: 18px;
-      height: 120px;
+      height: 110px;
       font-size: 1.2em;
       font-weight: bold;
       color: #000000;
@@ -126,22 +148,15 @@
       transform: scale(1.02);
     }
 
-    .header-user {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 2px solid #ddd;
-      padding-bottom: 10px;
+    .secao-admin {
+      margin-top: 20px;
     }
 
-    .btn-sair {
-      background-color: #d32f2f;
-      color: white;
-      border: none;
-      padding: 8px 16px;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: bold;
+    .secao-admin input {
+      padding: 10px;
+      border: 2px solid #000;
+      border-radius: 8px;
+      margin-bottom: 10px;
     }
 
     /* MODAL DE PRIMEIRO ACESSO */
@@ -158,7 +173,7 @@
     .modal-content {
       background: #fff;
       padding: 25px;
-      border-radius: 12px;
+      border-radius: 16px;
       border: 3px solid #000;
       width: 90%;
       max-width: 400px;
@@ -166,22 +181,22 @@
 
     .modal-content input, .modal-content select {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       margin-top: 4px;
       margin-bottom: 12px;
       border: 2px solid #000;
-      border-radius: 6px;
+      border-radius: 8px;
       box-sizing: border-box;
     }
   </style>
 </head>
 <body>
 
-  <!-- 1. TELA INICIAL / LOGIN -->
+  <!-- 1. TELA INICIAL / LOGIN (ISOLADA) -->
   <div id="telaLogin" class="container-login">
     <h2>Sistema de Biblioteca</h2>
 
-    <!-- MENU SUSPENSO COM PERFIL ALUNO / PROFESSOR / ADM -->
+    <!-- MENU SUSPENSO DE PERFIL -->
     <div class="campo-grupo">
       <label for="selectPerfil">Perfil de Acesso:</label>
       <select id="selectPerfil" onchange="mudarPerfilLogin()">
@@ -191,15 +206,15 @@
       </select>
     </div>
 
-    <!-- CAMPO CELULAR / TELEFONE -->
+    <!-- CAMPO CELULAR (EXIBIDO PARA ALUNO E PROFESSOR) -->
     <div id="grupoCelular" class="campo-grupo">
       <label for="telLogin">Celular:</label>
       <input type="text" id="telLogin" value="5581" placeholder="55819XXXXXXXX">
     </div>
 
-    <!-- CAMPO SENHA ADM -->
+    <!-- CAMPO SENHA ADM (EXIBIDO APENAS SE SELECIONAR ADMINISTRADOR) -->
     <div id="grupoSenhaAdmin" class="campo-grupo hidden">
-      <label for="senhaAdmin">Senha do Administrador:</label>
+      <label for="senhaAdmin">Senha de Administrador:</label>
       <input type="password" id="senhaAdmin" placeholder="Digite a senha">
     </div>
 
@@ -213,7 +228,7 @@
   </div>
 
 
-  <!-- 2. PAINEL DO ALUNO / PROFESSOR (OCULTO ANTES DO LOGIN) -->
+  <!-- 2. PAINEL DO ALUNO / PROFESSOR (SÓ EXIBE APÓS LOGIN DE LEITOR) -->
   <div id="painelUsuario" class="container hidden">
     <div class="header-user">
       <div>
@@ -222,11 +237,11 @@
       </div>
       <button onclick="sair()" class="btn-sair">Sair</button>
     </div>
-    <div id="gridLivros" style="margin-top: 20px;">Carregando acervo...</div>
+    <div id="gridLivros" style="margin-top: 20px;">A carregar acervo...</div>
   </div>
 
 
-  <!-- 3. PAINEL DO ADMINISTRADOR (OCULTO ANTES DO LOGIN) -->
+  <!-- 3. PAINEL DO ADMINISTRADOR (SÓ EXIBE APÓS LOGIN DE ADMIN) -->
   <div id="painelAdmin" class="container hidden">
     <div class="header-user">
       <h2>Painel do Administrador</h2>
@@ -241,21 +256,21 @@
       <button class="card-btn" onclick="mostrarSecaoAdmin('secaoReservas')">reservas</button>
     </div>
 
-    <!-- SECÇÃO 1: CADASTRAR LIVRO -->
+    <!-- SECÇÃO CADASTRAR LIVRO -->
     <div id="secaoCadastrar" class="secao-admin hidden">
       <h3>Cadastrar Novo Livro</h3>
       <input type="text" id="isbnLivro" placeholder="ISBN do Livro">
-      <button onclick="buscarISBN()">Buscar ISBN</button>
-      <button onclick="abrirCamera()">Abrir Câmera</button>
       <br><br>
       <input type="text" id="tituloLivro" placeholder="Título">
       <input type="text" id="autorLivro" placeholder="Autor">
-      <input type="number" id="qtdLivro" value="1" style="width: 60px;">
+      <input type="text" id="categoriaLivro" placeholder="Categoria (ex: Romance, Didático)">
+      <input type="number" id="qtdLivro" value="1" style="width: 70px;">
+      <br><br>
       <button onclick="cadastrarLivro()" class="btn-entrar">Salvar Livro</button>
       <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
     </div>
 
-    <!-- SECÇÃO 2: REGISTRAR EMPRÉSTIMO -->
+    <!-- SECÇÃO REGISTRAR EMPRÉSTIMO -->
     <div id="secaoEmprestimo" class="secao-admin hidden">
       <h3>Registrar Empréstimo Manual</h3>
       <label>Telefone Aluno/Prof:</label><br>
@@ -268,7 +283,7 @@
       <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
     </div>
 
-    <!-- SECÇÃO 3: REGISTRAR DEVOLUÇÃO -->
+    <!-- SECÇÃO REGISTRAR DEVOLUÇÃO -->
     <div id="secaoDevolucao" class="secao-admin hidden">
       <h3>Registrar Devolução de Livro</h3>
       <label>ISBN do Livro a Devolver:</label><br>
@@ -278,17 +293,17 @@
       <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
     </div>
 
-    <!-- SECÇÃO 4: GERENCIAR RESERVAS -->
+    <!-- SECÇÃO GERENCIAR RESERVAS -->
     <div id="secaoReservas" class="secao-admin hidden">
       <h3>Fila de Espera / Reservas</h3>
-      <div id="listaReservasAdmin">Carregando reservas...</div>
+      <div id="listaReservasAdmin">A carregar reservas...</div>
       <br>
       <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
     </div>
   </div>
 
 
-  <!-- 4. MODAL DE 1º ACESSO -->
+  <!-- 4. MODAL DE CADASTRAR 1º ACESSO -->
   <div id="modalPrimeiroAcesso" class="modal hidden">
     <div class="modal-content">
       <h3>Cadastrar 1º Acesso</h3>
@@ -308,7 +323,7 @@
       <input type="text" id="cadTelefone" value="5581" placeholder="55819XXXXXXXX">
       
       <div style="margin-top: 15px; display: flex; gap: 10px;">
-        <button onclick="salvarPrimeiroAcesso()" class="btn-entrar">Salvar Cadastro</button>
+        <button onclick="salvarPrimeiroAcesso()" class="btn-entrar" style="margin-bottom:0;">Salvar Cadastro</button>
         <button onclick="fecharModalPrimeiroAcesso()" class="btn-sair">Cancelar</button>
       </div>
     </div>
