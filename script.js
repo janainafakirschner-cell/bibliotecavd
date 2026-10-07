@@ -1,7 +1,7 @@
 // ============================================================================
 // 1. LINK DA SUA PLANILHA / GOOGLE APPS SCRIPT
 // ============================================================================
-const API_URL = "https://script.google.com/macros/s/AKfycbywM58Miz7LceO1Jebc-IMD-LyNXRzk3INT-JHcMFfSHT0F3icLqUXsS-h89hHMC46WtA/exec"; 
+const API_URL = "https://script.google.com/macros/s/AKfycbwptlsouQZAEKrkBwzy0fRB0L8CqGaIiemdJEz-te-i4Sd_e9d76bTrxdI6c9LI2e-3Mg/exec"; 
 
 
 // ============================================================================
