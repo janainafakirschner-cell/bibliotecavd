@@ -4,64 +4,233 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistema de Biblioteca</title>
-  <link rel="stylesheet" href="style">
+  <style>
+    body {
+      font-family: Arial, Helvetica, sans-serif;
+      background-color: #ffffff;
+      margin: 0;
+      padding: 20px;
+      color: #000000;
+    }
+
+    .hidden {
+      display: none !important;
+    }
+
+    /* CONTAINER DE LOGIN (TELA INICIAL CONFORME ANEXO 2) */
+    .container-login {
+      max-width: 450px;
+      margin: 40px auto;
+      padding: 25px;
+      border: 3px solid #000000;
+      border-radius: 20px;
+      background: #ffffff;
+    }
+
+    .container-login h2 {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .campo-grupo {
+      margin-bottom: 20px;
+    }
+
+    .campo-grupo label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .campo-grupo select,
+    .campo-grupo input[type="text"],
+    .campo-grupo input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      border: 3px solid #000000;
+      border-radius: 12px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    /* BOTÃO ENTRAR (VERDE DO ESBOÇO) */
+    .btn-entrar {
+      background-color: #a6e22e;
+      color: #000000;
+      border: 3px solid #000000;
+      border-radius: 12px;
+      padding: 10px 24px;
+      font-size: 1.1rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: block;
+      margin-bottom: 20px;
+    }
+
+    .btn-entrar:hover {
+      background-color: #8ed018;
+    }
+
+    /* LINK CADASTRAR 1º ACESSO (VERMELHO DO ESBOÇO) */
+    .link-cadastro {
+      margin-top: 15px;
+    }
+
+    .link-cadastro a {
+      color: #d32f2f;
+      font-weight: bold;
+      text-decoration: none;
+      font-size: 1rem;
+    }
+
+    .link-cadastro a:hover {
+      text-decoration: underline;
+    }
+
+    /* CONTAINER PAINÉIS GERAIS */
+    .container {
+      max-width: 800px;
+      margin: 20px auto;
+      background: #ffffff;
+      padding: 20px;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+    }
+
+    /* MENU EM CARTÕES 2x2 PARA O PAINEL ADMIN */
+    .grid-admin {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      max-width: 450px;
+      margin: 20px 0;
+    }
+
+    .card-btn {
+      background-color: #ffffff;
+      border: 3px solid #000000;
+      border-radius: 18px;
+      height: 120px;
+      font-size: 1.2em;
+      font-weight: bold;
+      color: #000000;
+      cursor: pointer;
+      transition: transform 0.1s ease, background-color 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .card-btn:hover {
+      background-color: #f0f0f0;
+      transform: scale(1.02);
+    }
+
+    .header-user {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 2px solid #ddd;
+      padding-bottom: 10px;
+    }
+
+    .btn-sair {
+      background-color: #d32f2f;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    /* MODAL DE PRIMEIRO ACESSO */
+    .modal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 25px;
+      border-radius: 12px;
+      border: 3px solid #000;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    .modal-content input, .modal-content select {
+      width: 100%;
+      padding: 8px;
+      margin-top: 4px;
+      margin-bottom: 12px;
+      border: 2px solid #000;
+      border-radius: 6px;
+      box-sizing: border-box;
+    }
+  </style>
 </head>
 <body>
 
-  <!-- TELA INICIAL / LOGIN AMIGÁVEL -->
+  <!-- 1. TELA INICIAL / LOGIN -->
   <div id="telaLogin" class="container-login">
-    <div class="header-login">
-      <div class="logo-icon">📚</div>
-      <h2>Sistema de Biblioteca</h2>
-      <p>Seja bem-vindo! Escolha como deseja acessar:</p>
+    <h2>Sistema de Biblioteca</h2>
+
+    <!-- MENU SUSPENSO COM PERFIL ALUNO / PROFESSOR / ADM -->
+    <div class="campo-grupo">
+      <label for="selectPerfil">Perfil de Acesso:</label>
+      <select id="selectPerfil" onchange="mudarPerfilLogin()">
+        <option value="Aluno">Aluno</option>
+        <option value="Professor">Professor</option>
+        <option value="Administrador">Administrador</option>
+      </select>
     </div>
 
-    <!-- ABAS DE NAVEGAÇÃO ENTRE LEITOR E ADMIN -->
-    <div class="tabs-login">
-      <button id="tabLeitor" class="tab-btn active" onclick="alternarAbaLogin('leitor')">Leitor</button>
-      <button id="tabAdmin" class="tab-btn" onclick="alternarAbaLogin('admin')">Administrador</button>
+    <!-- CAMPO CELULAR / TELEFONE -->
+    <div id="grupoCelular" class="campo-grupo">
+      <label for="telLogin">Celular:</label>
+      <input type="text" id="telLogin" value="5581" placeholder="55819XXXXXXXX">
     </div>
 
-    <!-- FORMULÁRIO LEITOR (ALUNO / PROFESSOR) -->
-    <div id="formLoginLeitor" class="form-login-box">
-      <label for="telLogin">Telefone Cadastrado</label>
-      <div class="input-icon-wrapper">
-        <span class="icon">📱</span>
-        <input type="text" id="telLogin" value="5581" placeholder="55819XXXXXXXX">
-      </div>
-      <small>Digite seu DDD + Telefone cadastrado no sistema.</small>
-      <button onclick="fazerLoginAluno()" class="btn-primary">Entrar como Leitor</button>
+    <!-- CAMPO SENHA ADM -->
+    <div id="grupoSenhaAdmin" class="campo-grupo hidden">
+      <label for="senhaAdmin">Senha do Administrador:</label>
+      <input type="password" id="senhaAdmin" placeholder="Digite a senha">
     </div>
 
-    <!-- FORMULÁRIO ADMINISTRADOR -->
-    <div id="formLoginAdmin" class="form-login-box hidden">
-      <label for="senhaAdmin">Senha de Acesso</label>
-      <div class="input-icon-wrapper">
-        <span class="icon">🔒</span>
-        <input type="password" id="senhaAdmin" placeholder="Digite sua senha de admin">
-      </div>
-      <small>Área restrita à equipe de administração.</small>
-      <button onclick="fazerLoginAdmin()" class="btn-primary btn-admin">Acessar Painel Admin</button>
+    <!-- BOTÃO ENTRAR -->
+    <button id="btnEntrar" onclick="processarLogin()" class="btn-entrar">Entrar</button>
+
+    <!-- LINK CADASTRAR 1º ACESSO -->
+    <div class="link-cadastro">
+      <a href="#" onclick="abrirModalPrimeiroAcesso(); return false;">cadastrar 1º acesso</a>
     </div>
   </div>
 
-  <!-- PAINEL DO ALUNO / PROFESSOR (Só exibe após Login de Leitor) -->
+
+  <!-- 2. PAINEL DO ALUNO / PROFESSOR (OCULTO ANTES DO LOGIN) -->
   <div id="painelUsuario" class="container hidden">
     <div class="header-user">
       <div>
         <h2>Acervo da Biblioteca</h2>
-        <span>Olá, <b id="nomeUsuarioHeader"></b>!</span>
+        <span>Olá, <b id="nomeUsuarioHeader"></b> (<span id="perfilUsuarioHeader"></span>)!</span>
       </div>
       <button onclick="sair()" class="btn-sair">Sair</button>
     </div>
-    <div id="gridLivros" style="margin-top: 20px;">A carregar acervo...</div>
+    <div id="gridLivros" style="margin-top: 20px;">Carregando acervo...</div>
   </div>
 
-  <!-- PAINEL DO ADMINISTRADOR (Só exibe após Login de Admin) -->
+
+  <!-- 3. PAINEL DO ADMINISTRADOR (OCULTO ANTES DO LOGIN) -->
   <div id="painelAdmin" class="container hidden">
     <div class="header-user">
       <h2>Painel do Administrador</h2>
-      <button onclick="sair()" class="btn-sair">Sair do Painel</button>
+      <button onclick="sair()" class="btn-sair">Sair</button>
     </div>
     
     <!-- MENU EM CARTÕES 2x2 -->
@@ -82,7 +251,7 @@
       <input type="text" id="tituloLivro" placeholder="Título">
       <input type="text" id="autorLivro" placeholder="Autor">
       <input type="number" id="qtdLivro" value="1" style="width: 60px;">
-      <button onclick="cadastrarLivro()" class="btn-primary">Salvar Livro</button>
+      <button onclick="cadastrarLivro()" class="btn-entrar">Salvar Livro</button>
       <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
     </div>
 
@@ -95,7 +264,7 @@
       <label>ISBN do Livro:</label><br>
       <input type="text" id="empIsbnLivro" placeholder="Digite ou escaneie o ISBN"><br><br>
       
-      <button onclick="adminConfirmarEmprestimo()" class="btn-primary">Confirmar Empréstimo</button>
+      <button onclick="adminConfirmarEmprestimo()" class="btn-entrar">Confirmar Empréstimo</button>
       <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
     </div>
 
@@ -105,16 +274,43 @@
       <label>ISBN do Livro a Devolver:</label><br>
       <input type="text" id="devIsbnLivro" placeholder="Digite ou escaneie o ISBN"><br><br>
       
-      <button onclick="adminConfirmarDevolucao()" class="btn-primary">Confirmar Devolução</button>
+      <button onclick="adminConfirmarDevolucao()" class="btn-entrar">Confirmar Devolução</button>
       <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
     </div>
 
     <!-- SECÇÃO 4: GERENCIAR RESERVAS -->
     <div id="secaoReservas" class="secao-admin hidden">
       <h3>Fila de Espera / Reservas</h3>
-      <div id="listaReservasAdmin">A carregar reservas...</div>
+      <div id="listaReservasAdmin">Carregando reservas...</div>
       <br>
       <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
+    </div>
+  </div>
+
+
+  <!-- 4. MODAL DE 1º ACESSO -->
+  <div id="modalPrimeiroAcesso" class="modal hidden">
+    <div class="modal-content">
+      <h3>Cadastrar 1º Acesso</h3>
+      <label>Nome Completo:</label>
+      <input type="text" id="cadNome" placeholder="Digite seu nome">
+      
+      <label>Perfil:</label>
+      <select id="cadPerfil">
+        <option value="Aluno">Aluno</option>
+        <option value="Professor">Professor</option>
+      </select>
+      
+      <label>E-mail:</label>
+      <input type="email" id="cadEmail" placeholder="seuemail@exemplo.com">
+      
+      <label>Celular (DDD + Número):</label>
+      <input type="text" id="cadTelefone" value="5581" placeholder="55819XXXXXXXX">
+      
+      <div style="margin-top: 15px; display: flex; gap: 10px;">
+        <button onclick="salvarPrimeiroAcesso()" class="btn-entrar">Salvar Cadastro</button>
+        <button onclick="fecharModalPrimeiroAcesso()" class="btn-sair">Cancelar</button>
+      </div>
     </div>
   </div>
 
