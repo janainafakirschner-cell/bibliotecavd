@@ -7,8 +7,29 @@ var usuarioLogado = null;
 var senhaAdminLogado = "";
 
 document.addEventListener("DOMContentLoaded", function() {
+  mostrarTela("telaLogin");
   carregarAcervo();
 });
+
+// ALTERNÂNCIA DE ABAS NA TELA DE LOGIN (LEITOR / ADMIN)
+function alternarAbaLogin(aba) {
+  var tabLeitor = document.getElementById("tabLeitor");
+  var tabAdmin = document.getElementById("tabAdmin");
+  var formLeitor = document.getElementById("formLoginLeitor");
+  var formAdmin = document.getElementById("formLoginAdmin");
+
+  if (aba === 'leitor') {
+    tabLeitor.classList.add("active");
+    tabAdmin.classList.remove("active");
+    formLeitor.classList.remove("hidden");
+    formAdmin.classList.add("hidden");
+  } else {
+    tabAdmin.classList.add("active");
+    tabLeitor.classList.remove("active");
+    formAdmin.classList.remove("hidden");
+    formLeitor.classList.add("hidden");
+  }
+}
 
 // ============================================================================
 // NAVEGAÇÃO E AUTENTICAÇÃO
@@ -46,6 +67,7 @@ function fazerLoginAdmin() {
     senhaAdminLogado = senha;
     mostrarTela("painelAdmin");
     voltarMenuAdmin();
+    if (senhaInput) senhaInput.value = "";
   } else {
     alert("Senha incorreta!");
   }
@@ -68,7 +90,7 @@ function mostrarTela(idTela) {
 }
 
 // ============================================================================
-// CONTROLE DE NAVEGAÇÃO DO PAINEL ADMIN (CARTOES 2x2)
+// CONTROLE DE NAVEGAÇÃO DO PAINEL ADMIN (CARTÕES 2x2)
 // ============================================================================
 function mostrarSecaoAdmin(idSecao) {
   var menuCards = document.getElementById("menuAdminCards");
