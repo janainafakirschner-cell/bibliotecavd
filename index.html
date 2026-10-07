@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Biblioteca Escolar</title>
-  <!-- Biblioteca Html5Qrcode compilada -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -24,7 +23,6 @@
     .livro-card img { max-width: 100%; height: 140px; object-fit: cover; border-radius: 4px; }
     .msg-erro { color: #d32f2f; font-weight: bold; margin-top: 10px; }
     
-    /* Container do Scanner */
     #areaScanner {
       margin-top: 15px;
       padding: 10px;
@@ -33,17 +31,13 @@
       background-color: #e1f5fe;
       text-align: center;
     }
-    #reader {
-      width: 100%;
-      max-width: 320px;
-      margin: 10px auto;
-    }
+    #reader { width: 100%; max-width: 320px; margin: 10px auto; }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <!-- TELA DE LOGIN / PRIMEIRO ACESSO -->
+    <!-- TELA DE LOGIN / CADASTRO -->
     <div id="loginAlunoCard" class="card">
       <h2 id="tituloAcesso">Acesso à Biblioteca</h2>
       
@@ -56,6 +50,7 @@
         </select>
       </div>
 
+      <!-- CAMPOS DE PRIMEIRO ACESSO -->
       <div id="boxNome" class="form-group hidden">
         <label for="inputNomeUsuario">Seu Nome Completo:</label>
         <input type="text" id="inputNomeUsuario" placeholder="Digite seu nome completo">
@@ -66,22 +61,24 @@
         <input type="email" id="inputEmailUsuario" placeholder="exemplo@escola.com">
       </div>
 
+      <!-- CAMPO DE TELEFONE -->
       <div id="boxTelefone" class="form-group">
         <label for="inputTelAluno">Telefone / WhatsApp (com DDD):</label>
         <input type="tel" id="inputTelAluno" value="5581" placeholder="5581999998888" maxlength="13">
       </div>
 
+      <!-- CAMPO DE SENHA ADMIN -->
       <div id="boxSenhaAdmin" class="form-group hidden">
         <label for="inputSenhaAdminPerfil">Senha do Administrador:</label>
         <input type="password" id="inputSenhaAdminPerfil" placeholder="Digite a senha do Admin">
       </div>
 
-      <button id="btnAcesso" onclick="processarAcesso()">Entrar no Sistema</button>
+      <button id="btnAcesso" type="button" onclick="processarAcesso()">Entrar no Sistema</button>
       
       <p style="margin-top: 15px; font-size: 0.9rem;">
-        <a href="#" id="linkModoAcesso" onclick="alternarModoAcesso(event)" style="color: #2e7d32; font-weight: bold;">
+        <button type="button" id="btnModoAcesso" onclick="alternarModoAcesso()" style="background: none; color: #2e7d32; border: none; padding: 0; font-weight: bold; text-decoration: underline; cursor: pointer;">
           Primeiro acesso? Cadastre-se aqui.
-        </a>
+        </button>
       </p>
 
       <p id="msgLoginAluno" class="msg-erro"></p>
@@ -110,7 +107,6 @@
         <button type="button" class="btn-scanner" onclick="iniciarScanner()">📷 Abrir Câmera para Escanear</button>
       </div>
 
-      <!-- Area do Leitor de Câmera -->
       <div id="areaScanner" class="hidden">
         <p><strong>Aponte a câmera para o código de barras do livro:</strong></p>
         <div id="reader"></div>
