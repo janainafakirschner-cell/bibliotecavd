@@ -1,75 +1,71 @@
 // ============================================================================
-// CONFIGURAÇÕES GERAIS E VARIÁVEIS DE ESTADO
+// CONFIGURAÇÃO DA API E VARIÁVEIS DE ESTADO
 // ============================================================================
-var API_URL = "https://script.google.com/macros/s/AKfycbybjeXiOb11LIg6Us-6AH2lcDSbyTFrRGyGXM7NiCALYPbKhvbTuWoSpetC56W7v3Y59g/exec";
+var API_URL = "https://script.google.com/macros/s/AKfycbx1XqxWp61L6yEfIS1AWSaCyDJ8fbJ6lqaUbzIlpLZjkrjVvB7aJHX37Rc6cFOgr2PJjw/exec";
 
 var usuarioLogado = null;
 var senhaAdminLogado = "";
 
 document.addEventListener("DOMContentLoaded", function() {
   mostrarTela("telaLogin");
-  carregarAcervo();
 });
 
-// ALTERNÂNCIA DE ABAS NA TELA DE LOGIN (LEITOR / ADMIN)
-function alternarAbaLogin(aba) {
-  var tabLeitor = document.getElementById("tabLeitor");
-  var tabAdmin = document.getElementById("tabAdmin");
-  var formLeitor = document.getElementById("formLoginLeitor");
-  var formAdmin = document.getElementById("formLoginAdmin");
+// ALTERAR EXIBIÇÃO DE CAMPOS NO LOGIN DE ACORDO COM O PERFIL SELECIONADO
+function mudarPerfilLogin() {
+  var perfil = document.getElementById("selectPerfil").value;
+  var grupoCelular = document.getElementById("grupoCelular");
+  var grupoSenhaAdmin = document.getElementById("grupoSenhaAdmin");
 
-  if (aba === 'leitor') {
-    tabLeitor.classList.add("active");
-    tabAdmin.classList.remove("active");
-    formLeitor.classList.remove("hidden");
-    formAdmin.classList.add("hidden");
+  if (perfil === "Administrador") {
+    grupoSenhaAdmin.classList.remove("hidden");
+    grupoCelular.classList.add("hidden");
   } else {
-    tabAdmin.classList.add("active");
-    tabLeitor.classList.remove("active");
-    formAdmin.classList.remove("hidden");
-    formLeitor.classList.add("hidden");
+    grupoSenhaAdmin.classList.add("hidden");
+    grupoCelular.classList.remove("hidden");
   }
 }
 
-// ============================================================================
-// NAVEGAÇÃO E AUTENTICAÇÃO
-// ============================================================================
-function fazerLoginAluno() {
-  var telInput = document.getElementById("telLogin");
-  var tel = telInput ? telInput.value.replace(/\D/g, "") : "";
-  if (!tel || tel === "5581") return alert("Por favor, digite seu telefone!");
+// PROCESSAR LOGIN DE ACORDO COM O PERFIL
+function processarLogin() {
+  var perfil = document.getElementById("selectPerfil").value;
 
-  fetch(API_URL + "?acao=loginAluno&telefone=" + encodeURIComponent(tel))
-    .then(function(res) { return res.json(); })
-    .then(function(data) {
-      if (data.status === "sucesso") {
-        usuarioLogado = data.aluno;
-        alert("Bem-vindo(a), " + usuarioLogado.nome + "!");
-        mostrarTela("painelUsuario");
-        
-        var elHeader = document.getElementById("nomeUsuarioHeader");
-        if (elHeader) elHeader.innerText = usuarioLogado.nome;
-      } else {
-        alert(data.mensagem);
-      }
-    })
-    .catch(function() {
-      alert("Erro ao conectar ao servidor para efetuar login.");
-    });
-}
+  if (perfil === "Administrador") {
+    var senhaInput = document.getElementById("senhaAdmin");
+    var senha = senhaInput ? senhaInput.value : "";
+    if (!senha) return alert("Por favor, digite a senha de administrador!");
 
-function fazerLoginAdmin() {
-  var senhaInput = document.getElementById("senhaAdmin");
-  var senha = senhaInput ? senhaInput.value : "";
-  if (!senha) return alert("Digite a senha de administrador!");
-
-  if (senha === "admin123") { 
-    senhaAdminLogado = senha;
-    mostrarTela("painelAdmin");
-    voltarMenuAdmin();
-    if (senhaInput) senhaInput.value = "";
+    if (senha === "admin123") { // Altere a senha de admin aqui se desejar
+      senhaAdminLogado = senha;
+      mostrarTela("painelAdmin");
+      voltarMenuAdmin();
+      if (senhaInput) senhaInput.value = "";
+    } else {
+      alert("Senha de administrador incorreta!");
+    }
   } else {
-    alert("Senha incorreta!");
+    var telInput = document.getElementById("telLogin");
+    var tel = telInput ? telInput.value.replace(/\D/g, "") : "";
+    if (!tel || tel === "5581") return alert("Por favor, digite o seu celular completo com DDD!");
+
+    fetch(API_URL + "?acao=loginAluno&telefone=" + encodeURIComponent(tel))
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data.status === "sucesso") {
+          usuarioLogado = data.aluno;
+          alert("Bem-vindo(a), " + usuarioLogado.nome + "!");
+          
+          document.getElementById("nomeUsuarioHeader").innerText = usuarioLogado.nome;
+          document.getElementById("perfilUsuarioHeader").innerText = usuarioLogado.perfil || perfil;
+
+          mostrarTela("painelUsuario");
+          carregarAcervo();
+        } else {
+          alert(data.mensagem);
+        }
+      })
+      .catch(function() {
+        alert("Erro ao conectar com o servidor para autenticação.");
+      });
   }
 }
 
@@ -89,9 +85,45 @@ function mostrarTela(idTela) {
   if (telaAlvo) telaAlvo.classList.remove("hidden");
 }
 
-// ============================================================================
-// CONTROLE DE NAVEGAÇÃO DO PAINEL ADMIN (CARTÕES 2x2)
-// ============================================================================
+// PRIMEIRO ACESSO
+function abrirModalPrimeiroAcesso() {
+  document.getElementById("modalPrimeiroAcesso").classList.remove("hidden");
+}
+
+function fecharModalPrimeiroAcesso() {
+  document.getElementById("modalPrimeiroAcesso").classList.add("hidden");
+}
+
+function salvarPrimeiroAcesso() {
+  var nome = document.getElementById("cadNome").value;
+  var perfil = document.getElementById("cadPerfil").value;
+  var email = document.getElementById("cadEmail").value;
+  var tel = document.getElementById("cadTelefone").value.replace(/\D/g, "");
+
+  if (!nome || !tel || tel === "5581") {
+    return alert("Preencha o seu nome completo e o celular!");
+  }
+
+  var params = new URLSearchParams();
+  params.append("acao", "cadastrarUsuario");
+  params.append("nome", nome);
+  params.append("perfil", perfil);
+  params.append("email", email);
+  params.append("telefone", tel);
+
+  fetch(API_URL, { method: "POST", body: params })
+    .then(function(res) { return res.json(); })
+    .then(function(data) {
+      alert(data.mensagem);
+      if (data.status === "sucesso") {
+        fecharModalPrimeiroAcesso();
+        document.getElementById("telLogin").value = tel;
+      }
+    })
+    .catch(function() { alert("Erro ao cadastrar 1º acesso."); });
+}
+
+// CONTROLE DO PAINEL ADMIN
 function mostrarSecaoAdmin(idSecao) {
   var menuCards = document.getElementById("menuAdminCards");
   if (menuCards) menuCards.classList.add("hidden");
@@ -102,9 +134,7 @@ function mostrarSecaoAdmin(idSecao) {
   var secaoAlvo = document.getElementById(idSecao);
   if (secaoAlvo) secaoAlvo.classList.remove("hidden");
 
-  if (idSecao === "secaoReservas") {
-    carregarReservasAdmin();
-  }
+  if (idSecao === "secaoReservas") carregarReservasAdmin();
 }
 
 function voltarMenuAdmin() {
@@ -115,13 +145,11 @@ function voltarMenuAdmin() {
   if (menuCards) menuCards.classList.remove("hidden");
 }
 
-// ============================================================================
-// EXIBIÇÃO DO ACERVO
-// ============================================================================
+// CARREGAR E EXIBIR ACERVO
 function carregarAcervo() {
   var grid = document.getElementById("gridLivros");
   if (!grid) return;
-  grid.innerHTML = "A carregar o acervo...";
+  grid.innerHTML = "A carregar acervo...";
 
   fetch(API_URL + "?acao=getLivros")
     .then(function(res) { return res.json(); })
@@ -180,7 +208,7 @@ function carregarAcervo() {
                   'Disponíveis no acervo: <strong>' + (isNaN(disponivel) ? 0 : disponivel) + '</strong>' +
                 '</span>' +
               '</div>' +
-              '<button onclick="solicitarOuReservar(\'' + livro.id + '\', ' + semExemplares + ')" style="background:' + corBotao + '; color:#fff; border:none; padding:8px 14px; border-radius:4px; cursor:pointer; font-weight:bold;">' +
+              '<button onclick="solicitarOuReservar(\'' + livro.id + '\', ' + semExemplares + ')" style="background:' + corBotao + '; color:#fff; border:none; padding:8px 14px; border-radius:6px; cursor:pointer; font-weight:bold;">' +
                 textoBotao +
               '</button>';
 
@@ -196,19 +224,16 @@ function carregarAcervo() {
       }
     })
     .catch(function() {
-      grid.innerHTML = "Erro ao conectar ao servidor para carregar os livros.";
+      grid.innerHTML = "Erro ao conectar com o servidor para carregar o acervo.";
     });
 }
 
 function solicitarOuReservar(idLivro, ehReserva) {
-  if (!usuarioLogado) {
-    alert("Precisa efetuar login antes de realizar esta ação!");
-    return;
-  }
+  if (!usuarioLogado) return alert("Efetue login primeiro!");
 
   var msgConfirmacao = ehReserva 
-    ? "Todos os exemplares estão emprestados. Deseja entrar na fila de reserva?" 
-    : "Confirmar a solicitação deste livro?";
+    ? "Todos os exemplares estão emprestados. Deseja entrar na fila de espera?" 
+    : "Confirmar solicitação de empréstimo do livro?";
 
   if (!confirm(msgConfirmacao)) return;
 
@@ -223,19 +248,18 @@ function solicitarOuReservar(idLivro, ehReserva) {
       alert(data.mensagem);
       if (data.status === "sucesso") carregarAcervo();
     })
-    .catch(function() { alert("Erro ao processar a solicitação."); });
+    .catch(function() { alert("Erro ao processar solicitação."); });
 }
 
-// ============================================================================
-// AÇÕES ADMINISTRATIVAS (POR ISBN E TELEFONE)
-// ============================================================================
+// AÇÕES DO ADMINISTRADOR
 function cadastrarLivro() {
   var titulo = document.getElementById('tituloLivro') ? document.getElementById('tituloLivro').value : "";
   var autor = document.getElementById('autorLivro') ? document.getElementById('autorLivro').value : "";
+  var categoria = document.getElementById('categoriaLivro') ? document.getElementById('categoriaLivro').value : "";
   var qtd = document.getElementById('qtdLivro') ? document.getElementById('qtdLivro').value : "1";
   var isbn = document.getElementById('isbnLivro') ? document.getElementById('isbnLivro').value : "";
 
-  if (!titulo) return alert("Por favor, digite o título do livro!");
+  if (!titulo) return alert("Digite o título do livro!");
 
   var params = new URLSearchParams();
   params.append("acao", "cadastrarLivro");
@@ -243,32 +267,31 @@ function cadastrarLivro() {
   params.append("isbn", isbn);
   params.append("titulo", titulo);
   params.append("autor", autor);
+  params.append("categoria", categoria);
   params.append("qtdTotal", qtd);
 
   fetch(API_URL, { method: "POST", body: params })
     .then(function(res) { return res.json(); })
     .then(function(data) {
       alert(data.mensagem);
-
-      if (document.getElementById('isbnLivro')) document.getElementById('isbnLivro').value = "";
-      if (document.getElementById('tituloLivro')) document.getElementById('tituloLivro').value = "";
-      if (document.getElementById('autorLivro')) document.getElementById('autorLivro').value = "";
-      if (document.getElementById('qtdLivro')) document.getElementById('qtdLivro').value = "1";
-      
-      carregarAcervo();
+      if (data.status === "sucesso") {
+        document.getElementById('isbnLivro').value = "";
+        document.getElementById('tituloLivro').value = "";
+        document.getElementById('autorLivro').value = "";
+        document.getElementById('categoriaLivro').value = "";
+        document.getElementById('qtdLivro').value = "1";
+        carregarAcervo();
+      }
     })
-    .catch(function() { alert("Erro ao gravar livro na planilha."); });
+    .catch(function() { alert("Erro ao salvar livro."); });
 }
 
 function adminConfirmarEmprestimo() {
-  var telInput = document.getElementById('empTelAluno') ? document.getElementById('empTelAluno').value : "";
-  var isbnInput = document.getElementById('empIsbnLivro') ? document.getElementById('empIsbnLivro').value : "";
+  var tel = document.getElementById('empTelAluno').value.replace(/\D/g, "");
+  var isbn = document.getElementById('empIsbnLivro').value.trim();
 
-  var tel = telInput.replace(/\D/g, "");
-  var isbn = isbnInput.trim();
-
-  if (!tel || tel === "5581") return alert("Por favor, digite o número do telefone completo!");
-  if (!isbn) return alert("Por favor, digite ou escaneie o ISBN do livro!");
+  if (!tel || tel === "5581") return alert("Digite o telefone do utilizador!");
+  if (!isbn) return alert("Digite ou escaneie o ISBN!");
 
   var params = new URLSearchParams();
   params.append("acao", "emprestarPorIsbn");
@@ -290,10 +313,8 @@ function adminConfirmarEmprestimo() {
 }
 
 function adminConfirmarDevolucao() {
-  var isbnInput = document.getElementById('devIsbnLivro') ? document.getElementById('devIsbnLivro').value : "";
-  var isbn = isbnInput.trim();
-
-  if (!isbn) return alert("Digite o ISBN do livro a devolver!");
+  var isbn = document.getElementById('devIsbnLivro').value.trim();
+  if (!isbn) return alert("Digite o ISBN do livro!");
 
   var params = new URLSearchParams();
   params.append("acao", "devolverPorIsbn");
@@ -314,54 +335,26 @@ function adminConfirmarDevolucao() {
 
 function carregarReservasAdmin() {
   var container = document.getElementById('listaReservasAdmin');
-  if (!container) return;
-  container.innerHTML = "A carregar lista de reservas...";
+  container.innerHTML = "A carregar reservas...";
 
   fetch(API_URL + "?acao=getReservas")
     .then(function(res) { return res.json(); })
     .then(function(data) {
       if (data.status === "sucesso" && data.reservas && data.reservas.length > 0) {
-        var html = '<table border="1" style="width:100%; border-collapse:collapse; text-align:left;">' +
-          '<thead>' +
-            '<tr style="background:#f2f2f2;">' +
-              '<th style="padding:8px;">Reserva</th>' +
-              '<th style="padding:8px;">Aluno/Prof</th>' +
-              '<th style="padding:8px;">Livro</th>' +
-              '<th style="padding:8px;">Status</th>' +
-              '<th style="padding:8px;">Fila</th>' +
-              '<th style="padding:8px;">Ação</th>' +
-            '</tr>' +
-          '</thead>' +
-          '<tbody>';
-
+        var html = '<table border="1" style="width:100%; border-collapse:collapse;">' +
+          '<tr style="background:#f2f2f2;"><th>ID</th><th>Utilizador</th><th>Livro</th><th>Status</th><th>Ação</th></tr>';
         data.reservas.forEach(function(r) {
-          html += 
-            '<tr>' +
-              '<td style="padding:8px;">' + r.idReserva + '</td>' +
-              '<td style="padding:8px;">' + r.idAluno + '</td>' +
-              '<td style="padding:8px;">' + r.idLivro + '</td>' +
-              '<td style="padding:8px;">' + r.status + '</td>' +
-              '<td style="padding:8px;">' + (r.posicao || '-') + '</td>' +
-              '<td style="padding:8px;">' +
-                '<button onclick="concluirReservaAdmin(\'' + r.idReserva + '\')" style="background:#2e7d32; color:#fff; border:none; padding:4px 8px; border-radius:3px; cursor:pointer;">' +
-                  'Concluir' +
-                '</button>' +
-              '</td>' +
-            '</tr>';
+          html += '<tr><td>' + r.idReserva + '</td><td>' + r.idAluno + '</td><td>' + r.idLivro + '</td><td>' + r.status + '</td>' +
+            '<td><button onclick="concluirReservaAdmin(\'' + r.idReserva + '\')">Concluir</button></td></tr>';
         });
-
-        html += '</tbody></table>';
-        container.innerHTML = html;
+        container.innerHTML = html + '</table>';
       } else {
-        container.innerHTML = "<p>Nenhuma reserva ativa encontrada.</p>";
+        container.innerHTML = "<p>Nenhuma reserva encontrada.</p>";
       }
-    })
-    .catch(function() { container.innerHTML = "Não foi possível carregar a lista de reservas."; });
+    });
 }
 
 function concluirReservaAdmin(idReserva) {
-  if (!confirm("Deseja marcar esta reserva como concluída?")) return;
-
   var params = new URLSearchParams();
   params.append("acao", "concluirReserva");
   params.append("idReserva", idReserva);
@@ -370,10 +363,6 @@ function concluirReservaAdmin(idReserva) {
     .then(function(res) { return res.json(); })
     .then(function(data) {
       alert(data.mensagem);
-      if (data.status === "sucesso") {
-        carregarAcervo();
-        voltarMenuAdmin();
-      }
-    })
-    .catch(function() { alert("Erro ao concluir reserva."); });
+      if (data.status === "sucesso") carregarReservasAdmin();
+    });
 }
