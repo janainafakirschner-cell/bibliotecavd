@@ -1,6 +1,14 @@
-// ATENÇÃO: Substitua a URL abaixo pela URL da sua implantação do Google Apps Script
-const API_URL = "https://script.google.com/macros/s/AKfycbxjkauU-Y0eX8HXnmt9NOjytTLoMMOin_Qj6iBETq4XC77Er08z6D0_JaR61yd9pgi2fw/exec";
+// ============================================================================
+// 1. LINK DA SUA PLANILHA / GOOGLE APPS SCRIPT (COLE O SEU LINK AQUI ABAIXO)
+// ============================================================================
+const API_URL = "https://script.google.com/macros/s/AKfycbxjkauU-Y0eX8HXnmt9NOjytTLoMMOin_Qj6iBETq4XC77Er08z6D0_JaR61yd9pgi2fw/exec"; 
+// Exemplo de como deve ficar:
+// const API_URL = "https://script.google.com/macros/s/AKfycbx.../exec";
 
+
+// ============================================================================
+// 2. LÓGICA DO SISTEMA (NÃO PRECISA ALTERAR NADA ABAIXO)
+// ============================================================================
 let usuarioLogado = null;
 let senhaAdminLogado = "";
 let modoCadastro = false;
@@ -23,7 +31,7 @@ document.getElementById('selectTipoPerfil').addEventListener('change', function(
   }
 });
 
-// Alterna entre tela de Login e tela de Primeiro Acesso
+// Alterna entre a tela de Login e a tela de Primeiro Acesso
 function alternarModoAcesso(event) {
   event.preventDefault();
   modoCadastro = !modoCadastro;
@@ -49,16 +57,16 @@ function alternarModoAcesso(event) {
   }
 }
 
-// Processa Entrada ou Novo Cadastro
+// Processa a Entrada ou o Novo Cadastro
 async function processarAcesso() {
   const perfil = document.getElementById('selectTipoPerfil').value;
   const msg = document.getElementById('msgLoginAluno');
   msg.innerText = "";
 
-  // 1. ACESSO ADMIN
+  // 1. ACESSO DO ADMINISTRADOR
   if (perfil === 'Admin') {
     const senha = document.getElementById('inputSenhaAdminPerfil').value;
-    if (senha === "123456") {
+    if (senha === "123456") { // Senha padrão
       senhaAdminLogado = senha;
       document.getElementById('loginAlunoCard').classList.add('hidden');
       document.getElementById('painelAdmin').classList.remove('hidden');
@@ -80,11 +88,11 @@ async function processarAcesso() {
     const email = document.getElementById('inputEmailUsuario').value.trim();
 
     if (!nome || !email) {
-      msg.innerText = "Por favor, preencha seu nome e e-mail!";
+      msg.innerText = "Por favor, preencha o seu nome e e-mail!";
       return;
     }
 
-    msg.innerText = "Criando seu cadastro...";
+    msg.innerText = "A criar o seu cadastro na planilha...";
 
     try {
       const res = await fetch(API_URL, {
@@ -110,13 +118,13 @@ async function processarAcesso() {
         msg.innerText = data.mensagem;
       }
     } catch (err) {
-      msg.innerText = "Erro ao realizar cadastro.";
+      msg.innerText = "Erro ao realizar cadastro no servidor.";
     }
     return;
   }
 
   // 3. MODO LOGIN NORMAL
-  msg.innerText = "Validando cadastro...";
+  msg.innerText = "A validar o seu cadastro...";
   try {
     const res = await fetch(`${API_URL}?acao=loginAluno&telefone=${encodeURIComponent(telInput)}`);
     const data = await res.json();
@@ -135,10 +143,10 @@ async function processarAcesso() {
   }
 }
 
-// Carrega a lista de livros do acervo
+// Carrega a lista de livros do acervo a partir da planilha
 async function carregarAcervo() {
   const grid = document.getElementById('gridLivros');
-  grid.innerHTML = "Carregando livros...";
+  grid.innerHTML = "A carregar os livros...";
 
   try {
     const res = await fetch(`${API_URL}?acao=getLivros`);
@@ -162,11 +170,11 @@ async function carregarAcervo() {
       });
     }
   } catch (err) {
-    grid.innerHTML = "Erro ao carregar o acervo.";
+    grid.innerHTML = "Erro ao carregar o acervo de livros.";
   }
 }
 
-// Executa a reserva enviando os dados do usuário
+// Executa a reserva e grava na planilha
 async function reservarLivro(idLivro) {
   if (!usuarioLogado) return;
 
@@ -186,33 +194,67 @@ async function reservarLivro(idLivro) {
     alert(data.mensagem);
     carregarAcervo();
   } catch (err) {
-    alert("Erro ao realizar reserva.");
+    alert("Erro ao realizar a reserva.");
   }
 }
 
-// Busca ISBN (Painel Admin)
-async function buscarISBN() {
-  const isbn = document.getElementById('isbnLivro').value;
-  if (!isbn) return alert("Digite o ISBN!");
+// Busca direta de ISBN (Google Books + BrasilAPI)
+async function buscarISBN(event) {
+  const inputIsbn = document.getElementById('isbnLivro');
+  const isbn = inputIsbn.value.replace(/\D/g, "");
 
-  const res = await fetch(`${API_URL}?acao=buscarISBN&isbn=${isbn}`);
-  const data = await res.json();
+  if (!isbn) {
+    alert("Por favor, digite o número do ISBN!");
+    return;
+  }
 
-  if (data.status === "sucesso") {
-    document.getElementById('tituloLivro').value = data.livro.titulo;
-    document.getElementById('autorLivro').value = data.livro.autor;
-  } else {
-    alert(data.mensagem);
+  const btn = event.target;
+  btn.innerText = "A buscar...";
+  btn.disabled = true;
+
+  try {
+    // 1. Consulta a API do Google Books
+    let res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+    let data = await res.json();
+
+    if (data.totalItems > 0 && data.items && data.items.length > 0) {
+      const info = data.items[0].volumeInfo;
+      document.getElementById('tituloLivro').value = info.title || "";
+      document.getElementById('autorLivro').value = info.authors ? info.authors.join(", ") : "";
+      alert("Livro encontrado com sucesso!");
+      btn.innerText = "Buscar Dados do Livro";
+      btn.disabled = false;
+      return;
+    }
+
+    // 2. Consulta a BrasilAPI
+    res = await fetch(`https://brasilapi.com.br/api/isbn/v1/${isbn}`);
+    if (res.ok) {
+      data = await res.json();
+      document.getElementById('tituloLivro').value = data.title || "";
+      document.getElementById('autorLivro').value = data.authors ? data.authors.join(", ") : "";
+      alert("Livro encontrado com sucesso!");
+      btn.innerText = "Buscar Dados do Livro";
+      btn.disabled = false;
+      return;
+    }
+
+    alert("ISBN não encontrado nas bases automáticas. Pode preencher o Título e o Autor manualmente!");
+  } catch (err) {
+    alert("Não foi possível consultar o ISBN automaticamente. Por favor, digite o título e autor manualmente.");
+  } finally {
+    btn.innerText = "Buscar Dados do Livro";
+    btn.disabled = false;
   }
 }
 
-// Cadastra um novo livro (Painel Admin)
+// Salva um novo livro na planilha (Painel Admin)
 async function cadastrarLivro() {
   const titulo = document.getElementById('tituloLivro').value;
   const autor = document.getElementById('autorLivro').value;
   const qtd = document.getElementById('qtdLivro').value;
 
-  if (!titulo) return alert("Digite o título!");
+  if (!titulo) return alert("Digite o título do livro!");
 
   const res = await fetch(API_URL, {
     method: "POST",
