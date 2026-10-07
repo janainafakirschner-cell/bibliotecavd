@@ -4,6 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Biblioteca Escolar</title>
+  <!-- Biblioteca para Leitura de Código de Barras por Câmera -->
+  <script src="https://unpkg.com/html5-qrcode" type="text/javascript"></script>
   <style>
     * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
     body { background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
@@ -15,10 +17,13 @@
     input, select, button { padding: 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 1rem; }
     button { background-color: #2e7d32; color: white; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; }
     button:hover { background-color: #1b5e20; }
+    .btn-scanner { background-color: #0288d1; margin-top: 5px; }
+    .btn-scanner:hover { background-color: #01579b; }
     .grid-livros { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
     .livro-card { border: 1px solid #e0e0e0; padding: 10px; border-radius: 6px; text-align: center; background: #fff; }
     .livro-card img { max-width: 100%; height: 140px; object-fit: cover; border-radius: 4px; }
     .msg-erro { color: #d32f2f; font-weight: bold; margin-top: 10px; }
+    #reader { width: 100%; max-width: 400px; margin: 10px auto; display: none; }
   </style>
 </head>
 <body>
@@ -37,25 +42,21 @@
         </select>
       </div>
 
-      <!-- Campo Nome (Primeiro Acesso) -->
       <div id="boxNome" class="form-group hidden">
         <label for="inputNomeUsuario">Seu Nome Completo:</label>
         <input type="text" id="inputNomeUsuario" placeholder="Digite seu nome completo">
       </div>
 
-      <!-- Campo E-mail (Primeiro Acesso) -->
       <div id="boxEmail" class="form-group hidden">
         <label for="inputEmailUsuario">Seu E-mail (para lembretes):</label>
         <input type="email" id="inputEmailUsuario" placeholder="exemplo@escola.com">
       </div>
 
-      <!-- Campo de Telefone -->
       <div id="boxTelefone" class="form-group">
         <label for="inputTelAluno">Telefone / WhatsApp (com DDD):</label>
         <input type="tel" id="inputTelAluno" value="5581" placeholder="5581999998888" maxlength="13">
       </div>
 
-      <!-- Campo de Senha (Admin) -->
       <div id="boxSenhaAdmin" class="form-group hidden">
         <label for="inputSenhaAdminPerfil">Senha do Administrador:</label>
         <input type="password" id="inputSenhaAdminPerfil" placeholder="Digite a senha do Admin">
@@ -87,11 +88,17 @@
       <button onclick="sair()" style="background-color: #c62828;">Sair</button>
       <hr style="margin: 15px 0;">
       <h3>Cadastrar Novo Livro</h3>
+
       <div class="form-group">
         <label for="isbnLivro">Buscar por ISBN:</label>
-        <input type="text" id="isbnLivro" placeholder="Digite o ISBN">
-        <button onclick="buscarISBN()">Buscar Dados do Livro</button>
+        <input type="text" id="isbnLivro" placeholder="Digite ou escaneie o ISBN">
+        <button onclick="buscarISBN(event)">Buscar Dados do Livro</button>
+        <button class="btn-scanner" onclick="iniciarScanner()">📷 Escanear Código com a Câmera</button>
       </div>
+
+      <!-- Leitor de Câmera -->
+      <div id="reader"></div>
+
       <div class="form-group">
         <label for="tituloLivro">Título:</label>
         <input type="text" id="tituloLivro">
