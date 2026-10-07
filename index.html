@@ -1,130 +1,52 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Biblioteca Escolar</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js"></script>
-  <style>
-    * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-    body { background-color: #f4f7f6; margin: 0; padding: 20px; color: #333; }
-    .container { max-width: 800px; margin: 0 auto; }
-    .card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
-    .hidden { display: none !important; }
-    .form-group { margin-bottom: 15px; display: flex; flex-direction: column; }
-    label { margin-bottom: 5px; font-weight: bold; }
-    input, select, button { padding: 12px; border-radius: 6px; border: 1px solid #ccc; font-size: 1rem; }
-    button { background-color: #2e7d32; color: white; border: none; cursor: pointer; font-weight: bold; margin-top: 10px; }
-    button:hover { background-color: #1b5e20; }
-    .btn-scanner { background-color: #0288d1; margin-top: 5px; }
-    .btn-scanner:hover { background-color: #01579b; }
-    .grid-livros { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; margin-top: 15px; }
-    .livro-card { border: 1px solid #e0e0e0; padding: 10px; border-radius: 6px; text-align: center; background: #fff; }
-    .livro-card img { max-width: 100%; height: 140px; object-fit: cover; border-radius: 4px; }
-    .msg-erro { color: #d32f2f; font-weight: bold; margin-top: 10px; }
-    
-    #areaScanner {
-      margin-top: 15px;
-      padding: 10px;
-      border: 2px dashed #0288d1;
-      border-radius: 8px;
-      background-color: #e1f5fe;
-      text-align: center;
-    }
-    #reader { width: 100%; max-width: 320px; margin: 10px auto; }
-  </style>
-</head>
-<body>
+<!-- PAINEL ADMINISTRADOR -->
+<div id="painelAdmin" class="hidden">
+  <h2>Painel do Administrador</h2>
 
-  <div class="container">
-    <!-- TELA DE LOGIN / CADASTRO -->
-    <div id="loginAlunoCard" class="card">
-      <h2 id="tituloAcesso">Acesso à Biblioteca</h2>
-      
-      <div class="form-group">
-        <label for="selectTipoPerfil">Tipo de Perfil:</label>
-        <select id="selectTipoPerfil">
-          <option value="Aluno">Aluno (Prazo: 7 dias)</option>
-          <option value="Professor">Professor (Prazo: 15 dias)</option>
-          <option value="Admin">Administrador / Bibliotecário</option>
-        </select>
-      </div>
-
-      <!-- CAMPOS DE PRIMEIRO ACESSO -->
-      <div id="boxNome" class="form-group" style="display: none;">
-        <label for="inputNomeUsuario">Seu Nome Completo:</label>
-        <input type="text" id="inputNomeUsuario" placeholder="Digite seu nome completo">
-      </div>
-
-      <div id="boxEmail" class="form-group" style="display: none;">
-        <label for="inputEmailUsuario">Seu E-mail (para lembretes):</label>
-        <input type="email" id="inputEmailUsuario" placeholder="exemplo@escola.com">
-      </div>
-
-      <!-- CAMPO DE TELEFONE -->
-      <div id="boxTelefone" class="form-group">
-        <label for="inputTelAluno">Telefone / WhatsApp (com DDD):</label>
-        <input type="tel" id="inputTelAluno" value="5581" placeholder="5581999998888" maxlength="13">
-      </div>
-
-      <!-- CAMPO DE SENHA ADMIN -->
-      <div id="boxSenhaAdmin" class="form-group" style="display: none;">
-        <label for="inputSenhaAdminPerfil">Senha do Administrador:</label>
-        <input type="password" id="inputSenhaAdminPerfil" placeholder="Digite a senha do Admin">
-      </div>
-
-      <button id="btnAcesso" type="button" onclick="processarAcesso()">Entrar no Sistema</button>
-      
-      <p style="margin-top: 15px; font-size: 0.9rem;">
-        <a href="javascript:void(0);" id="btnModoAcesso" onclick="alternarModoAcesso()" style="color: #2e7d32; font-weight: bold; text-decoration: underline;">
-          Primeiro acesso? Cadastre-se aqui.
-        </a>
-      </p>
-
-      <p id="msgLoginAluno" class="msg-erro"></p>
-    </div>
-
-    <!-- PAINEL DO ALUNO / PROFESSOR -->
-    <div id="painelAluno" class="card hidden">
-      <h2>Bem-vindo(a), <span id="nomeAlunoLogado"></span>!</h2>
-      <button onclick="sair()" style="background-color: #c62828;">Sair</button>
-      <hr style="margin: 15px 0;">
-      <h3>Acervo de Livros</h3>
-      <div id="gridLivros" class="grid-livros"></div>
-    </div>
-
-    <!-- PAINEL DO ADMIN -->
-    <div id="painelAdmin" class="card hidden">
-      <h2>Painel do Administrador</h2>
-      <button onclick="sair()" style="background-color: #c62828;">Sair</button>
-      <hr style="margin: 15px 0;">
-      <h3>Cadastrar Novo Livro</h3>
-
-      <div class="form-group">
-        <label for="isbnLivro">Buscar por ISBN:</label>
-        <input type="text" id="isbnLivro" placeholder="Digite ou escaneie o ISBN">
-        <button type="button" onclick="buscarISBN(event)">Buscar Dados do Livro</button>
-        <button type="button" class="btn-scanner" onclick="iniciarScanner()">📷 Abrir Câmera para Escanear</button>
-      </div>
-
-      <div id="areaScanner" class="hidden">
-        <p><strong>Aponte a câmera para o código de barras do livro:</strong></p>
-        <div id="reader"></div>
-        <button type="button" onclick="fecharScanner()" style="background-color: #757575;">Cancelar Câmera</button>
-      </div>
-
-      <div class="form-group" style="margin-top: 20px;">
-        <label for="tituloLivro">Título:</label>
-        <input type="text" id="tituloLivro">
-        <label for="autorLivro">Autor:</label>
-        <input type="text" id="autorLivro">
-        <label for="qtdLivro">Quantidade Total:</label>
-        <input type="number" id="qtdLivro" value="1">
-        <button type="button" onclick="cadastrarLivro()">Salvar Livro</button>
-      </div>
-    </div>
+  <!-- MENU PRINCIPAL DO ADMIN -->
+  <div id="menuAdminNav" style="display: flex; gap: 10px; margin-bottom: 20px;">
+    <button onclick="mostrarSecaoAdmin('secaoCadastrar')">Cadastrar Livro</button>
+    <button onclick="mostrarSecaoAdmin('secaoEmprestimos')">Registrar Empréstimo</button>
+    <button onclick="mostrarSecaoAdmin('secaoDevolucoes')">Registrar Devolução</button>
+    <button onclick="mostrarSecaoAdmin('secaoReservas')">Gerenciar Reservas</button>
+    <button onclick="sair()" style="background:#d32f2f; color:#fff;">Sair</button>
   </div>
 
-  <script src="script.js?v=3"></script>
-</body>
-</html>
+  <!-- SEÇÃO 1: CADASTRAR LIVRO -->
+  <div id="secaoCadastrar" class="secao-admin">
+    <h3>Cadastrar Novo Livro</h3>
+    <input type="text" id="isbnLivro" placeholder="ISBN do Livro">
+    <button onclick="buscarISBN()">Buscar ISBN</button>
+    <button onclick="iniciarScanner()">Abrir Câmera</button>
+    <br><br>
+    <input type="text" id="tituloLivro" placeholder="Título">
+    <input type="text" id="autorLivro" placeholder="Autor">
+    <input type="number" id="qtdLivro" value="1" placeholder="Quantidade">
+    <button onclick="cadastrarLivro()">Salvar Livro</button>
+    <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
+  </div>
+
+  <!-- SEÇÃO 2: EMPRÉSTIMO DIRETO -->
+  <div id="secaoEmprestimos" class="secao-admin hidden">
+    <h3>Registrar Empréstimo Manual</h3>
+    <input type="text" id="empIdAluno" placeholder="ID ou Telefone do Aluno/Prof">
+    <input type="text" id="empIdLivro" placeholder="ID do Livro">
+    <button onclick="adminConfirmarEmprestimo()">Confirmar Empréstimo</button>
+    <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
+  </div>
+
+  <!-- SEÇÃO 3: DEVOLUÇÃO -->
+  <div id="secaoDevolucoes" class="secao-admin hidden">
+    <h3>Registrar Devolução de Livro</h3>
+    <input type="text" id="devIdLivro" placeholder="ID do Livro a ser devolvido">
+    <button onclick="adminConfirmarDevolucao()">Confirmar Devolução</button>
+    <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
+  </div>
+
+  <!-- SEÇÃO 4: GERENCIAR RESERVAS -->
+  <div id="secaoReservas" class="secao-admin hidden">
+    <h3>Fila de Espera / Reservas</h3>
+    <div id="listaReservasAdmin">A carregar reservas...</div>
+    <br>
+    <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
+  </div>
+</div>
