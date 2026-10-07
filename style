@@ -1,24 +1,156 @@
 body {
-  font-family: Arial, sans-serif;
-  background-color: #f4f6f8;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f0f2f5;
   margin: 0;
   padding: 20px;
-}
-
-.container {
-  max-width: 800px;
-  margin: 0 auto;
-  background: #ffffff;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  color: #333;
 }
 
 .hidden {
   display: none !important;
 }
 
-/* LAYOUT EM GRADE 2x2 PARA O PAINEL ADMIN */
+/* CONTAINER DE LOGIN MODERNO */
+.container-login {
+  max-width: 420px;
+  margin: 40px auto;
+  background: #ffffff;
+  padding: 30px;
+  border-radius: 16px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+}
+
+.header-login {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.logo-icon {
+  font-size: 3rem;
+  margin-bottom: 5px;
+}
+
+.header-login h2 {
+  margin: 0;
+  color: #1a237e;
+  font-size: 1.6rem;
+}
+
+.header-login p {
+  color: #666;
+  font-size: 0.9rem;
+  margin-top: 5px;
+}
+
+/* ABAS DE ALTERNÂNCIA (LEITOR / ADMIN) */
+.tabs-login {
+  display: flex;
+  background: #eef2f6;
+  border-radius: 10px;
+  padding: 4px;
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  background: transparent;
+  border-radius: 8px;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+  background: #ffffff;
+  color: #1a237e;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* FORMULÁRIO DE LOGIN */
+.form-login-box label {
+  display: block;
+  font-weight: 600;
+  margin-bottom: 6px;
+  font-size: 0.9rem;
+  color: #444;
+}
+
+.input-icon-wrapper {
+  display: flex;
+  align-items: center;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 0 10px;
+  background: #fafafa;
+  transition: border-color 0.2s ease;
+}
+
+.input-icon-wrapper:focus-within {
+  border-color: #1a237e;
+  background: #fff;
+}
+
+.input-icon-wrapper .icon {
+  font-size: 1.1rem;
+  margin-right: 8px;
+}
+
+.input-icon-wrapper input {
+  width: 100%;
+  padding: 12px 0;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 1rem;
+}
+
+.form-login-box small {
+  display: block;
+  color: #777;
+  font-size: 0.8rem;
+  margin-top: 6px;
+  margin-bottom: 20px;
+}
+
+.btn-primary {
+  width: 100%;
+  padding: 12px;
+  background: #1a237e;
+  color: #ffffff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #0d47a1;
+}
+
+.btn-admin {
+  background: #2e7d32;
+}
+
+.btn-admin:hover {
+  background: #1b5e20;
+}
+
+/* CONTAINER GERAL DO PAINEL */
+.container {
+  max-width: 800px;
+  margin: 20px auto;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+}
+
+/* CARTOES 2x2 DO ADMIN */
 .grid-admin {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
@@ -27,7 +159,6 @@ body {
   margin: 20px 0;
 }
 
-/* CARTOES ESTILIZADOS DO ADMIN */
 .card-btn {
   background-color: #ffffff;
   border: 3px solid #000000;
@@ -48,18 +179,12 @@ body {
   transform: scale(1.02);
 }
 
-.card-login {
-  border: 1px solid #ccc;
-  padding: 15px;
-  border-radius: 6px;
-}
-
 .header-user {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 2px solid #ddd;
-  padding-bottom: 10px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 12px;
 }
 
 .btn-sair {
@@ -67,19 +192,7 @@ body {
   color: white;
   border: none;
   padding: 8px 16px;
-  border-radius: 4px;
+  border-radius: 6px;
   cursor: pointer;
-}
-
-input[type="text"], input[type="password"], input[type="number"] {
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  margin-top: 5px;
-}
-
-button {
-  padding: 8px 14px;
-  border-radius: 4px;
-  cursor: pointer;
+  font-weight: bold;
 }
