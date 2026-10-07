@@ -1,12 +1,11 @@
 // ============================================================================
-// 1. LINK DA SUA PLANILHA / GOOGLE APPS SCRIPT (COLE A SUA URL ABAIXO)
+// 1. LINK DA SUA PLANILHA / GOOGLE APPS SCRIPT
 // ============================================================================
 const API_URL = "https://script.google.com/macros/s/AKfycbxjkauU-Y0eX8HXnmt9NOjytTLoMMOin_Qj6iBETq4XC77Er08z6D0_JaR61yd9pgi2fw/exec"; 
-// Exemplo: const API_URL = "https://script.google.com/macros/s/AKfycbx.../exec";
 
 
 // ============================================================================
-// 2. CORREÇÃO MANUAL PARA ISBNS COM DADOS ERRADOS NAS APIS PÚBLICAS
+// 2. CORREÇÃO MANUAL PARA ISBNS CONHECIDOS
 // ============================================================================
 const ISBNS_CORRIGIDOS = {
   "8574921181": {
@@ -30,46 +29,50 @@ let html5QrCode = null;
 
 
 // ============================================================================
-// 4. INTERFACE E CONTROLE DE NAVEGAÇÃO
+// 4. CONTROLE DE INTERFACE E PRIMEIRO ACESSO
 // ============================================================================
 
+// Alterna a exibição de acordo com o perfil selecionado
 document.getElementById('selectTipoPerfil').addEventListener('change', function() {
   const perfil = this.value;
   const boxTel = document.getElementById('boxTelefone');
   const boxSenha = document.getElementById('boxSenhaAdmin');
-  const linkModo = document.getElementById('linkModoAcesso');
+  const btnModo = document.getElementById('btnModoAcesso');
 
   if (perfil === 'Admin') {
     boxTel.classList.add('hidden');
     boxSenha.classList.remove('hidden');
-    linkModo.classList.add('hidden');
+    btnModo.classList.add('hidden');
+    
+    // Se estava em modo cadastro e trocou para Admin, reseta o modo cadastro
+    if (modoCadastro) alternarModoAcesso();
   } else {
     boxTel.classList.remove('hidden');
     boxSenha.classList.add('hidden');
-    linkModo.classList.remove('hidden');
+    btnModo.classList.remove('hidden');
   }
 });
 
-function alternarModoAcesso(event) {
-  event.preventDefault();
+// Função acionada ao clicar em "Primeiro acesso? Cadastre-se aqui"
+function alternarModoAcesso() {
   modoCadastro = !modoCadastro;
 
   const titulo = document.getElementById('tituloAcesso');
-  const btn = document.getElementById('btnAcesso');
-  const link = document.getElementById('linkModoAcesso');
+  const btnAcesso = document.getElementById('btnAcesso');
+  const btnModo = document.getElementById('btnModoAcesso');
   const boxNome = document.getElementById('boxNome');
   const boxEmail = document.getElementById('boxEmail');
 
   if (modoCadastro) {
     titulo.innerText = "Primeiro Acesso - Criar Conta";
-    btn.innerText = "Concluir Cadastro";
-    link.innerText = "Já tem cadastro? Faça login aqui.";
+    btnAcesso.innerText = "Concluir Cadastro";
+    btnModo.innerText = "Já tem cadastro? Faça login aqui.";
     boxNome.classList.remove('hidden');
     boxEmail.classList.remove('hidden');
   } else {
     titulo.innerText = "Acesso à Biblioteca";
-    btn.innerText = "Entrar no Sistema";
-    link.innerText = "Primeiro acesso? Cadastre-se aqui.";
+    btnAcesso.innerText = "Entrar no Sistema";
+    btnModo.innerText = "Primeiro acesso? Cadastre-se aqui.";
     boxNome.classList.add('hidden');
     boxEmail.classList.add('hidden');
   }
@@ -77,13 +80,14 @@ function alternarModoAcesso(event) {
 
 
 // ============================================================================
-// 5. AUTENTICAÇÃO E PRIMEIRO ACESSO (INTEGRAÇÃO COM A PLANILHA)
+// 5. AUTENTICAÇÃO E CADASTRO
 // ============================================================================
 async function processarAcesso() {
   const perfil = document.getElementById('selectTipoPerfil').value;
   const msg = document.getElementById('msgLoginAluno');
   msg.innerText = "";
 
+  // LOGIN ADMIN
   if (perfil === 'Admin') {
     const senha = document.getElementById('inputSenhaAdminPerfil').value;
     if (senha === "123456") {
@@ -102,16 +106,17 @@ async function processarAcesso() {
     return;
   }
 
+  // MODO PRIMEIRO ACESSO (CRIAÇÃO DE CONTA)
   if (modoCadastro) {
     const nome = document.getElementById('inputNomeUsuario').value.trim();
     const email = document.getElementById('inputEmailUsuario').value.trim();
 
     if (!nome || !email) {
-      msg.innerText = "Por favor, preencha o seu nome e e-mail!";
+      msg.innerText = "Por favor, preencha o seu nome completo e e-mail!";
       return;
     }
 
-    msg.innerText = "A criar o seu cadastro na planilha...";
+    msg.innerText = "A criar o seu cadastro...";
 
     try {
       const res = await fetch(API_URL, {
@@ -142,6 +147,7 @@ async function processarAcesso() {
     return;
   }
 
+  // MODO LOGIN NORMAL
   msg.innerText = "A validar cadastro...";
   try {
     const res = await fetch(`${API_URL}?acao=loginAluno&telefone=${encodeURIComponent(telInput)}`);
@@ -163,7 +169,7 @@ async function processarAcesso() {
 
 
 // ============================================================================
-// 6. ACERVO DE LIVROS E RESERVAS
+// 6. ACERVO E RESERVAS
 // ============================================================================
 async function carregarAcervo() {
   const grid = document.getElementById('gridLivros');
@@ -262,7 +268,7 @@ async function fecharScanner() {
 
 
 // ============================================================================
-// 8. BUSCA DE ISBN (COM VERIFICAÇÃO DE DADOS LOCAIS)
+// 8. BUSCA DE ISBN
 // ============================================================================
 async function buscarISBN(event) {
   if (event) event.preventDefault();
@@ -275,15 +281,13 @@ async function buscarISBN(event) {
     return;
   }
 
-  // 1. VERIFICA SE O ISBN JÁ TEM CORREÇÃO MANUAL NO CÓDIGO
   if (ISBNS_CORRIGIDOS[isbn]) {
     document.getElementById('tituloLivro').value = ISBNS_CORRIGIDOS[isbn].titulo;
     document.getElementById('autorLivro').value = ISBNS_CORRIGIDOS[isbn].autor;
-    alert("Livro identificado localmente: O Jovem Lennon!");
+    alert("Livro localizado!");
     return;
   }
 
-  // 2. TENTA A BRASILAPI
   try {
     let res = await fetch(`https://brasilapi.com.br/api/isbn/v1/${isbn}`);
     if (res.ok) {
@@ -293,11 +297,8 @@ async function buscarISBN(event) {
       alert("Livro encontrado na BrasilAPI! Verifique os dados antes de salvar.");
       return;
     }
-  } catch (e) {
-    console.log("BrasilAPI indisponível...");
-  }
+  } catch (e) {}
 
-  // 3. TENTA O GOOGLE BOOKS
   try {
     let res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
     let data = await res.json();
@@ -309,19 +310,51 @@ async function buscarISBN(event) {
       alert("Livro encontrado no Google Books! Verifique os dados antes de salvar.");
       return;
     }
-  } catch (e) {
-    console.log("Google Books indisponível...");
-  }
+  } catch (e) {}
 
-  alert("ISBN lido! Caso os campos não tenham sido preenchidos ou estejam incorretos, digite o Título e Autor manualmente.");
+  alert("ISBN lido! Preencha o Título e Autor manualmente.");
 }
 
 
 // ============================================================================
-// 9. CADASTRO DE NOVO LIVRO NO PAINEL ADMIN (COM LIMPEZA COMPLETA)
+// 9. CADASTRO DE NOVO LIVRO
 // ============================================================================
 async function cadastrarLivro() {
   const titulo = document.getElementById('tituloLivro').value;
   const autor = document.getElementById('autorLivro').value;
   const qtd = document.getElementById('qtdLivro').value;
   const isbn = document.getElementById('isbnLivro').value;
+
+  if (!titulo) return alert("Por favor, digite o título do livro!");
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        acao: "cadastrarLivro",
+        senhaAdmin: senhaAdminLogado,
+        isbn: isbn,
+        titulo: titulo,
+        autor: autor,
+        qtdTotal: qtd
+      })
+    });
+
+    const data = await res.json();
+    alert(data.mensagem);
+
+    // LIMPEZA COMPLETA DOS CAMPOS
+    document.getElementById('isbnLivro').value = "";
+    document.getElementById('tituloLivro').value = "";
+    document.getElementById('autorLivro').value = "";
+    document.getElementById('qtdLivro').value = "1";
+
+    fecharScanner();
+  } catch (err) {
+    alert("Erro ao gravar livro na planilha.");
+  }
+}
+
+function sair() {
+  location.reload();
+}
