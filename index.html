@@ -1,52 +1,101 @@
-<!-- PAINEL ADMINISTRADOR -->
-<div id="painelAdmin" class="hidden">
-  <h2>Painel do Administrador</h2>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sistema de Biblioteca</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
 
-  <!-- MENU PRINCIPAL DO ADMIN -->
-  <div id="menuAdminNav" style="display: flex; gap: 10px; margin-bottom: 20px;">
-    <button onclick="mostrarSecaoAdmin('secaoCadastrar')">Cadastrar Livro</button>
-    <button onclick="mostrarSecaoAdmin('secaoEmprestimos')">Registrar Empréstimo</button>
-    <button onclick="mostrarSecaoAdmin('secaoDevolucoes')">Registrar Devolução</button>
-    <button onclick="mostrarSecaoAdmin('secaoReservas')">Gerenciar Reservas</button>
-    <button onclick="sair()" style="background:#d32f2f; color:#fff;">Sair</button>
+  <!-- TELA DE LOGIN -->
+  <div id="telaLogin" class="container">
+    <h2>Acesso ao Sistema</h2>
+    <div class="card-login">
+      <h3>Login de Leitor (Aluno / Professor)</h3>
+      <input type="text" id="telLogin" value="5581" placeholder="DDD + Telefone">
+      <button onclick="fazerLoginAluno()">Entrar como Leitor</button>
+    </div>
+    
+    <div class="card-login" style="margin-top: 20px;">
+      <h3>Acesso Administrador</h3>
+      <input type="password" id="senhaAdmin" placeholder="Senha do Administrador">
+      <button onclick="fazerLoginAdmin()">Entrar como Admin</button>
+    </div>
   </div>
 
-  <!-- SEÇÃO 1: CADASTRAR LIVRO -->
-  <div id="secaoCadastrar" class="secao-admin">
-    <h3>Cadastrar Novo Livro</h3>
-    <input type="text" id="isbnLivro" placeholder="ISBN do Livro">
-    <button onclick="buscarISBN()">Buscar ISBN</button>
-    <button onclick="iniciarScanner()">Abrir Câmera</button>
-    <br><br>
-    <input type="text" id="tituloLivro" placeholder="Título">
-    <input type="text" id="autorLivro" placeholder="Autor">
-    <input type="number" id="qtdLivro" value="1" placeholder="Quantidade">
-    <button onclick="cadastrarLivro()">Salvar Livro</button>
-    <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
+  <!-- PAINEL DO ALUNO / PROFESSOR -->
+  <div id="painelUsuario" class="container hidden">
+    <div class="header-user">
+      <h2>Acervo da Biblioteca</h2>
+      <span>Olá, <b id="nomeUsuarioHeader"></b>!</span>
+      <button onclick="sair()" class="btn-sair">Sair</button>
+    </div>
+    <div id="gridLivros" style="margin-top: 20px;">Carregando acervo...</div>
   </div>
 
-  <!-- SEÇÃO 2: EMPRÉSTIMO DIRETO -->
-  <div id="secaoEmprestimos" class="secao-admin hidden">
-    <h3>Registrar Empréstimo Manual</h3>
-    <input type="text" id="empIdAluno" placeholder="ID ou Telefone do Aluno/Prof">
-    <input type="text" id="empIdLivro" placeholder="ID do Livro">
-    <button onclick="adminConfirmarEmprestimo()">Confirmar Empréstimo</button>
-    <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
+  <!-- PAINEL DO ADMINISTRADOR -->
+  <div id="painelAdmin" class="container hidden">
+    <h2>Painel do Administrador</h2>
+    
+    <!-- MENU EM CARTOES 2x2 CONFORME SOLICITADO -->
+    <div id="menuAdminCards" class="grid-admin">
+      <button class="card-btn" onclick="mostrarSecaoAdmin('secaoCadastrar')">cadastrar</button>
+      <button class="card-btn" onclick="mostrarSecaoAdmin('secaoEmprestimo')">esprestimo</button>
+      <button class="card-btn" onclick="mostrarSecaoAdmin('secaoDevolucao')">devolução</button>
+      <button class="card-btn" onclick="mostrarSecaoAdmin('secaoReservas')">reservas</button>
+    </div>
+
+    <div style="margin-top: 15px;">
+      <button onclick="sair()" class="btn-sair">Sair do Painel</button>
+    </div>
+
+    <!-- SECÇÃO 1: CADASTRAR LIVRO -->
+    <div id="secaoCadastrar" class="secao-admin hidden">
+      <h3>Cadastrar Novo Livro</h3>
+      <input type="text" id="isbnLivro" placeholder="ISBN do Livro">
+      <button onclick="buscarISBN()">Buscar ISBN</button>
+      <button onclick="abrirCamera()">Abrir Câmera</button>
+      <br><br>
+      <input type="text" id="tituloLivro" placeholder="Título">
+      <input type="text" id="autorLivro" placeholder="Autor">
+      <input type="number" id="qtdLivro" value="1" style="width: 60px;">
+      <button onclick="cadastrarLivro()">Salvar Livro</button>
+      <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
+    </div>
+
+    <!-- SECÇÃO 2: REGISTRAR EMPRÉSTIMO -->
+    <div id="secaoEmprestimo" class="secao-admin hidden">
+      <h3>Registrar Empréstimo Manual</h3>
+      <label>Telefone Aluno/Prof:</label><br>
+      <input type="text" id="empTelAluno" value="5581" placeholder="55819XXXXXXXX"><br><br>
+      
+      <label>ISBN do Livro:</label><br>
+      <input type="text" id="empIsbnLivro" placeholder="Digite ou escaneie o ISBN"><br><br>
+      
+      <button onclick="adminConfirmarEmprestimo()">Confirmar Empréstimo</button>
+      <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
+    </div>
+
+    <!-- SECÇÃO 3: REGISTRAR DEVOLUÇÃO -->
+    <div id="secaoDevolucao" class="secao-admin hidden">
+      <h3>Registrar Devolução de Livro</h3>
+      <label>ISBN do Livro a Devolver:</label><br>
+      <input type="text" id="devIsbnLivro" placeholder="Digite ou escaneie o ISBN"><br><br>
+      
+      <button onclick="adminConfirmarDevolucao()">Confirmar Devolução</button>
+      <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
+    </div>
+
+    <!-- SECÇÃO 4: GERENCIAR RESERVAS -->
+    <div id="secaoReservas" class="secao-admin hidden">
+      <h3>Fila de Espera / Reservas</h3>
+      <div id="listaReservasAdmin">A carregar reservas...</div>
+      <br>
+      <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
+    </div>
   </div>
 
-  <!-- SEÇÃO 3: DEVOLUÇÃO -->
-  <div id="secaoDevolucoes" class="secao-admin hidden">
-    <h3>Registrar Devolução de Livro</h3>
-    <input type="text" id="devIdLivro" placeholder="ID do Livro a ser devolvido">
-    <button onclick="adminConfirmarDevolucao()">Confirmar Devolução</button>
-    <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
-  </div>
-
-  <!-- SEÇÃO 4: GERENCIAR RESERVAS -->
-  <div id="secaoReservas" class="secao-admin hidden">
-    <h3>Fila de Espera / Reservas</h3>
-    <div id="listaReservasAdmin">A carregar reservas...</div>
-    <br>
-    <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
-  </div>
-</div>
+  <script src="script.js"></script>
+</body>
+</html>
