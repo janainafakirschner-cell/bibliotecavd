@@ -8,46 +8,68 @@
 </head>
 <body>
 
-  <!-- TELA DE LOGIN -->
-  <div id="telaLogin" class="container">
-    <h2>Acesso ao Sistema</h2>
-    <div class="card-login">
-      <h3>Login de Leitor (Aluno / Professor)</h3>
-      <input type="text" id="telLogin" value="5581" placeholder="DDD + Telefone">
-      <button onclick="fazerLoginAluno()">Entrar como Leitor</button>
+  <!-- TELA INICIAL / LOGIN AMIGÁVEL -->
+  <div id="telaLogin" class="container-login">
+    <div class="header-login">
+      <div class="logo-icon">📚</div>
+      <h2>Sistema de Biblioteca</h2>
+      <p>Seja bem-vindo! Escolha como deseja acessar:</p>
     </div>
-    
-    <div class="card-login" style="margin-top: 20px;">
-      <h3>Acesso Administrador</h3>
-      <input type="password" id="senhaAdmin" placeholder="Senha do Administrador">
-      <button onclick="fazerLoginAdmin()">Entrar como Admin</button>
+
+    <!-- ABAS DE NAVEGAÇÃO ENTRE LEITOR E ADMIN -->
+    <div class="tabs-login">
+      <button id="tabLeitor" class="tab-btn active" onclick="alternarAbaLogin('leitor')">Leitor</button>
+      <button id="tabAdmin" class="tab-btn" onclick="alternarAbaLogin('admin')">Administrador</button>
+    </div>
+
+    <!-- FORMULÁRIO LEITOR (ALUNO / PROFESSOR) -->
+    <div id="formLoginLeitor" class="form-login-box">
+      <label for="telLogin">Telefone Cadastrado</label>
+      <div class="input-icon-wrapper">
+        <span class="icon">📱</span>
+        <input type="text" id="telLogin" value="5581" placeholder="55819XXXXXXXX">
+      </div>
+      <small>Digite seu DDD + Telefone cadastrado no sistema.</small>
+      <button onclick="fazerLoginAluno()" class="btn-primary">Entrar como Leitor</button>
+    </div>
+
+    <!-- FORMULÁRIO ADMINISTRADOR -->
+    <div id="formLoginAdmin" class="form-login-box hidden">
+      <label for="senhaAdmin">Senha de Acesso</label>
+      <div class="input-icon-wrapper">
+        <span class="icon">🔒</span>
+        <input type="password" id="senhaAdmin" placeholder="Digite sua senha de admin">
+      </div>
+      <small>Área restrita à equipe de administração.</small>
+      <button onclick="fazerLoginAdmin()" class="btn-primary btn-admin">Acessar Painel Admin</button>
     </div>
   </div>
 
-  <!-- PAINEL DO ALUNO / PROFESSOR -->
+  <!-- PAINEL DO ALUNO / PROFESSOR (Só exibe após Login de Leitor) -->
   <div id="painelUsuario" class="container hidden">
     <div class="header-user">
-      <h2>Acervo da Biblioteca</h2>
-      <span>Olá, <b id="nomeUsuarioHeader"></b>!</span>
+      <div>
+        <h2>Acervo da Biblioteca</h2>
+        <span>Olá, <b id="nomeUsuarioHeader"></b>!</span>
+      </div>
       <button onclick="sair()" class="btn-sair">Sair</button>
     </div>
-    <div id="gridLivros" style="margin-top: 20px;">Carregando acervo...</div>
+    <div id="gridLivros" style="margin-top: 20px;">A carregar acervo...</div>
   </div>
 
-  <!-- PAINEL DO ADMINISTRADOR -->
+  <!-- PAINEL DO ADMINISTRADOR (Só exibe após Login de Admin) -->
   <div id="painelAdmin" class="container hidden">
-    <h2>Painel do Administrador</h2>
+    <div class="header-user">
+      <h2>Painel do Administrador</h2>
+      <button onclick="sair()" class="btn-sair">Sair do Painel</button>
+    </div>
     
-    <!-- MENU EM CARTOES 2x2 CONFORME SOLICITADO -->
+    <!-- MENU EM CARTÕES 2x2 -->
     <div id="menuAdminCards" class="grid-admin">
       <button class="card-btn" onclick="mostrarSecaoAdmin('secaoCadastrar')">cadastrar</button>
       <button class="card-btn" onclick="mostrarSecaoAdmin('secaoEmprestimo')">esprestimo</button>
       <button class="card-btn" onclick="mostrarSecaoAdmin('secaoDevolucao')">devolução</button>
       <button class="card-btn" onclick="mostrarSecaoAdmin('secaoReservas')">reservas</button>
-    </div>
-
-    <div style="margin-top: 15px;">
-      <button onclick="sair()" class="btn-sair">Sair do Painel</button>
     </div>
 
     <!-- SECÇÃO 1: CADASTRAR LIVRO -->
@@ -60,7 +82,7 @@
       <input type="text" id="tituloLivro" placeholder="Título">
       <input type="text" id="autorLivro" placeholder="Autor">
       <input type="number" id="qtdLivro" value="1" style="width: 60px;">
-      <button onclick="cadastrarLivro()">Salvar Livro</button>
+      <button onclick="cadastrarLivro()" class="btn-primary">Salvar Livro</button>
       <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
     </div>
 
@@ -73,7 +95,7 @@
       <label>ISBN do Livro:</label><br>
       <input type="text" id="empIsbnLivro" placeholder="Digite ou escaneie o ISBN"><br><br>
       
-      <button onclick="adminConfirmarEmprestimo()">Confirmar Empréstimo</button>
+      <button onclick="adminConfirmarEmprestimo()" class="btn-primary">Confirmar Empréstimo</button>
       <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
     </div>
 
@@ -83,7 +105,7 @@
       <label>ISBN do Livro a Devolver:</label><br>
       <input type="text" id="devIsbnLivro" placeholder="Digite ou escaneie o ISBN"><br><br>
       
-      <button onclick="adminConfirmarDevolucao()">Confirmar Devolução</button>
+      <button onclick="adminConfirmarDevolucao()" class="btn-primary">Confirmar Devolução</button>
       <button onclick="voltarMenuAdmin()">← Voltar ao Menu</button>
     </div>
 
