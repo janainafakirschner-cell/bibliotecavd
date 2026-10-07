@@ -6,7 +6,22 @@ const API_URL = "https://script.google.com/macros/s/AKfycbxjkauU-Y0eX8HXnmt9NOjy
 
 
 // ============================================================================
-// 2. VARIÁVEIS GLOBAIS DE CONTROLE
+// 2. CORREÇÃO MANUAL PARA ISBNS COM DADOS ERRADOS NAS APIS PÚBLICAS
+// ============================================================================
+const ISBNS_CORRIGIDOS = {
+  "8574921181": {
+    titulo: "O Jovem Lennon",
+    autor: "Lesley-Ann Jones"
+  },
+  "9788574921181": {
+    titulo: "O Jovem Lennon",
+    autor: "Lesley-Ann Jones"
+  }
+};
+
+
+// ============================================================================
+// 3. VARIÁVEIS GLOBAIS DE CONTROLE
 // ============================================================================
 let usuarioLogado = null;
 let senhaAdminLogado = "";
@@ -15,10 +30,9 @@ let html5QrCode = null;
 
 
 // ============================================================================
-// 3. INTERFACE E CONTROLE DE NAVEGAÇÃO
+// 4. INTERFACE E CONTROLE DE NAVEGAÇÃO
 // ============================================================================
 
-// Alterna os campos exibidos no login com base no perfil selecionado
 document.getElementById('selectTipoPerfil').addEventListener('change', function() {
   const perfil = this.value;
   const boxTel = document.getElementById('boxTelefone');
@@ -36,7 +50,6 @@ document.getElementById('selectTipoPerfil').addEventListener('change', function(
   }
 });
 
-// Alterna a tela entre Modo Login e Modo Primeiro Acesso
 function alternarModoAcesso(event) {
   event.preventDefault();
   modoCadastro = !modoCadastro;
@@ -64,17 +77,16 @@ function alternarModoAcesso(event) {
 
 
 // ============================================================================
-// 4. AUTENTICAÇÃO E PRIMEIRO ACESSO (INTEGRAÇÃO COM A PLANILHA)
+// 5. AUTENTICAÇÃO E PRIMEIRO ACESSO (INTEGRAÇÃO COM A PLANILHA)
 // ============================================================================
 async function processarAcesso() {
   const perfil = document.getElementById('selectTipoPerfil').value;
   const msg = document.getElementById('msgLoginAluno');
   msg.innerText = "";
 
-  // A) LOGIN DE ADMINISTRADOR
   if (perfil === 'Admin') {
     const senha = document.getElementById('inputSenhaAdminPerfil').value;
-    if (senha === "123456") { // Altere se definiu outra senha no Apps Script
+    if (senha === "123456") {
       senhaAdminLogado = senha;
       document.getElementById('loginAlunoCard').classList.add('hidden');
       document.getElementById('painelAdmin').classList.remove('hidden');
@@ -90,7 +102,6 @@ async function processarAcesso() {
     return;
   }
 
-  // B) PRIMEIRO ACESSO / NOVO CADASTRO
   if (modoCadastro) {
     const nome = document.getElementById('inputNomeUsuario').value.trim();
     const email = document.getElementById('inputEmailUsuario').value.trim();
@@ -131,7 +142,6 @@ async function processarAcesso() {
     return;
   }
 
-  // C) LOGIN NORMAL
   msg.innerText = "A validar cadastro...";
   try {
     const res = await fetch(`${API_URL}?acao=loginAluno&telefone=${encodeURIComponent(telInput)}`);
@@ -153,10 +163,8 @@ async function processarAcesso() {
 
 
 // ============================================================================
-// 5. ACERVO DE LIVROS E RESERVAS
+// 6. ACERVO DE LIVROS E RESERVAS
 // ============================================================================
-
-// Busca livros cadastrados na aba "Livros" da planilha
 async function carregarAcervo() {
   const grid = document.getElementById('gridLivros');
   grid.innerHTML = "A carregar os livros...";
@@ -187,7 +195,6 @@ async function carregarAcervo() {
   }
 }
 
-// Grava uma nova reserva na aba "Reservas" da planilha
 async function reservarLivro(idLivro) {
   if (!usuarioLogado) return;
   if (!confirm("Confirmar a reserva deste livro?")) return;
@@ -212,7 +219,7 @@ async function reservarLivro(idLivro) {
 
 
 // ============================================================================
-// 6. SCANNER DE CÂMERA (CÓDIGO DE BARRAS / ISBN)
+// 7. SCANNER DE CÂMERA
 // ============================================================================
 async function iniciarScanner() {
   const areaScanner = document.getElementById('areaScanner');
@@ -226,17 +233,14 @@ async function iniciarScanner() {
     const config = { fps: 10, qrbox: { width: 250, height: 150 } };
 
     await html5QrCode.start(
-      { facingMode: "environment" }, // Prioriza a câmera traseira
+      { facingMode: "environment" },
       config,
       (decodedText) => {
-        // Ao realizar a leitura do código com sucesso:
         document.getElementById('isbnLivro').value = decodedText;
         fecharScanner();
         buscarISBN();
       },
-      (errorMessage) => {
-        // Quadro processado sem leitura (comportamento normal)
-      }
+      (errorMessage) => {}
     );
   } catch (err) {
     alert("Erro ao abrir a câmera! Verifique se deu permissão de acesso à câmera no seu navegador.");
@@ -247,7 +251,9 @@ async function iniciarScanner() {
 
 async function fecharScanner() {
   const areaScanner = document.getElementById('areaScanner');
-  areaScanner.classList.add('hidden');
+  if (areaScanner) {
+    areaScanner.classList.add('hidden');
+  }
 
   if (html5QrCode && html5QrCode.isScanning) {
     await html5QrCode.stop();
@@ -256,7 +262,7 @@ async function fecharScanner() {
 
 
 // ============================================================================
-// 7. BUSCA MULTIBASES DE ISBN (BRASILAPI -> GOOGLE BOOKS -> OPEN LIBRARY)
+// 8. BUSCA DE ISBN (COM VERIFICAÇÃO DE DADOS LOCAIS)
 // ============================================================================
 async function buscarISBN(event) {
   if (event) event.preventDefault();
@@ -265,3 +271,57 @@ async function buscarISBN(event) {
   const isbn = inputIsbn.value.replace(/\D/g, "");
 
   if (!isbn) {
+    alert("Por favor, digite ou escaneie o número do ISBN!");
+    return;
+  }
+
+  // 1. VERIFICA SE O ISBN JÁ TEM CORREÇÃO MANUAL NO CÓDIGO
+  if (ISBNS_CORRIGIDOS[isbn]) {
+    document.getElementById('tituloLivro').value = ISBNS_CORRIGIDOS[isbn].titulo;
+    document.getElementById('autorLivro').value = ISBNS_CORRIGIDOS[isbn].autor;
+    alert("Livro identificado localmente: O Jovem Lennon!");
+    return;
+  }
+
+  // 2. TENTA A BRASILAPI
+  try {
+    let res = await fetch(`https://brasilapi.com.br/api/isbn/v1/${isbn}`);
+    if (res.ok) {
+      let data = await res.json();
+      document.getElementById('tituloLivro').value = data.title || "";
+      document.getElementById('autorLivro').value = data.authors ? data.authors.join(", ") : "";
+      alert("Livro encontrado na BrasilAPI! Verifique os dados antes de salvar.");
+      return;
+    }
+  } catch (e) {
+    console.log("BrasilAPI indisponível...");
+  }
+
+  // 3. TENTA O GOOGLE BOOKS
+  try {
+    let res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+    let data = await res.json();
+
+    if (data.totalItems > 0 && data.items && data.items.length > 0) {
+      const info = data.items[0].volumeInfo;
+      document.getElementById('tituloLivro').value = info.title || "";
+      document.getElementById('autorLivro').value = info.authors ? info.authors.join(", ") : "";
+      alert("Livro encontrado no Google Books! Verifique os dados antes de salvar.");
+      return;
+    }
+  } catch (e) {
+    console.log("Google Books indisponível...");
+  }
+
+  alert("ISBN lido! Caso os campos não tenham sido preenchidos ou estejam incorretos, digite o Título e Autor manualmente.");
+}
+
+
+// ============================================================================
+// 9. CADASTRO DE NOVO LIVRO NO PAINEL ADMIN (COM LIMPEZA COMPLETA)
+// ============================================================================
+async function cadastrarLivro() {
+  const titulo = document.getElementById('tituloLivro').value;
+  const autor = document.getElementById('autorLivro').value;
+  const qtd = document.getElementById('qtdLivro').value;
+  const isbn = document.getElementById('isbnLivro').value;
