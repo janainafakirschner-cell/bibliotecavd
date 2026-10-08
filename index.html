@@ -456,7 +456,7 @@
   </div>
 
   <script>
-    // URL DA IMPLANTAÇÃO WEB DO GOOGLE APPS SCRIPT
+    // COLOQUE AQUI A SUA URL DA NOVA IMPLANTAÇÃO DO GOOGLE APPS SCRIPT
     var API_URL = "https://script.google.com/macros/s/AKfycbxYVwGesxio2lTOHFJciw476xu1hRVRdlIGh0luLkM2wfVheRtXwzw-OuKVcEHsUWIcXA/exec";
 
     var usuarioLogado = null;
@@ -605,7 +605,7 @@
       params.append("email", email);
       params.append("telefone", tel);
 
-      fetch(API_URL, { method: "POST", body: params })
+      fetch(API_URL + "?" + params.toString(), { method: "POST" })
         .then(function(res) { return res.json(); })
         .then(function(data) {
           alert(data.mensagem);
@@ -856,7 +856,7 @@
       params.append("idLivro", String(idLivroOuIsbn));
       params.append("idAluno", String(usuarioLogado.id));
 
-      fetch(API_URL, { method: "POST", body: params })
+      fetch(API_URL + "?" + params.toString(), { method: "POST" })
         .then(function(res) { return res.json(); })
         .then(function(data) {
           alert(data.mensagem);
@@ -875,7 +875,7 @@
       params.append("categoria", document.getElementById('categoriaLivro').value);
       params.append("qtdTotal", document.getElementById('qtdLivro').value);
 
-      fetch(API_URL, { method: "POST", body: params })
+      fetch(API_URL + "?" + params.toString(), { method: "POST" })
         .then(function(res) { return res.json(); })
         .then(function(data) {
           alert(data.mensagem);
@@ -900,7 +900,7 @@
       params.append("telefoneAluno", document.getElementById('empTelAluno').value.replace(/\D/g, ""));
       params.append("isbn", document.getElementById('empIsbnLivro').value.trim());
 
-      fetch(API_URL, { method: "POST", body: params })
+      fetch(API_URL + "?" + params.toString(), { method: "POST" })
         .then(function(res) { return res.json(); })
         .then(function(data) {
           if (data.status === "sucesso") {
@@ -915,16 +915,21 @@
         });
     }
 
+    // CONFIRMAÇÃO DE DEVOLUÇÃO AJUSTADA PARA PASSAR PARÂMETROS PELA URL (GARANTE RECEBIMENTO NO APPS SCRIPT)
     function adminConfirmarDevolucao() {
+      var isbnDigitado = document.getElementById('devIsbnLivro').value.trim();
+      if (!isbnDigitado) return alert("Por favor, informe ou escaneie o ISBN do livro para devolução!");
+
       var params = new URLSearchParams();
       params.append("acao", "devolverPorIsbn");
-      params.append("isbn", document.getElementById('devIsbnLivro').value.trim());
+      params.append("isbn", isbnDigitado);
 
-      fetch(API_URL, { method: "POST", body: params })
+      fetch(API_URL + "?" + params.toString(), { method: "POST" })
         .then(function(res) { return res.json(); })
         .then(function(data) {
-          alert(data.mensagem);
           if (data.status === "sucesso") {
+            alert("✅ " + data.mensagem);
+
             if (data.temReserva) {
               document.getElementById('devAlertaReserva').classList.remove("hidden");
               alert("⚠️ DEVOLUÇÃO CONCLUÍDA COM AVISO:\nEste livro tem uma reserva pendente! Por favor, guarde-o para o próximo leitor.");
@@ -934,7 +939,12 @@
               voltarMenuAdmin();
             }
             carregarAcervo();
+          } else {
+            alert("❌ Erro ao devolver: " + data.mensagem);
           }
+        })
+        .catch(function(err) {
+          alert("Erro de conexão ao comunicar com o servidor.");
         });
     }
 
@@ -982,7 +992,7 @@
       params.append("acao", "concluirReserva");
       params.append("idReserva", idReserva);
 
-      fetch(API_URL, { method: "POST", body: params })
+      fetch(API_URL + "?" + params.toString(), { method: "POST" })
         .then(function(res) { return res.json(); })
         .then(function(data) {
           alert("Reserva concluída! A redirecionar para a tela de Empréstimo...");
