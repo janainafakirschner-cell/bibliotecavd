@@ -456,12 +456,25 @@
   </div>
 
   <script>
-    // COLOQUE AQUI A SUA URL DA NOVA IMPLANTAÇÃO DO GOOGLE APPS SCRIPT
+    // =========================================================================
+    // INSIRA ABAIXO A SUA URL DA IMPLANTAÇÃO DO GOOGLE APPS SCRIPT (TERMINADA EM /exec)
+    // =========================================================================
     var API_URL = "https://script.google.com/macros/s/AKfycbxYVwGesxio2lTOHFJciw476xu1hRVRdlIGh0luLkM2wfVheRtXwzw-OuKVcEHsUWIcXA/exec";
 
     var usuarioLogado = null;
     var senhaAdminLogado = "";
     var usuarioValidoParaEmprestimo = false;
+
+    // Helper genérico para requisições seguras com o Apps Script
+    function executarRequisicao(paramsUrl, metodo) {
+      metodo = metodo || "GET";
+      var url = API_URL + "?" + paramsUrl;
+      return fetch(url, { method: metodo })
+        .then(function(res) {
+          if (!res.ok) throw new Error("Erro na rede: " + res.statusText);
+          return res.json();
+        });
+    }
 
     function toggleCampoTurmaModal() {
       var perf = document.getElementById("cadPerfil").value;
@@ -511,8 +524,7 @@
         var tel = telInput ? telInput.value.replace(/\D/g, "") : "";
         if (!tel || tel === "5581") return alert("Digite seu celular completo com DDD!");
 
-        fetch(API_URL + "?acao=loginAluno&telefone=" + encodeURIComponent(tel))
-          .then(function(res) { return res.json(); })
+        executarRequisicao("acao=loginAluno&telefone=" + encodeURIComponent(tel))
           .then(function(data) {
             if (data.status === "sucesso") {
               usuarioLogado = data.aluno;
@@ -529,15 +541,17 @@
               alert(data.mensagem);
             }
           })
-          .catch(function() { alert("Erro ao conectar com o servidor."); });
+          .catch(function(err) { 
+            console.error(err);
+            alert("Erro ao conectar com o servidor. Verifique a URL em API_URL e as permissões no Apps Script."); 
+          });
       }
     }
 
     function carregarHistoricoERanking() {
       if (!usuarioLogado) return;
 
-      fetch(API_URL + "?acao=getHistoricoUsuario&idUsuario=" + encodeURIComponent(usuarioLogado.id) + "&telefone=" + encodeURIComponent(usuarioLogado.telefone))
-        .then(function(res) { return res.json(); })
+      executarRequisicao("acao=getHistoricoUsuario&idUsuario=" + encodeURIComponent(usuarioLogado.id) + "&telefone=" + encodeURIComponent(usuarioLogado.telefone))
         .then(function(data) {
           if (data.status === "sucesso") {
             var lidos = data.totalLidos || 0;
@@ -605,14 +619,16 @@
       params.append("email", email);
       params.append("telefone", tel);
 
-      fetch(API_URL + "?" + params.toString(), { method: "POST" })
-        .then(function(res) { return res.json(); })
+      executarRequisicao(params.toString(), "POST")
         .then(function(data) {
           alert(data.mensagem);
           if (data.status === "sucesso") {
             fecharModalPrimeiroAcesso();
             document.getElementById("telLogin").value = tel;
           }
+        })
+        .catch(function(err) {
+          alert("Erro de conexão ao salvar cadastro.");
         });
     }
 
@@ -652,8 +668,7 @@
       var tel = document.getElementById(campoTelId).value.replace(/\D/g, "");
       if (!tel || tel === "5581") return alert("Digite um celular válido com DDD!");
 
-      fetch(API_URL + "?acao=buscarUsuarioPorTelefone&telefone=" + encodeURIComponent(tel))
-        .then(function(res) { return res.json(); })
+      executarRequisicao("acao=buscarUsuarioPorTelefone&telefone=" + encodeURIComponent(tel))
         .then(function(data) {
           if (data.status === "sucesso") {
             var infoTurma = data.perfil === "Aluno" ? " — Turma: " + data.turma : "";
@@ -681,8 +696,7 @@
       var tel = document.getElementById("devTelAluno").value.replace(/\D/g, "");
       if (!tel || tel === "5581") return alert("Digite o celular completo com DDD!");
 
-      fetch(API_URL + "?acao=buscarEmprestimosAtivosPorTelefone&telefone=" + encodeURIComponent(tel))
-        .then(function(res) { return res.json(); })
+      executarRequisicao("acao=buscarEmprestimosAtivosPorTelefone&telefone=" + encodeURIComponent(tel))
         .then(function(data) {
           if (data.status === "sucesso") {
             var infoTurma = data.perfil === "Aluno" ? " — Turma: " + data.turma : "";
@@ -720,8 +734,7 @@
       var isbn = document.getElementById(campoIsbnId).value.trim();
       if (!isbn) return alert("Digite o ISBN do livro!");
 
-      fetch(API_URL + "?acao=buscarLivroPorIsbn&isbn=" + encodeURIComponent(isbn))
-        .then(function(res) { return res.json(); })
+      executarRequisicao("acao=buscarLivroPorIsbn&isbn=" + encodeURIComponent(isbn))
         .then(function(data) {
           if (data.status === "sucesso") {
             document.getElementById(nomeId).innerText = data.titulo + " (Autor: " + data.autor + ")";
@@ -746,8 +759,7 @@
       if (!grid) return;
       grid.innerHTML = "A carregar acervo...";
 
-      fetch(API_URL + "?acao=getLivros")
-        .then(function(res) { return res.json(); })
+      executarRequisicao("acao=getLivros")
         .then(function(data) {
           if (data.status === "sucesso") {
             grid.innerHTML = "";
@@ -856,8 +868,7 @@
       params.append("idLivro", String(idLivroOuIsbn));
       params.append("idAluno", String(usuarioLogado.id));
 
-      fetch(API_URL + "?" + params.toString(), { method: "POST" })
-        .then(function(res) { return res.json(); })
+      executarRequisicao(params.toString(), "POST")
         .then(function(data) {
           alert(data.mensagem);
           if (data.status === "sucesso") carregarAcervo();
@@ -875,8 +886,7 @@
       params.append("categoria", document.getElementById('categoriaLivro').value);
       params.append("qtdTotal", document.getElementById('qtdLivro').value);
 
-      fetch(API_URL + "?" + params.toString(), { method: "POST" })
-        .then(function(res) { return res.json(); })
+      executarRequisicao(params.toString(), "POST")
         .then(function(data) {
           alert(data.mensagem);
           if (data.status === "sucesso") {
@@ -900,8 +910,7 @@
       params.append("telefoneAluno", document.getElementById('empTelAluno').value.replace(/\D/g, ""));
       params.append("isbn", document.getElementById('empIsbnLivro').value.trim());
 
-      fetch(API_URL + "?" + params.toString(), { method: "POST" })
-        .then(function(res) { return res.json(); })
+      executarRequisicao(params.toString(), "POST")
         .then(function(data) {
           if (data.status === "sucesso") {
             alert(data.mensagem);
@@ -915,7 +924,6 @@
         });
     }
 
-    // CONFIRMAÇÃO DE DEVOLUÇÃO AJUSTADA PARA PASSAR PARÂMETROS PELA URL (GARANTE RECEBIMENTO NO APPS SCRIPT)
     function adminConfirmarDevolucao() {
       var isbnDigitado = document.getElementById('devIsbnLivro').value.trim();
       if (!isbnDigitado) return alert("Por favor, informe ou escaneie o ISBN do livro para devolução!");
@@ -924,8 +932,7 @@
       params.append("acao", "devolverPorIsbn");
       params.append("isbn", isbnDigitado);
 
-      fetch(API_URL + "?" + params.toString(), { method: "POST" })
-        .then(function(res) { return res.json(); })
+      executarRequisicao(params.toString(), "POST")
         .then(function(data) {
           if (data.status === "sucesso") {
             alert("✅ " + data.mensagem);
@@ -944,7 +951,8 @@
           }
         })
         .catch(function(err) {
-          alert("Erro de conexão ao comunicar com o servidor.");
+          console.error(err);
+          alert("⚠️ Erro de conexão ao comunicar com o servidor.\n\nVerifique se a variável API_URL está correta e se a implantação no Apps Script está configurada para acesso por 'Qualquer pessoa'.");
         });
     }
 
@@ -952,8 +960,7 @@
       var container = document.getElementById('listaReservasAdmin');
       container.innerHTML = "A carregar reservas...";
 
-      fetch(API_URL + "?acao=getReservas")
-        .then(function(res) { return res.json(); })
+      executarRequisicao("acao=getReservas")
         .then(function(data) {
           if (data.status === "sucesso" && data.reservas && data.reservas.length > 0) {
             var html = '<div style="overflow-x:auto;"><table>' +
@@ -992,8 +999,7 @@
       params.append("acao", "concluirReserva");
       params.append("idReserva", idReserva);
 
-      fetch(API_URL + "?" + params.toString(), { method: "POST" })
-        .then(function(res) { return res.json(); })
+      executarRequisicao(params.toString(), "POST")
         .then(function(data) {
           alert("Reserva concluída! A redirecionar para a tela de Empréstimo...");
           mostrarSecaoAdmin('secaoEmprestimo');
