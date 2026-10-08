@@ -184,7 +184,7 @@
       background-color: #f0f0f0;
     }
 
-    /* ESTILO COM ALTO DESTAQUE PARA OS TÍTULOS DAS SEÇÕES */
+    /* ESTILO DE ALTO DESTAQUE VISUAL PARA O TÍTULO DAS SEÇÕES */
     .titulo-secao-destaque {
       background-color: #1b5e20;
       color: #ffffff;
@@ -420,6 +420,7 @@
   </div>
 
   <script>
+    // ALTERE AQUI PARA A SUA URL DA NOVA IMPLANTAÇÃO DO GOOGLE APPS SCRIPT
     var API_URL = "https://script.google.com/macros/s/AKfycbxYVwGesxio2lTOHFJciw476xu1hRVRdlIGh0luLkM2wfVheRtXwzw-OuKVcEHsUWIcXA/exec";
 
     var usuarioLogado = null;
@@ -685,7 +686,7 @@
         });
     }
 
-    // CARREGAR ACERVO: DESMEMBRAMENTO DE MULTI-CATEGORIAS + DUPLA ORDENAÇÃO ALFABÉTICA + ALTO DESTAQUE VISUAL
+    // CARREGAR ACERVO: DESMEMBRAMENTO REAL DE SEÇÕES + PADRONIZAÇÃO MAIÚSCULAS + DUPLA ORDENAÇÃO A-Z
     function carregarAcervo() {
       var grid = document.getElementById("gridLivros");
       if (!grid) return;
@@ -698,18 +699,34 @@
             grid.innerHTML = "";
             var categoriasMap = {};
 
+            function formatarNomeSecao(str) {
+              if (!str) return "Geral / Outros";
+              return str.trim().toLowerCase().split(" ").map(function(palavra) {
+                if (palavra.length === 0) return "";
+                return palavra.charAt(0).toUpperCase() + palavra.slice(1);
+              }).join(" ");
+            }
+
             data.livros.forEach(function(livro) {
               var strCat = (livro.categoria && livro.categoria.trim() !== "") ? livro.categoria.trim() : "Geral / Outros";
-              // Separa múltiplas categorias delimitadas por vírgulas
-              var listaCategorias = strCat.split(",");
+              var listaCategorias = strCat.split(/[,/]+/);
 
               listaCategorias.forEach(function(catItem) {
-                var catFormatada = catItem.trim();
-                if (catFormatada !== "") {
-                  // Normaliza a primeira letra em maiúscula
-                  catFormatada = catFormatada.charAt(0).toUpperCase() + catFormatada.slice(1);
-                  if (!categoriasMap[catFormatada]) categoriasMap[catFormatada] = [];
-                  categoriasMap[catFormatada].push(livro);
+                var catLimpa = catItem.trim();
+                if (catLimpa !== "") {
+                  var chaveBusca = catLimpa.toLowerCase();
+                  var nomeFormatado = formatarNomeSecao(catLimpa);
+
+                  var chaveExistente = Object.keys(categoriasMap).find(function(k) {
+                    return k.toLowerCase() === chaveBusca;
+                  });
+
+                  if (chaveExistente) {
+                    var jaExiste = categoriasMap[chaveExistente].some(function(l) { return l.id === livro.id; });
+                    if (!jaExiste) categoriasMap[chaveExistente].push(livro);
+                  } else {
+                    categoriasMap[nomeFormatado] = [livro];
+                  }
                 }
               });
             });
@@ -726,7 +743,7 @@
               // TÍTULO DA SEÇÃO COM DESTAQUE VISUAL
               var tituloCat = document.createElement("div");
               tituloCat.className = "titulo-secao-destaque";
-              tituloCat.innerHTML = '<span>📚</span> <span>' + nomeCategoria.toUpperCase() + '</span>';
+              tituloCat.innerHTML = '<span>📚</span> <span>' + nomeCategoria + '</span>';
               blocoCat.appendChild(tituloCat);
 
               var listaLivros = document.createElement("ul");
