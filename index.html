@@ -403,6 +403,7 @@
   </div>
 
   <script>
+    // ALTERE AQUI PARA A SUA URL DA NOVA IMPLANTAÇÃO DO GOOGLE APPS SCRIPT
     var API_URL = "https://script.google.com/macros/s/AKfycbxYVwGesxio2lTOHFJciw476xu1hRVRdlIGh0luLkM2wfVheRtXwzw-OuKVcEHsUWIcXA/exec";
 
     var usuarioLogado = null;
@@ -604,6 +605,7 @@
         });
     }
 
+    // BUSCA EMPRÉSTIMOS ATIVOS COM NOME COMPLETO DO LIVRO E FORMATO EXATO DE DATA/ATRASO
     function buscarEmprestimosDevolucao() {
       var tel = document.getElementById("devTelAluno").value.replace(/\D/g, "");
       if (!tel || tel === "5581") return alert("Digite o celular completo com DDD!");
@@ -617,13 +619,14 @@
             var containerList = document.getElementById("devListaEmprestimosAtivos");
             
             if (data.emprestimosAtivos && data.emprestimosAtivos.length > 0) {
-              var html = '<b>Livros Atualmente em Mãos:</b><ul style="margin:5px 0; padding-left:20px;">';
+              var html = '<b style="display:block; margin-top:8px;">Livros Atualmente em Mãos:</b><ul style="margin:5px 0; padding-left:20px;">';
               data.emprestimosAtivos.forEach(function(item) {
-                var avisoAtraso = item.diasAtraso > 0 
-                  ? ' <span style="color:#d32f2f; font-weight:bold;">(⚠️ Atrasado em ' + item.diasAtraso + ' dia(s))</span>' 
-                  : ' <span style="color:#2e7d32;">(Em dia)</span>';
+                var statusAtraso = item.diasAtraso > 0 
+                  ? ' <span style="color:#d32f2f; font-weight:bold;">(atrasado ' + item.diasAtraso + ' ' + (item.diasAtraso === 1 ? 'dia' : 'dias') + ')</span>' 
+                  : ' <span style="color:#2e7d32; font-weight:bold;">(Em dia)</span>';
                 
-                html += '<li><b>' + item.tituloLivro + '</b> — Devolução: ' + item.dataVencimento + avisoAtraso + '</li>';
+                // Formato exigido: Dom Casmurro — 22/10/26: (Em dia) / Capitães de Areia — 07/10/26 (atrasado 1 dia)
+                html += '<li><b>' + item.tituloLivro + '</b> — ' + item.dataVencimento + ': ' + statusAtraso + '</li>';
               });
               html += '</ul>';
               containerList.innerHTML = html;
@@ -668,7 +671,6 @@
         });
     }
 
-    // CARREGAR ACERVO DO LEITOR (REMOVIDO O BOTÃO SOLICITAR EMPRÉSTIMO)
     function carregarAcervo() {
       var grid = document.getElementById("gridLivros");
       if (!grid) return;
@@ -713,10 +715,8 @@
                 item.style.justifyContent = "space-between";
                 item.style.alignItems = "center";
 
-                // Se houver exemplares: exibe apenas o status em verde sem botões.
-                // Se estiver esgotado: exibe o botão de Reserva.
                 var elementoAcaoHtml = semExemplares 
-                  ? '<button onclick="solicitarOuReservar(\'' + livro.id + '\')" style="background:#e65100; color:#fff; border:none; padding:8px 14px; border-radius:6px; cursor:pointer; font-weight:bold;">Reservar (Fila de Espera)</button>' 
+                  ? '<button onclick="solicitarOuReservar(\'' + (livro.isbn && livro.isbn !== '-' ? livro.isbn : livro.id) + '\')" style="background:#e65100; color:#fff; border:none; padding:8px 14px; border-radius:6px; cursor:pointer; font-weight:bold;">Reservar (Fila de Espera)</button>' 
                   : '<span style="color:#2e7d32; font-weight:bold; font-size:0.95rem;">✓ Disponível na Biblioteca</span>';
 
                 item.innerHTML = 
@@ -743,14 +743,14 @@
         });
     }
 
-    function solicitarOuReservar(idLivro) {
+    function solicitarOuReservar(idLivroOuIsbn) {
       if (!usuarioLogado) return alert("Efetue login primeiro!");
 
       if (!confirm("Todos os exemplares estão emprestados. Deseja entrar na fila de espera deste livro?")) return;
 
       var params = new URLSearchParams();
       params.append("acao", "reservarLivro");
-      params.append("idLivro", String(idLivro));
+      params.append("idLivro", String(idLivroOuIsbn));
       params.append("idAluno", String(usuarioLogado.id));
 
       fetch(API_URL, { method: "POST", body: params })
