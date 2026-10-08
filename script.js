@@ -1,7 +1,7 @@
 // ============================================================================
 // CONFIGURAÇÃO DA API E VARIÁVEIS DE ESTADO
 // ============================================================================
-var API_URL = "https://script.google.com/macros/s/AKfycbx1XqxWp61L6yEfIS1AWSaCyDJ8fbJ6lqaUbzIlpLZjkrjVvB7aJHX37Rc6cFOgr2PJjw/exec";
+var API_URL = "https://script.google.com/macros/s/AKfycbxYVwGesxio2lTOHFJciw476xu1hRVRdlIGh0luLkM2wfVheRtXwzw-OuKVcEHsUWIcXA/exec";
 
 var usuarioLogado = null;
 var senhaAdminLogado = "";
