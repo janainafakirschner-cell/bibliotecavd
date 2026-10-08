@@ -73,6 +73,13 @@
       background-color: #8ed018;
     }
 
+    .btn-entrar:disabled {
+      background-color: #cccccc !important;
+      cursor: not-allowed;
+      border-color: #888888;
+      color: #666666;
+    }
+
     .link-cadastro {
       margin-top: 15px;
     }
@@ -157,6 +164,16 @@
       color: #1b5e20;
     }
 
+    .caixa-erro {
+      background-color: #ffebee;
+      border: 2px solid #d32f2f;
+      border-radius: 10px;
+      padding: 12px;
+      margin: 10px 0 15px 0;
+      color: #c62828;
+      font-weight: bold;
+    }
+
     .caixa-alerta-reserva {
       background-color: #fff3e0;
       border: 3px solid #e65100;
@@ -184,7 +201,6 @@
       background-color: #f0f0f0;
     }
 
-    /* ESTILO DE ALTO DESTAQUE VISUAL PARA O TÍTULO DAS SEÇÕES */
     .titulo-secao-destaque {
       background-color: #1b5e20;
       color: #ffffff;
@@ -294,7 +310,7 @@
     
     <div id="menuAdminCards" class="grid-admin">
       <button class="card-btn" onclick="mostrarSecaoAdmin('secaoCadastrar')">cadastrar</button>
-      <button class="card-btn" onclick="mostrarSecaoAdmin('secaoEmprestimo')">esprestimo</button>
+      <button class="card-btn" onclick="mostrarSecaoAdmin('secaoEmprestimo')">emprestimo</button>
       <button class="card-btn" onclick="mostrarSecaoAdmin('secaoDevolucao')">devolução</button>
       <button class="card-btn" onclick="mostrarSecaoAdmin('secaoReservas')">reservas</button>
     </div>
@@ -313,17 +329,21 @@
       <button onclick="voltarMenuAdmin()" class="btn-voltar-menu">← Voltar ao Menu</button>
     </div>
 
-    <!-- EMPRÉSTIMO -->
+    <!-- EMPRÉSTIMO COM TRAVA DE SEGURANÇA E BOTÃO DESABILITADO -->
     <div id="secaoEmprestimo" class="secao-admin hidden">
       <h3>Registrar Empréstimo Manual</h3>
       <label>1. Telefone do Utilizador (DDD + Número):</label><br>
       <div style="display:flex; gap:10px; align-items:center;">
-        <input type="text" id="empTelAluno" value="5581" placeholder="55819XXXXXXXX" style="margin-bottom:0;">
+        <input type="text" id="empTelAluno" value="5581" placeholder="55819XXXXXXXX" style="margin-bottom:0;" oninput="resetarValidacaoUsuarioEmp()">
         <button onclick="buscarNomePorTelefone('emp')" style="padding:10px 15px; cursor:pointer;">Procurar Nome</button>
       </div>
 
       <div id="empConfirmacaoNome" class="caixa-confirmacao hidden">
-        Utilizador: <b id="empNomeCompleto">---</b>
+        Utilizador Registado: <b id="empNomeCompleto">---</b>
+      </div>
+
+      <div id="empErroUsuario" class="caixa-erro hidden">
+        ⚠️ Utilizador NÃO REGISTADO no sistema! Não é possível realizar o empréstimo.
       </div>
       <br>
 
@@ -339,7 +359,8 @@
       </div>
       <br><br>
       
-      <button onclick="adminConfirmarEmprestimo()" class="btn-entrar">Confirmar Empréstimo</button>
+      <!-- O BOTÃO INICIA DESABILITADO ATÉ QUE O UTILIZADOR SEJA ENCONTRADO -->
+      <button id="btnConfirmarEmprestimo" onclick="adminConfirmarEmprestimo()" class="btn-entrar" disabled>Confirmar Empréstimo</button>
       <button onclick="voltarMenuAdmin()" class="btn-voltar-menu">← Voltar ao Menu</button>
     </div>
 
@@ -420,11 +441,11 @@
   </div>
 
   <script>
-    // ALTERE AQUI PARA A SUA URL DA NOVA IMPLANTAÇÃO DO GOOGLE APPS SCRIPT
     var API_URL = "https://script.google.com/macros/s/AKfycbxYVwGesxio2lTOHFJciw476xu1hRVRdlIGh0luLkM2wfVheRtXwzw-OuKVcEHsUWIcXA/exec";
 
     var usuarioLogado = null;
     var senhaAdminLogado = "";
+    var usuarioValidoParaEmprestimo = false;
 
     function toggleCampoTurmaModal() {
       var perf = document.getElementById("cadPerfil").value;
@@ -588,12 +609,19 @@
       if (idSecao === "secaoReservas") carregarReservasAdmin();
     }
 
+    function resetarValidacaoUsuarioEmp() {
+      usuarioValidoParaEmprestimo = false;
+      document.getElementById('btnConfirmarEmprestimo').disabled = true;
+      document.getElementById('empConfirmacaoNome').classList.add('hidden');
+      document.getElementById('empErroUsuario').classList.add('hidden');
+    }
+
     function voltarMenuAdmin() {
       var secoes = document.querySelectorAll(".secao-admin");
       secoes.forEach(function(s) { s.classList.add("hidden"); });
       document.getElementById("menuAdminCards").classList.remove("hidden");
 
-      document.getElementById('empConfirmacaoNome').classList.add('hidden');
+      resetarValidacaoUsuarioEmp();
       document.getElementById('devConfirmacaoNome').classList.add('hidden');
       document.getElementById('empConfirmacaoLivro').classList.add('hidden');
       document.getElementById('devConfirmacaoLivro').classList.add('hidden');
@@ -615,9 +643,20 @@
             var infoTurma = data.perfil === "Aluno" ? " — Turma: " + data.turma : "";
             document.getElementById(nomeId).innerText = data.nome + " (" + data.perfil + infoTurma + ")";
             document.getElementById(caixaId).classList.remove("hidden");
+
+            if (tipo === 'emp') {
+              usuarioValidoParaEmprestimo = true;
+              document.getElementById('empErroUsuario').classList.add('hidden');
+              document.getElementById('btnConfirmarEmprestimo').disabled = false;
+            }
           } else {
             document.getElementById(caixaId).classList.add("hidden");
-            alert(data.mensagem);
+            if (tipo === 'emp') {
+              usuarioValidoParaEmprestimo = false;
+              document.getElementById('btnConfirmarEmprestimo').disabled = true;
+              document.getElementById('empErroUsuario').classList.remove('hidden');
+            }
+            alert("⚠️ NOTIFICAÇÃO DE ERRO:\n\n" + data.mensagem);
           }
         });
     }
@@ -652,7 +691,7 @@
             document.getElementById("devConfirmacaoNome").classList.remove("hidden");
           } else {
             document.getElementById("devConfirmacaoNome").classList.add("hidden");
-            alert(data.mensagem);
+            alert("⚠️ NOTIFICAÇÃO DE ERRO:\n\n" + data.mensagem);
           }
         });
     }
@@ -686,7 +725,6 @@
         });
     }
 
-    // CARREGAR ACERVO: DESMEMBRAMENTO REAL DE SEÇÕES + PADRONIZAÇÃO MAIÚSCULAS + DUPLA ORDENAÇÃO A-Z
     function carregarAcervo() {
       var grid = document.getElementById("gridLivros");
       if (!grid) return;
@@ -731,7 +769,6 @@
               });
             });
 
-            // 1. ORDENA AS SEÇÕES EM ORDEM ALFABÉTICA (A -> Z)
             var secoesOrdenadas = Object.keys(categoriasMap).sort(function(a, b) {
               return a.localeCompare(b, 'pt-BR', { sensitivity: 'base' });
             });
@@ -740,7 +777,6 @@
               var blocoCat = document.createElement("div");
               blocoCat.style.marginBottom = "35px";
 
-              // TÍTULO DA SEÇÃO COM DESTAQUE VISUAL
               var tituloCat = document.createElement("div");
               tituloCat.className = "titulo-secao-destaque";
               tituloCat.innerHTML = '<span>📚</span> <span>' + nomeCategoria + '</span>';
@@ -751,7 +787,6 @@
               listaLivros.style.padding = "0";
               listaLivros.style.margin = "0";
 
-              // 2. ORDENA OS LIVROS DENTRO DA SEÇÃO POR TÍTULO (A -> Z)
               var livrosDaSecao = categoriasMap[nomeCategoria].sort(function(a, b) {
                 return (a.titulo || "").localeCompare((b.titulo || ""), 'pt-BR', { sensitivity: 'base' });
               });
@@ -840,6 +875,10 @@
     }
 
     function adminConfirmarEmprestimo() {
+      if (!usuarioValidoParaEmprestimo) {
+        return alert("🚫 ERRO DE REGISTO:\n\nNão é possível registar o empréstimo! Clique em 'Procurar Nome' para confirmar se o utilizador possui registo no sistema.");
+      }
+
       var params = new URLSearchParams();
       params.append("acao", "emprestarPorIsbn");
       params.append("telefoneAluno", document.getElementById('empTelAluno').value.replace(/\D/g, ""));
@@ -848,12 +887,14 @@
       fetch(API_URL, { method: "POST", body: params })
         .then(function(res) { return res.json(); })
         .then(function(data) {
-          alert(data.mensagem);
           if (data.status === "sucesso") {
+            alert(data.mensagem);
             document.getElementById('empTelAluno').value = "5581";
             document.getElementById('empIsbnLivro').value = "";
             voltarMenuAdmin();
             carregarAcervo();
+          } else {
+            alert("⚠️ " + data.mensagem);
           }
         });
     }
