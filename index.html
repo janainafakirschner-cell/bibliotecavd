@@ -157,6 +157,16 @@
       color: #1b5e20;
     }
 
+    .caixa-alerta-reserva {
+      background-color: #fff3e0;
+      border: 3px solid #e65100;
+      border-radius: 12px;
+      padding: 15px;
+      margin: 15px 0;
+      color: #bf360c;
+      font-weight: bold;
+    }
+
     .card-ranking {
       background-color: #fffde7;
       border: 3px solid #fbc02d;
@@ -237,20 +247,19 @@
   </div>
 
 
-  <!-- PAINEL DO LEITOR (ALUNO / PROFESSOR) -->
+  <!-- PAINEL DO LEITOR -->
   <div id="painelUsuario" class="container hidden">
     <div class="header-user">
       <div>
         <h2>Acervo da Biblioteca</h2>
-        <span>Olá, <b id="nomeUsuarioHeader"></b> (<span id="perfilUsuarioHeader"></span>)!</span>
+        <span>Olá, <b id="nomeUsuarioHeader"></b> (<span id="perfilUsuarioHeader"></span> - Turma: <span id="turmaUsuarioHeader">-</span>)!</span>
       </div>
       <button onclick="sair()" class="btn-sair">Sair</button>
     </div>
 
-    <!-- SEÇÃO DE RANKING E HISTÓRICO -->
     <div id="cardRanking" class="card-ranking" style="margin-top: 20px;">
       <h3 style="margin-top:0; color: #f57f17;">🏆 Conquistas do Leitor</h3>
-      <p style="margin: 5px 0;">Livros lidos devolvidos: <b id="qtdLivrosLidos">0</b></p>
+      <p style="margin: 5px 0;">Livros devolvidos: <b id="qtdLivrosLidos">0</b></p>
       <p style="margin: 5px 0;">Categoria: <b id="nomeCategoriaLeitor" style="font-size: 1.1rem; color: #d81b60;">Leitor Baby</b></p>
       <p id="fraseIncentivo" style="font-style: italic; color: #555; margin-top: 10px;">"Todo grande leitor começa pela primeira página!"</p>
     </div>
@@ -308,7 +317,8 @@
       </div>
 
       <div id="empConfirmacaoLivro" class="caixa-confirmacao hidden">
-        Livro: <b id="empNomeLivro">---</b>
+        Livro: <b id="empNomeLivro">---</b><br>
+        📅 <b>Data Prevista de Devolução: <span id="empDataDevolucaoPrevista">---</span></b>
       </div>
       <br><br>
       
@@ -319,14 +329,15 @@
     <!-- DEVOLUÇÃO -->
     <div id="secaoDevolucao" class="secao-admin hidden">
       <h3>Registrar Devolução de Livro</h3>
-      <label>1. Telefone do Utilizador:</label><br>
+      <label>1. Telefone do Utilizador (Procurar Livros Emprestados):</label><br>
       <div style="display:flex; gap:10px; align-items:center;">
         <input type="text" id="devTelAluno" value="5581" placeholder="55819XXXXXXXX" style="margin-bottom:0;">
-        <button onclick="buscarNomePorTelefone('dev')" style="padding:10px 15px; cursor:pointer;">Procurar Nome</button>
+        <button onclick="buscarEmprestimosDevolucao()" style="padding:10px 15px; cursor:pointer;">Procurar Nome & Livros</button>
       </div>
 
       <div id="devConfirmacaoNome" class="caixa-confirmacao hidden">
-        Devolvido por: <b id="devNomeCompleto">---</b>
+        Utilizador: <b id="devNomeCompleto">---</b>
+        <div id="devListaEmprestimosAtivos" style="margin-top:10px;"></div>
       </div>
       <br>
 
@@ -338,6 +349,10 @@
 
       <div id="devConfirmacaoLivro" class="caixa-confirmacao hidden">
         Livro: <b id="devNomeLivro">---</b>
+      </div>
+
+      <div id="devAlertaReserva" class="caixa-alerta-reserva hidden">
+        ⚠️ ATENÇÃO: Este livro possui uma RESERVA PENDENTE na fila de espera! Guarde o livro para o próximo leitor.
       </div>
       <br><br>
       
@@ -356,7 +371,7 @@
   </div>
 
 
-  <!-- MODAL DE PRIMEIRO ACESSO -->
+  <!-- MODAL PRIMEIRO ACESSO -->
   <div id="modalPrimeiroAcesso" class="modal hidden">
     <div class="modal-content">
       <h3>Cadastrar 1º Acesso</h3>
@@ -364,10 +379,15 @@
       <input type="text" id="cadNome" placeholder="Digite seu nome">
       
       <label>Perfil:</label>
-      <select id="cadPerfil">
+      <select id="cadPerfil" onchange="toggleCampoTurmaModal()">
         <option value="Aluno">Aluno</option>
         <option value="Professor">Professor</option>
       </select>
+
+      <div id="grupoModalTurma">
+        <label>Turma / Ano:</label>
+        <input type="text" id="cadTurma" placeholder="ex: 1º Ano A">
+      </div>
       
       <label>E-mail:</label>
       <input type="email" id="cadEmail" placeholder="seuemail@exemplo.com">
@@ -387,6 +407,16 @@
 
     var usuarioLogado = null;
     var senhaAdminLogado = "";
+
+    function toggleCampoTurmaModal() {
+      var perf = document.getElementById("cadPerfil").value;
+      var gTurma = document.getElementById("grupoModalTurma");
+      if (perf === "Professor") {
+        gTurma.classList.add("hidden");
+      } else {
+        gTurma.classList.remove("hidden");
+      }
+    }
 
     function mudarPerfilLogin() {
       var perfil = document.getElementById("selectPerfil").value;
@@ -435,6 +465,7 @@
               
               document.getElementById("nomeUsuarioHeader").innerText = usuarioLogado.nome;
               document.getElementById("perfilUsuarioHeader").innerText = usuarioLogado.perfil || perfil;
+              document.getElementById("turmaUsuarioHeader").innerText = usuarioLogado.turma || "-";
 
               mostrarTela("painelUsuario");
               carregarAcervo();
@@ -447,7 +478,6 @@
       }
     }
 
-    // CARREGAR HISTÓRICO E RANKING
     function carregarHistoricoERanking() {
       if (!usuarioLogado) return;
 
@@ -496,6 +526,7 @@
 
     function abrirModalPrimeiroAcesso() {
       document.getElementById("modalPrimeiroAcesso").classList.remove("hidden");
+      toggleCampoTurmaModal();
     }
 
     function fecharModalPrimeiroAcesso() {
@@ -505,6 +536,7 @@
     function salvarPrimeiroAcesso() {
       var nome = document.getElementById("cadNome").value;
       var perfil = document.getElementById("cadPerfil").value;
+      var turma = document.getElementById("cadTurma").value;
       var email = document.getElementById("cadEmail").value;
       var tel = document.getElementById("cadTelefone").value.replace(/\D/g, "");
 
@@ -514,6 +546,7 @@
       params.append("acao", "cadastrarUsuario");
       params.append("nome", nome);
       params.append("perfil", perfil);
+      params.append("turma", perfil === "Aluno" ? turma : "-");
       params.append("email", email);
       params.append("telefone", tel);
 
@@ -546,9 +579,9 @@
       document.getElementById('devConfirmacaoNome').classList.add('hidden');
       document.getElementById('empConfirmacaoLivro').classList.add('hidden');
       document.getElementById('devConfirmacaoLivro').classList.add('hidden');
+      document.getElementById('devAlertaReserva').classList.add('hidden');
     }
 
-    // CONFIRMAÇÃO DE USUÁRIO POR TELEFONE
     function buscarNomePorTelefone(tipo) {
       var campoTelId = tipo === 'emp' ? 'empTelAluno' : 'devTelAluno';
       var caixaId = tipo === 'emp' ? 'empConfirmacaoNome' : 'devConfirmacaoNome';
@@ -561,7 +594,8 @@
         .then(function(res) { return res.json(); })
         .then(function(data) {
           if (data.status === "sucesso") {
-            document.getElementById(nomeId).innerText = data.nome + " (" + data.perfil + ")";
+            var infoTurma = data.perfil === "Aluno" ? " — Turma: " + data.turma : "";
+            document.getElementById(nomeId).innerText = data.nome + " (" + data.perfil + infoTurma + ")";
             document.getElementById(caixaId).classList.remove("hidden");
           } else {
             document.getElementById(caixaId).classList.add("hidden");
@@ -570,7 +604,41 @@
         });
     }
 
-    // CONFIRMAÇÃO DE LIVRO POR ISBN
+    function buscarEmprestimosDevolucao() {
+      var tel = document.getElementById("devTelAluno").value.replace(/\D/g, "");
+      if (!tel || tel === "5581") return alert("Digite o celular completo com DDD!");
+
+      fetch(API_URL + "?acao=buscarEmprestimosAtivosPorTelefone&telefone=" + encodeURIComponent(tel))
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.status === "sucesso") {
+            var infoTurma = data.perfil === "Aluno" ? " — Turma: " + data.turma : "";
+            document.getElementById("devNomeCompleto").innerText = data.nome + " (" + data.perfil + infoTurma + ")";
+            var containerList = document.getElementById("devListaEmprestimosAtivos");
+            
+            if (data.emprestimosAtivos && data.emprestimosAtivos.length > 0) {
+              var html = '<b>Livros Atualmente em Mãos:</b><ul style="margin:5px 0; padding-left:20px;">';
+              data.emprestimosAtivos.forEach(function(item) {
+                var avisoAtraso = item.diasAtraso > 0 
+                  ? ' <span style="color:#d32f2f; font-weight:bold;">(⚠️ Atrasado em ' + item.diasAtraso + ' dia(s))</span>' 
+                  : ' <span style="color:#2e7d32;">(Em dia)</span>';
+                
+                html += '<li><b>' + item.tituloLivro + '</b> — Devolução: ' + item.dataVencimento + avisoAtraso + '</li>';
+              });
+              html += '</ul>';
+              containerList.innerHTML = html;
+            } else {
+              containerList.innerHTML = '<p style="color:#555; margin:5px 0;">Nenhum livro pendente de devolução para este utilizador.</p>';
+            }
+
+            document.getElementById("devConfirmacaoNome").classList.remove("hidden");
+          } else {
+            document.getElementById("devConfirmacaoNome").classList.add("hidden");
+            alert(data.mensagem);
+          }
+        });
+    }
+
     function buscarLivroPorIsbn(tipo) {
       var campoIsbnId = tipo === 'emp' ? 'empIsbnLivro' : 'devIsbnLivro';
       var caixaId = tipo === 'emp' ? 'empConfirmacaoLivro' : 'devConfirmacaoLivro';
@@ -584,6 +652,14 @@
         .then(function(data) {
           if (data.status === "sucesso") {
             document.getElementById(nomeId).innerText = data.titulo + " (Autor: " + data.autor + ")";
+            
+            if (tipo === 'emp') {
+              var dataDev = new Date();
+              dataDev.setDate(dataDev.getDate() + 14);
+              var dataDevStr = dataDev.toLocaleDateString('pt-BR');
+              document.getElementById("empDataDevolucaoPrevista").innerText = dataDevStr;
+            }
+
             document.getElementById(caixaId).classList.remove("hidden");
           } else {
             document.getElementById(caixaId).classList.add("hidden");
@@ -592,6 +668,7 @@
         });
     }
 
+    // CARREGAR ACERVO DO LEITOR (SEM BOTÃO DE SOLICITAR EMPRÉSTIMO)
     function carregarAcervo() {
       var grid = document.getElementById("gridLivros");
       if (!grid) return;
@@ -636,19 +713,19 @@
                 item.style.justifyContent = "space-between";
                 item.style.alignItems = "center";
 
-                var textoBotao = semExemplares ? 'Reservar (Fila de Espera)' : 'Solicitar Empréstimo';
-                var corBotao = semExemplares ? '#e65100' : '#2e7d32';
+                // EXIBE O BOTÃO SOMENTE PARA RESERVAR QUANDO ESTIVER ESGOTADO
+                var botaoHtml = semExemplares 
+                  ? '<button onclick="solicitarOuReservar(\'' + livro.id + '\')" style="background:#e65100; color:#fff; border:none; padding:8px 14px; border-radius:6px; cursor:pointer; font-weight:bold;">Reservar (Fila de Espera)</button>' 
+                  : '<span style="color:#2e7d32; font-weight:bold;">Disponível na Biblioteca</span>';
 
                 item.innerHTML = 
                   '<div>' +
                     '<strong>' + livro.titulo + '</strong> — <small>Autor: ' + livro.autor + '</small><br>' +
                     '<span style="font-size: 0.9em; color: ' + (semExemplares ? '#d32f2f' : '#2e7d32') + ';">' +
-                      'Disponíveis: <strong>' + (isNaN(disponivel) ? 0 : disponivel) + '</strong>' +
+                      'Disponíveis no acervo: <strong>' + (isNaN(disponivel) ? 0 : disponivel) + '</strong>' +
                     '</span>' +
                   '</div>' +
-                  '<button onclick="solicitarOuReservar(\'' + livro.id + '\', ' + semExemplares + ')" style="background:' + corBotao + '; color:#fff; border:none; padding:8px 14px; border-radius:6px; cursor:pointer; font-weight:bold;">' +
-                    textoBotao +
-                  '</button>';
+                  '<div>' + botaoHtml + '</div>';
 
                 listaLivros.appendChild(item);
               });
@@ -660,11 +737,10 @@
         });
     }
 
-    function solicitarOuReservar(idLivro, ehReserva) {
+    function solicitarOuReservar(idLivro) {
       if (!usuarioLogado) return alert("Efetue login primeiro!");
 
-      var msgConfirmacao = ehReserva ? "Deseja entrar na fila de espera deste livro?" : "Confirmar empréstimo deste livro?";
-      if (!confirm(msgConfirmacao)) return;
+      if (!confirm("Todos os exemplares estão emprestados. Deseja entrar na fila de espera deste livro?")) return;
 
       var params = new URLSearchParams();
       params.append("acao", "reservarLivro");
@@ -734,9 +810,14 @@
         .then(function(data) {
           alert(data.mensagem);
           if (data.status === "sucesso") {
-            document.getElementById('devTelAluno').value = "5581";
-            document.getElementById('devIsbnLivro').value = "";
-            voltarMenuAdmin();
+            if (data.temReserva) {
+              document.getElementById('devAlertaReserva').classList.remove("hidden");
+              alert("⚠️ DEVOLUÇÃO CONCLUÍDA COM AVISO:\nEste livro tem uma reserva pendente! Por favor, guarde-o para o próximo leitor.");
+            } else {
+              document.getElementById('devTelAluno').value = "5581";
+              document.getElementById('devIsbnLivro').value = "";
+              voltarMenuAdmin();
+            }
             carregarAcervo();
           }
         });
@@ -751,19 +832,19 @@
         .then(function(data) {
           if (data.status === "sucesso" && data.reservas && data.reservas.length > 0) {
             var html = '<div style="overflow-x:auto;"><table border="1" style="width:100%; border-collapse:collapse; text-align:left;">' +
-              '<tr style="background:#f2f2f2; height:40px;"><th>ID Reserva</th><th>Nome do Livro</th><th>Requerente</th><th>Perfil</th><th>Celular</th><th>Status</th><th>Ação</th></tr>';
+              '<tr style="background:#f2f2f2; height:40px;"><th>ID Reserva</th><th>Nome do Livro</th><th>Requerente</th><th>Perfil</th><th>Turma</th><th>Celular</th><th>Status</th><th>Ação</th></tr>';
             data.reservas.forEach(function(r) {
-              html += '<tr><td><b>' + r.idReserva + '</b></td><td>' + r.nomeLivro + '</td><td>' + r.nomeRequerente + '</td><td>' + r.perfilRequerente + '</td><td>' + r.celularRequerente + '</td><td>' + r.status + '</td>' +
-                '<td><button onclick="concluirReservaAdmin(\'' + r.idReserva + '\')" style="background-color:#a6e22e; border:2px solid #000; border-radius:6px; font-weight:bold; cursor:pointer; padding:5px 10px;">Concluir</button></td></tr>';
+              html += '<tr><td><b>' + r.idReserva + '</b></td><td>' + r.nomeLivro + '</td><td>' + r.nomeRequerente + '</td><td>' + r.perfilRequerente + '</td><td>' + r.turmaRequerente + '</td><td>' + r.celularRequerente + '</td><td>' + r.status + '</td>' +
+                '<td><button onclick="concluirERedirecionarEmprestimo(\'' + r.idReserva + '\', \'' + r.celularRequerente + '\', \'' + (r.isbnLivro || '') + '\')" style="background-color:#a6e22e; border:2px solid #000; border-radius:6px; font-weight:bold; cursor:pointer; padding:6px 12px;">Concluir e Emprestar</button></td></tr>';
             });
             container.innerHTML = html + '</table></div>';
           } else {
-            container.innerHTML = "<p>Nenhuma reserva pendente encontrada.</p>";
+            container.innerHTML = "<p style='padding:15px; background:#f9f9f9; border:1px solid #ddd; border-radius:8px;'>Nenhuma reserva pendente encontrada.</p>";
           }
         });
     }
 
-    function concluirReservaAdmin(idReserva) {
+    function concluirERedirecionarEmprestimo(idReserva, celular, isbn) {
       var params = new URLSearchParams();
       params.append("acao", "concluirReserva");
       params.append("idReserva", idReserva);
@@ -771,8 +852,17 @@
       fetch(API_URL, { method: "POST", body: params })
         .then(function(res) { return res.json(); })
         .then(function(data) {
-          alert(data.mensagem);
-          if (data.status === "sucesso") carregarReservasAdmin();
+          alert("Reserva concluída! A redirecionar para a tela de Empréstimo...");
+          mostrarSecaoAdmin('secaoEmprestimo');
+          
+          if (celular && celular !== "-") {
+            document.getElementById('empTelAluno').value = celular;
+            buscarNomePorTelefone('emp');
+          }
+          if (isbn) {
+            document.getElementById('empIsbnLivro').value = isbn;
+            buscarLivroPorIsbn('emp');
+          }
         });
     }
 
