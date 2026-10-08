@@ -245,6 +245,22 @@
       border-radius: 8px;
       box-sizing: border-box;
     }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      border: 2px solid #000;
+      padding: 10px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
   </style>
 </head>
 <body>
@@ -359,7 +375,6 @@
       </div>
       <br><br>
       
-      <!-- O BOTÃO INICIA DESABILITADO ATÉ QUE O UTILIZADOR SEJA ENCONTRADO -->
       <button id="btnConfirmarEmprestimo" onclick="adminConfirmarEmprestimo()" class="btn-entrar" disabled>Confirmar Empréstimo</button>
       <button onclick="voltarMenuAdmin()" class="btn-voltar-menu">← Voltar ao Menu</button>
     </div>
@@ -661,6 +676,7 @@
         });
     }
 
+    // EXIBIÇÃO DE EMPRÉSTIMOS COM NOME E ISBN
     function buscarEmprestimosDevolucao() {
       var tel = document.getElementById("devTelAluno").value.replace(/\D/g, "");
       if (!tel || tel === "5581") return alert("Digite o celular completo com DDD!");
@@ -680,7 +696,8 @@
                   ? ' <span style="color:#d32f2f; font-weight:bold;">(atrasado ' + item.diasAtraso + ' ' + (item.diasAtraso === 1 ? 'dia' : 'dias') + ')</span>' 
                   : ' <span style="color:#2e7d32; font-weight:bold;">(Em dia)</span>';
                 
-                html += '<li><b>' + item.tituloLivro + '</b> — ' + item.dataVencimento + ': ' + statusAtraso + '</li>';
+                // Exibe nome + ISBN do livro cadastrado
+                html += '<li><b>' + item.tituloLivro + '</b> <small style="color:#444;">(ISBN: ' + item.isbnLivro + ')</small> — ' + item.dataVencimento + ': ' + statusAtraso + '</li>';
               });
               html += '</ul>';
               containerList.innerHTML = html;
@@ -922,6 +939,7 @@
         });
     }
 
+    // TABELA DE RESERVAS SEM ID_ALUNO E ID_LIVRO
     function carregarReservasAdmin() {
       var container = document.getElementById('listaReservasAdmin');
       container.innerHTML = "A carregar reservas...";
@@ -930,27 +948,26 @@
         .then(function(res) { return res.json(); })
         .then(function(data) {
           if (data.status === "sucesso" && data.reservas && data.reservas.length > 0) {
-            var html = '<div style="overflow-x:auto;"><table border="1" style="width:100%; border-collapse:collapse; text-align:left;">' +
-              '<tr style="background:#f2f2f2; height:40px;">' +
-                '<th>ID Reserva</th>' +
-                '<th>Livro (Título & ISBN)</th>' +
-                '<th>Requerente (Nome & Turma)</th>' +
-                '<th>Perfil</th>' +
-                '<th>Celular</th>' +
+            var html = '<div style="overflow-x:auto;"><table>' +
+              '<tr>' +
+                '<th>Requerente (Nome & Turma/Perfil)</th>' +
+                '<th>Telemóvel / Celular</th>' +
+                '<th>Livro Reservado</th>' +
+                '<th>ISBN</th>' +
                 '<th>Status</th>' +
                 '<th>Ação</th>' +
               '</tr>';
             
             data.reservas.forEach(function(r) {
-              var infoLivroExibicao = '<b>' + r.nomeLivro + '</b><br><small style="color:#555;">ISBN: ' + (r.isbnLivro || '-') + '</small>';
-              var infoRequerenteExibicao = '<b>' + r.nomeRequerente + '</b><br><small style="color:#555;">Turma: ' + (r.turmaRequerente || '-') + '</small>';
+              var detalheRequerente = r.perfilRequerente === "Aluno" 
+                ? '<b>' + r.nomeRequerente + '</b><br><small style="color:#555;">Turma: ' + (r.turmaRequerente || '-') + '</small>' 
+                : '<b>' + r.nomeRequerente + '</b><br><small style="color:#555;">Perfil: Professor</small>';
 
               html += '<tr>' +
-                '<td><b>' + r.idReserva + '</b></td>' +
-                '<td>' + infoLivroExibicao + '</td>' +
-                '<td>' + infoRequerenteExibicao + '</td>' +
-                '<td>' + r.perfilRequerente + '</td>' +
+                '<td>' + detalheRequerente + '</td>' +
                 '<td>' + r.celularRequerente + '</td>' +
+                '<td><b>' + r.nomeLivro + '</b></td>' +
+                '<td>' + (r.isbnLivro || '-') + '</td>' +
                 '<td><span style="background:#fff3e0; color:#e65100; padding:3px 8px; border-radius:4px; font-weight:bold;">' + r.status + '</span></td>' +
                 '<td><button onclick="concluirERedirecionarEmprestimo(\'' + r.idReserva + '\', \'' + r.celularRequerente + '\', \'' + (r.isbnLivro || '') + '\')" style="background-color:#a6e22e; border:2px solid #000; border-radius:6px; font-weight:bold; cursor:pointer; padding:6px 12px;">Concluir e Emprestar</button></td>' +
               '</tr>';
