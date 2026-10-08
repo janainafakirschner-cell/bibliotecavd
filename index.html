@@ -345,7 +345,7 @@
       <button onclick="voltarMenuAdmin()" class="btn-voltar-menu">← Voltar ao Menu</button>
     </div>
 
-    <!-- EMPRÉSTIMO COM TRAVA DE SEGURANÇA E BOTÃO DESABILITADO -->
+    <!-- EMPRÉSTIMO -->
     <div id="secaoEmprestimo" class="secao-admin hidden">
       <h3>Registrar Empréstimo Manual</h3>
       <label>1. Telefone do Utilizador (DDD + Número):</label><br>
@@ -456,6 +456,7 @@
   </div>
 
   <script>
+    // URL DA IMPLANTAÇÃO WEB DO GOOGLE APPS SCRIPT
     var API_URL = "https://script.google.com/macros/s/AKfycbxYVwGesxio2lTOHFJciw476xu1hRVRdlIGh0luLkM2wfVheRtXwzw-OuKVcEHsUWIcXA/exec";
 
     var usuarioLogado = null;
@@ -676,7 +677,6 @@
         });
     }
 
-    // EXIBIÇÃO DE EMPRÉSTIMOS COM NOME E ISBN
     function buscarEmprestimosDevolucao() {
       var tel = document.getElementById("devTelAluno").value.replace(/\D/g, "");
       if (!tel || tel === "5581") return alert("Digite o celular completo com DDD!");
@@ -696,7 +696,6 @@
                   ? ' <span style="color:#d32f2f; font-weight:bold;">(atrasado ' + item.diasAtraso + ' ' + (item.diasAtraso === 1 ? 'dia' : 'dias') + ')</span>' 
                   : ' <span style="color:#2e7d32; font-weight:bold;">(Em dia)</span>';
                 
-                // Exibe nome + ISBN do livro cadastrado
                 html += '<li><b>' + item.tituloLivro + '</b> <small style="color:#444;">(ISBN: ' + item.isbnLivro + ')</small> — ' + item.dataVencimento + ': ' + statusAtraso + '</li>';
               });
               html += '</ul>';
@@ -939,7 +938,6 @@
         });
     }
 
-    // TABELA DE RESERVAS SEM ID_ALUNO E ID_LIVRO
     function carregarReservasAdmin() {
       var container = document.getElementById('listaReservasAdmin');
       container.innerHTML = "A carregar reservas...";
