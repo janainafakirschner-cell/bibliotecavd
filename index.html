@@ -668,7 +668,7 @@
         });
     }
 
-    // CARREGAR ACERVO DO LEITOR (SEM BOTÃO DE SOLICITAR EMPRÉSTIMO)
+    // CARREGAR ACERVO DO LEITOR (REMOVIDO O BOTÃO SOLICITAR EMPRÉSTIMO)
     function carregarAcervo() {
       var grid = document.getElementById("gridLivros");
       if (!grid) return;
@@ -713,10 +713,11 @@
                 item.style.justifyContent = "space-between";
                 item.style.alignItems = "center";
 
-                // EXIBE O BOTÃO SOMENTE PARA RESERVAR QUANDO ESTIVER ESGOTADO
-                var botaoHtml = semExemplares 
+                // Se houver exemplares: exibe apenas o status em verde sem botões.
+                // Se estiver esgotado: exibe o botão de Reserva.
+                var elementoAcaoHtml = semExemplares 
                   ? '<button onclick="solicitarOuReservar(\'' + livro.id + '\')" style="background:#e65100; color:#fff; border:none; padding:8px 14px; border-radius:6px; cursor:pointer; font-weight:bold;">Reservar (Fila de Espera)</button>' 
-                  : '<span style="color:#2e7d32; font-weight:bold;">Disponível na Biblioteca</span>';
+                  : '<span style="color:#2e7d32; font-weight:bold; font-size:0.95rem;">✓ Disponível na Biblioteca</span>';
 
                 item.innerHTML = 
                   '<div>' +
@@ -725,7 +726,7 @@
                       'Disponíveis no acervo: <strong>' + (isNaN(disponivel) ? 0 : disponivel) + '</strong>' +
                     '</span>' +
                   '</div>' +
-                  '<div>' + botaoHtml + '</div>';
+                  '<div>' + elementoAcaoHtml + '</div>';
 
                 listaLivros.appendChild(item);
               });
@@ -733,7 +734,12 @@
               blocoCat.appendChild(listaLivros);
               grid.appendChild(blocoCat);
             });
+          } else {
+            grid.innerHTML = "Erro ao carregar acervo: " + data.mensagem;
           }
+        })
+        .catch(function() {
+          grid.innerHTML = "Erro ao conectar com o servidor para carregar o acervo.";
         });
     }
 
