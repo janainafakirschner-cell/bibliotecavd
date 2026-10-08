@@ -6,7 +6,7 @@ Sistema Web responsivo e integrado ao Google Sheets para controle de acervo, con
 
 ## 🌐 Link do Web App
 Clique no link abaixo para acessar o sistema:  
-👉 **[Acessar a Biblioteca Escolar](https://seu-usuario.github.io/seu-repositorio/)** *(Substitua este link pelo seu link do GitHub Pages)*
+👉 **[Acessar a Biblioteca Escolar](https://janainafakirschner-cell.github.io/bibliotecavd/)** *(Substitua este link pelo seu link do GitHub Pages)*
 
 ---
 
