@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistema de Biblioteca</title>
   <style>
     body {
@@ -17,7 +17,6 @@
       display: none !important;
     }
 
-    /* TELA INICIAL DE LOGIN */
     .container-login {
       max-width: 420px;
       margin: 40px auto;
@@ -85,10 +84,6 @@
       font-size: 1rem;
     }
 
-    .link-cadastro a:hover {
-      text-decoration: underline;
-    }
-
     .container {
       max-width: 900px;
       margin: 20px auto;
@@ -133,7 +128,6 @@
       font-weight: bold;
       color: #000000;
       cursor: pointer;
-      transition: transform 0.1s ease, background-color 0.2s ease;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -141,7 +135,6 @@
 
     .card-btn:hover {
       background-color: #f0f0f0;
-      transform: scale(1.02);
     }
 
     .secao-admin {
@@ -155,15 +148,21 @@
       margin-bottom: 10px;
     }
 
-    /* CAIXA DE CONFIRMAÇÃO DO NOME DO UTILIZADOR */
-    .caixa-confirmacao-nome {
+    .caixa-confirmacao {
       background-color: #e8f5e9;
       border: 2px dashed #2e7d32;
       border-radius: 10px;
       padding: 12px;
       margin: 10px 0 15px 0;
       color: #1b5e20;
-      font-size: 1.05rem;
+    }
+
+    .card-ranking {
+      background-color: #fffde7;
+      border: 3px solid #fbc02d;
+      border-radius: 12px;
+      padding: 15px;
+      margin-bottom: 20px;
     }
 
     .btn-voltar-menu {
@@ -175,11 +174,6 @@
       background-color: #f0f0f0;
     }
 
-    .btn-voltar-menu:hover {
-      background-color: #e0e0e0;
-    }
-
-    /* MODAL DE PRIMEIRO ACESSO */
     .modal {
       position: fixed;
       top: 0; left: 0;
@@ -212,7 +206,7 @@
 </head>
 <body>
 
-  <!-- 1. TELA INICIAL / LOGIN -->
+  <!-- TELA DE LOGIN -->
   <div id="telaLogin" class="container-login">
     <h2>Sistema de Biblioteca</h2>
 
@@ -237,13 +231,13 @@
 
     <button id="btnEntrar" onclick="processarLogin()" class="btn-entrar">Entrar</button>
 
-    <div class="link-cadastro">
+    <div class="link-cadastro" id="linkPrimeiroAcesso">
       <a href="#" onclick="abrirModalPrimeiroAcesso(); return false;">cadastrar 1º acesso</a>
     </div>
   </div>
 
 
-  <!-- 2. PAINEL DO LEITOR (ALUNO / PROFESSOR) -->
+  <!-- PAINEL DO LEITOR (ALUNO / PROFESSOR) -->
   <div id="painelUsuario" class="container hidden">
     <div class="header-user">
       <div>
@@ -252,18 +246,26 @@
       </div>
       <button onclick="sair()" class="btn-sair">Sair</button>
     </div>
-    <div id="gridLivros" style="margin-top: 20px;">A carregar acervo...</div>
+
+    <!-- SEÇÃO DE RANKING E HISTÓRICO -->
+    <div id="cardRanking" class="card-ranking" style="margin-top: 20px;">
+      <h3 style="margin-top:0; color: #f57f17;">🏆 Conquistas do Leitor</h3>
+      <p style="margin: 5px 0;">Livros lidos devolvidos: <b id="qtdLivrosLidos">0</b></p>
+      <p style="margin: 5px 0;">Categoria: <b id="nomeCategoriaLeitor" style="font-size: 1.1rem; color: #d81b60;">Leitor Baby</b></p>
+      <p id="fraseIncentivo" style="font-style: italic; color: #555; margin-top: 10px;">"Todo grande leitor começa pela primeira página!"</p>
+    </div>
+
+    <div id="gridLivros">A carregar acervo...</div>
   </div>
 
 
-  <!-- 3. PAINEL DO ADMINISTRADOR -->
+  <!-- PAINEL DO ADMINISTRADOR -->
   <div id="painelAdmin" class="container hidden">
     <div class="header-user">
       <h2>Painel do Administrador</h2>
       <button onclick="sair()" class="btn-sair">Sair</button>
     </div>
     
-    <!-- MENU EM CARTÕES 2x2 -->
     <div id="menuAdminCards" class="grid-admin">
       <button class="card-btn" onclick="mostrarSecaoAdmin('secaoCadastrar')">cadastrar</button>
       <button class="card-btn" onclick="mostrarSecaoAdmin('secaoEmprestimo')">esprestimo</button>
@@ -274,77 +276,87 @@
     <!-- CADASTRAR LIVRO -->
     <div id="secaoCadastrar" class="secao-admin hidden">
       <h3>Cadastrar Novo Livro</h3>
-      <input type="text" id="isbnLivro" placeholder="ISBN do Livro">
-      <br><br>
-      <input type="text" id="tituloLivro" placeholder="Título">
-      <input type="text" id="autorLivro" placeholder="Autor">
-      <input type="text" id="categoriaLivro" placeholder="Categoria (ex: Romance, Didático)">
-      <input type="number" id="qtdLivro" value="1" style="width: 70px;">
+      <input type="text" id="isbnLivro" placeholder="ISBN do Livro"><br>
+      <input type="text" id="tituloLivro" placeholder="Título"><br>
+      <input type="text" id="autorLivro" placeholder="Autor"><br>
+      <input type="text" id="editoraLivro" placeholder="Editora"><br>
+      <input type="text" id="categoriaLivro" placeholder="Categoria(s) (ex: Romance, Aventura)"><br>
+      <input type="number" id="qtdLivro" value="1" style="width: 80px;" placeholder="Qtd">
       <br><br>
       <button onclick="cadastrarLivro()" class="btn-entrar">Salvar Livro</button>
       <button onclick="voltarMenuAdmin()" class="btn-voltar-menu">← Voltar ao Menu</button>
     </div>
 
-    <!-- REGISTRAR EMPRÉSTIMO -->
+    <!-- EMPRÉSTIMO -->
     <div id="secaoEmprestimo" class="secao-admin hidden">
       <h3>Registrar Empréstimo Manual</h3>
-      <label>Telefone do Utilizador (DDD + Número):</label><br>
+      <label>1. Telefone do Utilizador (DDD + Número):</label><br>
       <div style="display:flex; gap:10px; align-items:center;">
         <input type="text" id="empTelAluno" value="5581" placeholder="55819XXXXXXXX" style="margin-bottom:0;">
         <button onclick="buscarNomePorTelefone('emp')" style="padding:10px 15px; cursor:pointer;">Procurar Nome</button>
       </div>
 
-      <!-- ESPAÇO PARA A CONFIRMAÇÃO DO NOME DO UTILIZADOR -->
-      <div id="empConfirmacaoNome" class="caixa-confirmacao-nome hidden">
+      <div id="empConfirmacaoNome" class="caixa-confirmacao hidden">
         Utilizador: <b id="empNomeCompleto">---</b>
       </div>
       <br>
 
-      <label>ISBN do Livro:</label><br>
-      <input type="text" id="empIsbnLivro" placeholder="Digite ou escaneie o ISBN"><br><br>
+      <label>2. ISBN do Livro:</label><br>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <input type="text" id="empIsbnLivro" placeholder="Digite o ISBN" style="margin-bottom:0;">
+        <button onclick="buscarLivroPorIsbn('emp')" style="padding:10px 15px; cursor:pointer;">Procurar Livro</button>
+      </div>
+
+      <div id="empConfirmacaoLivro" class="caixa-confirmacao hidden">
+        Livro: <b id="empNomeLivro">---</b>
+      </div>
+      <br><br>
       
       <button onclick="adminConfirmarEmprestimo()" class="btn-entrar">Confirmar Empréstimo</button>
       <button onclick="voltarMenuAdmin()" class="btn-voltar-menu">← Voltar ao Menu</button>
     </div>
 
-    <!-- REGISTRAR DEVOLUÇÃO -->
+    <!-- DEVOLUÇÃO -->
     <div id="secaoDevolucao" class="secao-admin hidden">
       <h3>Registrar Devolução de Livro</h3>
-      <label>Telefone do Utilizador (quem está com o livro):</label><br>
+      <label>1. Telefone do Utilizador:</label><br>
       <div style="display:flex; gap:10px; align-items:center;">
         <input type="text" id="devTelAluno" value="5581" placeholder="55819XXXXXXXX" style="margin-bottom:0;">
         <button onclick="buscarNomePorTelefone('dev')" style="padding:10px 15px; cursor:pointer;">Procurar Nome</button>
       </div>
 
-      <!-- ESPAÇO PARA A CONFIRMAÇÃO DO NOME DO UTILIZADOR -->
-      <div id="devConfirmacaoNome" class="caixa-confirmacao-nome hidden">
+      <div id="devConfirmacaoNome" class="caixa-confirmacao hidden">
         Devolvido por: <b id="devNomeCompleto">---</b>
       </div>
       <br>
 
-      <label>ISBN do Livro a Devolver:</label><br>
-      <input type="text" id="devIsbnLivro" placeholder="Digite ou escaneie o ISBN"><br><br>
+      <label>2. ISBN do Livro a Devolver:</label><br>
+      <div style="display:flex; gap:10px; align-items:center;">
+        <input type="text" id="devIsbnLivro" placeholder="Digite o ISBN" style="margin-bottom:0;">
+        <button onclick="buscarLivroPorIsbn('dev')" style="padding:10px 15px; cursor:pointer;">Procurar Livro</button>
+      </div>
+
+      <div id="devConfirmacaoLivro" class="caixa-confirmacao hidden">
+        Livro: <b id="devNomeLivro">---</b>
+      </div>
+      <br><br>
       
       <button onclick="adminConfirmarDevolucao()" class="btn-entrar">Confirmar Devolução</button>
       <button onclick="voltarMenuAdmin()" class="btn-voltar-menu">← Voltar ao Menu</button>
     </div>
 
-    <!-- GERENCIAR RESERVAS / FILA DE ESPERA -->
+    <!-- GERENCIAR RESERVAS -->
     <div id="secaoReservas" class="secao-admin hidden">
       <h3>Fila de Espera / Reservas</h3>
-      
       <div id="listaReservasAdmin">A carregar reservas...</div>
-      
       <div style="margin-top: 20px;">
-        <button onclick="voltarMenuAdmin()" class="btn-voltar-menu">
-          ← Voltar ao Menu
-        </button>
+        <button onclick="voltarMenuAdmin()" class="btn-voltar-menu">← Voltar ao Menu</button>
       </div>
     </div>
   </div>
 
 
-  <!-- 4. MODAL DE CADASTRAR 1º ACESSO -->
+  <!-- MODAL DE PRIMEIRO ACESSO -->
   <div id="modalPrimeiroAcesso" class="modal hidden">
     <div class="modal-content">
       <h3>Cadastrar 1º Acesso</h3>
@@ -370,9 +382,8 @@
     </div>
   </div>
 
-  <!-- SCRIPT INCORPORADO PARA EVITAR ERROS DE CONEXÃO -->
   <script>
-    var API_URL = "https://script.google.com/macros/s/AKfycbxYVwGesxio2lTOHFJciw476xu1hRVRdlIGh0luLkM2wfVheRtXwzw-OuKVcEHsUWIcXA/exec";
+    var API_URL = "SUA_URL_DO_WEB_APP_DO_GOOGLE_APPS_SCRIPT_AQUI";
 
     var usuarioLogado = null;
     var senhaAdminLogado = "";
@@ -381,13 +392,16 @@
       var perfil = document.getElementById("selectPerfil").value;
       var grupoCelular = document.getElementById("grupoCelular");
       var grupoSenhaAdmin = document.getElementById("grupoSenhaAdmin");
+      var linkCadastro = document.getElementById("linkPrimeiroAcesso");
 
       if (perfil === "Administrador") {
         grupoSenhaAdmin.classList.remove("hidden");
         grupoCelular.classList.add("hidden");
+        if (linkCadastro) linkCadastro.classList.add("hidden");
       } else {
         grupoSenhaAdmin.classList.add("hidden");
         grupoCelular.classList.remove("hidden");
+        if (linkCadastro) linkCadastro.classList.remove("hidden");
       }
     }
 
@@ -397,7 +411,7 @@
       if (perfil === "Administrador") {
         var senhaInput = document.getElementById("senhaAdmin");
         var senha = senhaInput ? senhaInput.value : "";
-        if (!senha) return alert("Por favor, digite a senha de administrador!");
+        if (!senha) return alert("Digite a senha de administrador!");
 
         if (senha === "admin123") {
           senhaAdminLogado = senha;
@@ -405,12 +419,12 @@
           voltarMenuAdmin();
           if (senhaInput) senhaInput.value = "";
         } else {
-          alert("Senha de administrador incorreta!");
+          alert("Senha incorreta!");
         }
       } else {
         var telInput = document.getElementById("telLogin");
         var tel = telInput ? telInput.value.replace(/\D/g, "") : "";
-        if (!tel || tel === "5581") return alert("Por favor, digite o seu celular completo com DDD!");
+        if (!tel || tel === "5581") return alert("Digite seu celular completo com DDD!");
 
         fetch(API_URL + "?acao=loginAluno&telefone=" + encodeURIComponent(tel))
           .then(function(res) { return res.json(); })
@@ -424,14 +438,44 @@
 
               mostrarTela("painelUsuario");
               carregarAcervo();
+              carregarHistoricoERanking();
             } else {
               alert(data.mensagem);
             }
           })
-          .catch(function() {
-            alert("Erro ao conectar com o servidor para autenticação.");
-          });
+          .catch(function() { alert("Erro ao conectar com o servidor."); });
       }
+    }
+
+    // CARREGAR HISTÓRICO E RANKING
+    function carregarHistoricoERanking() {
+      if (!usuarioLogado) return;
+
+      fetch(API_URL + "?acao=getHistoricoUsuario&idUsuario=" + encodeURIComponent(usuarioLogado.id) + "&telefone=" + encodeURIComponent(usuarioLogado.telefone))
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.status === "sucesso") {
+            var lidos = data.totalLidos || 0;
+            document.getElementById("qtdLivrosLidos").innerText = lidos;
+
+            var categoria = "🐣 Leitor Baby";
+            var frase = "Todo grande leitor começa pela primeira página. Continue assim!";
+
+            if (lidos >= 10) {
+              categoria = "🚀 Leitor Ultra";
+              frase = "Fantástico! É um verdadeiro devorador de livros e inspiração para todos!";
+            } else if (lidos >= 6) {
+              categoria = "⭐ Leitor Notável";
+              frase = "Impressionante! Os livros já fazem parte da sua rotina!";
+            } else if (lidos >= 3) {
+              categoria = "📚 Leitor Aprendiz";
+              frase = "A sua jornada no conhecimento está a ganhar ritmo! Parabéns!";
+            }
+
+            document.getElementById("nomeCategoriaLeitor").innerText = categoria;
+            document.getElementById("fraseIncentivo").innerText = '"' + frase + '"';
+          }
+        });
     }
 
     function sair() {
@@ -464,9 +508,7 @@
       var email = document.getElementById("cadEmail").value;
       var tel = document.getElementById("cadTelefone").value.replace(/\D/g, "");
 
-      if (!nome || !tel || tel === "5581") {
-        return alert("Preencha o seu nome completo e o celular!");
-      }
+      if (!nome || !tel || tel === "5581") return alert("Preencha o nome e o celular!");
 
       var params = new URLSearchParams();
       params.append("acao", "cadastrarUsuario");
@@ -483,19 +525,14 @@
             fecharModalPrimeiroAcesso();
             document.getElementById("telLogin").value = tel;
           }
-        })
-        .catch(function() { alert("Erro ao cadastrar 1º acesso."); });
+        });
     }
 
     function mostrarSecaoAdmin(idSecao) {
-      var menuCards = document.getElementById("menuAdminCards");
-      if (menuCards) menuCards.classList.add("hidden");
-
+      document.getElementById("menuAdminCards").classList.add("hidden");
       var secoes = document.querySelectorAll(".secao-admin");
       secoes.forEach(function(s) { s.classList.add("hidden"); });
-
-      var secaoAlvo = document.getElementById(idSecao);
-      if (secaoAlvo) secaoAlvo.classList.remove("hidden");
+      document.getElementById(idSecao).classList.remove("hidden");
 
       if (idSecao === "secaoReservas") carregarReservasAdmin();
     }
@@ -503,23 +540,22 @@
     function voltarMenuAdmin() {
       var secoes = document.querySelectorAll(".secao-admin");
       secoes.forEach(function(s) { s.classList.add("hidden"); });
+      document.getElementById("menuAdminCards").classList.remove("hidden");
 
-      var menuCards = document.getElementById("menuAdminCards");
-      if (menuCards) menuCards.classList.remove("hidden");
-
-      // Limpar campos de confirmação
       document.getElementById('empConfirmacaoNome').classList.add('hidden');
       document.getElementById('devConfirmacaoNome').classList.add('hidden');
+      document.getElementById('empConfirmacaoLivro').classList.add('hidden');
+      document.getElementById('devConfirmacaoLivro').classList.add('hidden');
     }
 
-    // PROCURAR NOME PELO TELEMÓVEL (USADO EM EMPRÉSTIMO E DEVOLUÇÃO)
+    // CONFIRMAÇÃO DE USUÁRIO POR TELEFONE
     function buscarNomePorTelefone(tipo) {
       var campoTelId = tipo === 'emp' ? 'empTelAluno' : 'devTelAluno';
       var caixaId = tipo === 'emp' ? 'empConfirmacaoNome' : 'devConfirmacaoNome';
       var nomeId = tipo === 'emp' ? 'empNomeCompleto' : 'devNomeCompleto';
 
       var tel = document.getElementById(campoTelId).value.replace(/\D/g, "");
-      if (!tel || tel === "5581") return alert("Digite um número de celular válido com DDD!");
+      if (!tel || tel === "5581") return alert("Digite um celular válido com DDD!");
 
       fetch(API_URL + "?acao=buscarUsuarioPorTelefone&telefone=" + encodeURIComponent(tel))
         .then(function(res) { return res.json(); })
@@ -531,9 +567,28 @@
             document.getElementById(caixaId).classList.add("hidden");
             alert(data.mensagem);
           }
-        })
-        .catch(function() {
-          alert("Erro ao procurar o nome do utilizador.");
+        });
+    }
+
+    // CONFIRMAÇÃO DE LIVRO POR ISBN
+    function buscarLivroPorIsbn(tipo) {
+      var campoIsbnId = tipo === 'emp' ? 'empIsbnLivro' : 'devIsbnLivro';
+      var caixaId = tipo === 'emp' ? 'empConfirmacaoLivro' : 'devConfirmacaoLivro';
+      var nomeId = tipo === 'emp' ? 'empNomeLivro' : 'devNomeLivro';
+
+      var isbn = document.getElementById(campoIsbnId).value.trim();
+      if (!isbn) return alert("Digite o ISBN do livro!");
+
+      fetch(API_URL + "?acao=buscarLivroPorIsbn&isbn=" + encodeURIComponent(isbn))
+        .then(function(res) { return res.json(); })
+        .then(function(data) {
+          if (data.status === "sucesso") {
+            document.getElementById(nomeId).innerText = data.titulo + " (Autor: " + data.autor + ")";
+            document.getElementById(caixaId).classList.remove("hidden");
+          } else {
+            document.getElementById(caixaId).classList.add("hidden");
+            alert(data.mensagem);
+          }
         });
     }
 
@@ -547,19 +602,15 @@
         .then(function(data) {
           if (data.status === "sucesso") {
             grid.innerHTML = "";
-
             var categoriasMap = {};
+
             data.livros.forEach(function(livro) {
               var cat = (livro.categoria && livro.categoria.trim() !== "") ? livro.categoria.trim() : "Geral / Outros";
               if (!categoriasMap[cat]) categoriasMap[cat] = [];
               categoriasMap[cat].push(livro);
             });
 
-            var categoriasOrdenadas = Object.keys(categoriasMap).sort(function(a, b) {
-              return a.localeCompare(b);
-            });
-
-            categoriasOrdenadas.forEach(function(nomeCategoria) {
+            Object.keys(categoriasMap).sort().forEach(function(nomeCategoria) {
               var blocoCat = document.createElement("div");
               blocoCat.style.marginBottom = "25px";
 
@@ -574,11 +625,7 @@
               listaLivros.style.listStyle = "none";
               listaLivros.style.padding = "0";
 
-              var livrosOrdenados = categoriasMap[nomeCategoria].sort(function(a, b) {
-                return a.titulo.localeCompare(b.titulo);
-              });
-
-              livrosOrdenados.forEach(function(livro) {
+              categoriasMap[nomeCategoria].forEach(function(livro) {
                 var disponivel = parseInt(livro.qtdDisponivel);
                 var semExemplares = isNaN(disponivel) || disponivel < 1;
 
@@ -596,7 +643,7 @@
                   '<div>' +
                     '<strong>' + livro.titulo + '</strong> — <small>Autor: ' + livro.autor + '</small><br>' +
                     '<span style="font-size: 0.9em; color: ' + (semExemplares ? '#d32f2f' : '#2e7d32') + ';">' +
-                      'Disponíveis no acervo: <strong>' + (isNaN(disponivel) ? 0 : disponivel) + '</strong>' +
+                      'Disponíveis: <strong>' + (isNaN(disponivel) ? 0 : disponivel) + '</strong>' +
                     '</span>' +
                   '</div>' +
                   '<button onclick="solicitarOuReservar(\'' + livro.id + '\', ' + semExemplares + ')" style="background:' + corBotao + '; color:#fff; border:none; padding:8px 14px; border-radius:6px; cursor:pointer; font-weight:bold;">' +
@@ -609,23 +656,14 @@
               blocoCat.appendChild(listaLivros);
               grid.appendChild(blocoCat);
             });
-
-          } else {
-            grid.innerHTML = "Erro ao carregar acervo: " + data.mensagem;
           }
-        })
-        .catch(function() {
-          grid.innerHTML = "Erro ao conectar com o servidor para carregar o acervo.";
         });
     }
 
     function solicitarOuReservar(idLivro, ehReserva) {
       if (!usuarioLogado) return alert("Efetue login primeiro!");
 
-      var msgConfirmacao = ehReserva 
-        ? "Todos os exemplares estão emprestados. Deseja entrar na fila de espera?" 
-        : "Confirmar solicitação de empréstimo do livro?";
-
+      var msgConfirmacao = ehReserva ? "Deseja entrar na fila de espera deste livro?" : "Confirmar empréstimo deste livro?";
       if (!confirm(msgConfirmacao)) return;
 
       var params = new URLSearchParams();
@@ -638,27 +676,19 @@
         .then(function(data) {
           alert(data.mensagem);
           if (data.status === "sucesso") carregarAcervo();
-        })
-        .catch(function() { alert("Erro ao processar solicitação."); });
+        });
     }
 
     function cadastrarLivro() {
-      var titulo = document.getElementById('tituloLivro') ? document.getElementById('tituloLivro').value : "";
-      var autor = document.getElementById('autorLivro') ? document.getElementById('autorLivro').value : "";
-      var categoria = document.getElementById('categoriaLivro') ? document.getElementById('categoriaLivro').value : "";
-      var qtd = document.getElementById('qtdLivro') ? document.getElementById('qtdLivro').value : "1";
-      var isbn = document.getElementById('isbnLivro') ? document.getElementById('isbnLivro').value : "";
-
-      if (!titulo) return alert("Digite o título do livro!");
-
       var params = new URLSearchParams();
       params.append("acao", "cadastrarLivro");
       params.append("senhaAdmin", senhaAdminLogado);
-      params.append("isbn", isbn);
-      params.append("titulo", titulo);
-      params.append("autor", autor);
-      params.append("categoria", categoria);
-      params.append("qtdTotal", qtd);
+      params.append("isbn", document.getElementById('isbnLivro').value);
+      params.append("titulo", document.getElementById('tituloLivro').value);
+      params.append("autor", document.getElementById('autorLivro').value);
+      params.append("editora", document.getElementById('editoraLivro').value);
+      params.append("categoria", document.getElementById('categoriaLivro').value);
+      params.append("qtdTotal", document.getElementById('qtdLivro').value);
 
       fetch(API_URL, { method: "POST", body: params })
         .then(function(res) { return res.json(); })
@@ -668,25 +698,18 @@
             document.getElementById('isbnLivro').value = "";
             document.getElementById('tituloLivro').value = "";
             document.getElementById('autorLivro').value = "";
+            document.getElementById('editoraLivro').value = "";
             document.getElementById('categoriaLivro').value = "";
-            document.getElementById('qtdLivro').value = "1";
             carregarAcervo();
           }
-        })
-        .catch(function() { alert("Erro ao salvar livro."); });
+        });
     }
 
     function adminConfirmarEmprestimo() {
-      var tel = document.getElementById('empTelAluno').value.replace(/\D/g, "");
-      var isbn = document.getElementById('empIsbnLivro').value.trim();
-
-      if (!tel || tel === "5581") return alert("Digite o telefone do utilizador!");
-      if (!isbn) return alert("Digite ou escaneie o ISBN!");
-
       var params = new URLSearchParams();
       params.append("acao", "emprestarPorIsbn");
-      params.append("telefoneAluno", tel);
-      params.append("isbn", isbn);
+      params.append("telefoneAluno", document.getElementById('empTelAluno').value.replace(/\D/g, ""));
+      params.append("isbn", document.getElementById('empIsbnLivro').value.trim());
 
       fetch(API_URL, { method: "POST", body: params })
         .then(function(res) { return res.json(); })
@@ -695,21 +718,16 @@
           if (data.status === "sucesso") {
             document.getElementById('empTelAluno').value = "5581";
             document.getElementById('empIsbnLivro').value = "";
-            document.getElementById('empConfirmacaoNome').classList.add("hidden");
-            carregarAcervo();
             voltarMenuAdmin();
+            carregarAcervo();
           }
-        })
-        .catch(function() { alert("Erro ao registrar empréstimo."); });
+        });
     }
 
     function adminConfirmarDevolucao() {
-      var isbn = document.getElementById('devIsbnLivro').value.trim();
-      if (!isbn) return alert("Digite o ISBN do livro!");
-
       var params = new URLSearchParams();
       params.append("acao", "devolverPorIsbn");
-      params.append("isbn", isbn);
+      params.append("isbn", document.getElementById('devIsbnLivro').value.trim());
 
       fetch(API_URL, { method: "POST", body: params })
         .then(function(res) { return res.json(); })
@@ -718,56 +736,30 @@
           if (data.status === "sucesso") {
             document.getElementById('devTelAluno').value = "5581";
             document.getElementById('devIsbnLivro').value = "";
-            document.getElementById('devConfirmacaoNome').classList.add("hidden");
-            carregarAcervo();
             voltarMenuAdmin();
+            carregarAcervo();
           }
-        })
-        .catch(function() { alert("Erro ao registrar devolução."); });
+        });
     }
 
     function carregarReservasAdmin() {
       var container = document.getElementById('listaReservasAdmin');
-      container.innerHTML = "<p>A carregar reservas...</p>";
+      container.innerHTML = "A carregar reservas...";
 
       fetch(API_URL + "?acao=getReservas")
         .then(function(res) { return res.json(); })
         .then(function(data) {
           if (data.status === "sucesso" && data.reservas && data.reservas.length > 0) {
-            var html = '<div style="overflow-x:auto;">' +
-              '<table border="1" style="width:100%; border-collapse:collapse; margin-top:10px; text-align:left;">' +
-                '<tr style="background:#f2f2f2; height:40px;">' +
-                  '<th style="padding:8px;">ID Reserva</th>' +
-                  '<th style="padding:8px;">Nome do Livro</th>' +
-                  '<th style="padding:8px;">Requerente</th>' +
-                  '<th style="padding:8px;">Perfil</th>' +
-                  '<th style="padding:8px;">Celular</th>' +
-                  '<th style="padding:8px;">Status</th>' +
-                  '<th style="padding:8px; text-align:center;">Ação</th>' +
-                '</tr>';
-            
+            var html = '<div style="overflow-x:auto;"><table border="1" style="width:100%; border-collapse:collapse; text-align:left;">' +
+              '<tr style="background:#f2f2f2; height:40px;"><th>ID Reserva</th><th>Nome do Livro</th><th>Requerente</th><th>Perfil</th><th>Celular</th><th>Status</th><th>Ação</th></tr>';
             data.reservas.forEach(function(r) {
-              html += '<tr>' +
-                '<td style="padding:8px;"><b>' + r.idReserva + '</b></td>' +
-                '<td style="padding:8px;">' + r.nomeLivro + '</td>' +
-                '<td style="padding:8px;">' + r.nomeRequerente + '</td>' +
-                '<td style="padding:8px;">' + r.perfilRequerente + '</td>' +
-                '<td style="padding:8px;">' + r.celularRequerente + '</td>' +
-                '<td style="padding:8px;">' + r.status + '</td>' +
-                '<td style="padding:8px; text-align:center;">' +
-                  '<button onclick="concluirReservaAdmin(\'' + r.idReserva + '\')" style="padding:5px 10px; cursor:pointer; background-color:#a6e22e; border:2px solid #000; border-radius:6px; font-weight:bold;">Concluir</button>' +
-                '</td>' +
-              '</tr>';
+              html += '<tr><td><b>' + r.idReserva + '</b></td><td>' + r.nomeLivro + '</td><td>' + r.nomeRequerente + '</td><td>' + r.perfilRequerente + '</td><td>' + r.celularRequerente + '</td><td>' + r.status + '</td>' +
+                '<td><button onclick="concluirReservaAdmin(\'' + r.idReserva + '\')" style="background-color:#a6e22e; border:2px solid #000; border-radius:6px; font-weight:bold; cursor:pointer; padding:5px 10px;">Concluir</button></td></tr>';
             });
-
-            html += '</table></div>';
-            container.innerHTML = html;
+            container.innerHTML = html + '</table></div>';
           } else {
-            container.innerHTML = "<p style='padding:15px; background:#f9f9f9; border:1px solid #ddd; border-radius:8px;'>Nenhuma reserva pendente encontrada.</p>";
+            container.innerHTML = "<p>Nenhuma reserva pendente encontrada.</p>";
           }
-        })
-        .catch(function() {
-          container.innerHTML = "<p style='color:red;'>Erro ao carregar lista de reservas.</p>";
         });
     }
 
@@ -783,6 +775,10 @@
           if (data.status === "sucesso") carregarReservasAdmin();
         });
     }
+
+    window.onload = function() {
+      mudarPerfilLogin();
+    };
   </script>
 </body>
 </html>
