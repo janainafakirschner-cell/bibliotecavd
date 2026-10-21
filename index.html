@@ -3,19 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Biblioteca Digital Eneida Rabelo</title>
+  <title>Biblioteca Digital</title>
   <style>
     :root {
       --primary: #1e293b;
       --accent: #2563eb;
       --accent-hover: #1d4ed8;
+      --secondary: #64748b;
       --success: #16a34a;
       --danger: #dc2626;
       --bg: #f8fafc;
       --card-bg: #ffffff;
     }
 
-    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
     body { background-color: var(--bg); color: #0f172a; display: flex; flex-direction: column; min-height: 100vh; }
 
     header {
@@ -44,7 +45,7 @@
 
     main.container { max-width: 1000px; margin: 40px auto; padding: 0 20px; flex: 1; }
 
-    /* LOGIN */
+    /* CARD DE LOGIN */
     .card-login {
       background: var(--card-bg);
       padding: 30px;
@@ -90,6 +91,8 @@
       margin-top: 10px;
     }
 
+    .btn-cadastro-novo:hover { background-color: #eff6ff; }
+
     .lgpd-notice {
       margin-top: 20px;
       padding-top: 15px;
@@ -103,71 +106,87 @@
     .user-welcome { background: #e0f2fe; color: #0369a1; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
     .busca-box input { margin-bottom: 20px; }
 
-    /* NOVO NOVO LAYOUT DO ACERVO: CATEGORIAS E LISTA SEM CAPA */
-    .categoria-secao {
-      margin-bottom: 25px;
-      background: white;
-      padding: 18px;
+    /* ESTRUTURA DO ACERVO POR CATEGORIAS (SEM IMAGENS) */
+    .categoria-bloco {
+      margin-bottom: 28px;
+      background: #ffffff;
       border-radius: 8px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+      padding: 18px 20px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      border: 1px solid #e2e8f0;
     }
 
-    .categoria-titulo {
+    .categoria-header {
       font-size: 1.15rem;
       color: var(--accent);
-      border-bottom: 2px solid #e2e8f0;
-      padding-bottom: 6px;
-      margin-bottom: 12px;
       font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
+      padding-bottom: 8px;
+      margin-bottom: 14px;
+      border-bottom: 2px solid #e2e8f0;
+      text-transform: capitalize;
     }
 
-    .lista-livros-categoria {
+    .categoria-livros-lista {
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
 
-    .item-livro-linha {
+    .livro-linha-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 10px 12px;
-      background: #f8fafc;
+      padding: 12px 14px;
+      background-color: #f8fafc;
       border-radius: 6px;
       border-left: 4px solid var(--accent);
+      gap: 15px;
     }
 
-    .item-livro-info h4 {
-      font-size: 0.98rem;
+    .livro-linha-detalhes h4 {
+      font-size: 1rem;
       color: #0f172a;
-      margin-bottom: 2px;
+      font-weight: 600;
+      margin-bottom: 3px;
+      word-break: break-word;
     }
 
-    .item-livro-info p {
-      font-size: 0.85rem;
+    .livro-linha-detalhes p {
+      font-size: 0.88rem;
       color: #64748b;
     }
 
-    .badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; color: white; }
-    .badge-disponivel { background-color: var(--success); }
-    
-    .btn-reservar-ativo {
-      background-color: var(--danger);
-      color: white;
-      border: none;
+    .badge-status {
+      display: inline-block;
       padding: 6px 14px;
-      border-radius: 6px;
+      border-radius: 20px;
       font-size: 0.82rem;
+      font-weight: 700;
+      color: #ffffff;
+      white-space: nowrap;
+    }
+
+    .badge-disponivel { background-color: var(--success); }
+    .badge-indisponivel { background-color: #94a3b8; }
+
+    .btn-reservar-acao {
+      background-color: var(--accent);
+      color: #ffffff;
+      border: none;
+      padding: 7px 16px;
+      border-radius: 6px;
+      font-size: 0.85rem;
       font-weight: 600;
       cursor: pointer;
+      white-space: nowrap;
       width: auto;
     }
 
-    .btn-reservar-ativo:hover { opacity: 0.9; }
+    .btn-reservar-acao:hover {
+      background-color: var(--accent-hover);
+    }
 
-    /* ADMIN */
+    /* PAINEL ADMIN */
     .card-form { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin: 20px 0; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-top: 10px; }
 
@@ -178,6 +197,7 @@
 
     .btn-devolver { background-color: var(--success); width: auto; }
 
+    /* MODAL */
     .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; z-index: 1000; }
     .modal-content { background: white; padding: 24px; border-radius: 8px; width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; }
     .close { align-self: flex-end; font-size: 1.5rem; cursor: pointer; }
@@ -205,7 +225,7 @@
 
   <main class="container">
 
-    <!-- TELA DE LOGIN -->
+    <!-- TELA INICIAL: BLOCO DE LOGIN -->
     <section id="secLogin" class="card-login">
       <h2>Acesso ao Sistema</h2>
       <p class="subtitulo">Selecione o seu perfil para continuar</p>
@@ -237,7 +257,7 @@
       </div>
     </section>
 
-    <!-- ÁREA DO LEITOR -->
+    <!-- ÁREA DO LEITOR (ALUNO / PROFESSOR) -->
     <section id="secLeitor" hidden>
       <div class="user-welcome">
         <h3>Bem-vindo(a), <span id="nomeLeitorLogado">-</span>!</h3>
@@ -247,11 +267,11 @@
         <input type="text" id="inputBusca" placeholder="🔍 Buscar por título, autor ou categoria..." onkeyup="filtrarAcervo()">
       </div>
       
-      <h2 style="margin-bottom: 15px;">Catálogo do Acervo</h2>
-      <div id="conteudoAcervoCategorizado"></div>
+      <h2 style="margin-bottom: 16px;">Catálogo do Acervo</h2>
+      <div id="containerAcervoCategorias"></div>
     </section>
 
-    <!-- PAINEL ADMIN -->
+    <!-- PAINEL ADMINISTRATIVO -->
     <section id="secAdmin" hidden>
       <div style="display: flex; gap: 10px; margin-bottom: 15px;">
         <button onclick="abrirModal('modalCadUsuario')">➕ Cadastrar Leitor</button>
@@ -287,7 +307,7 @@
 
   </main>
 
-  <!-- MODAIS -->
+  <!-- MODAL: AUTO-CADASTRO (1º ACESSO) -->
   <div id="modalAutoCadastro" class="modal" hidden>
     <div class="modal-content">
       <span class="close" onclick="fecharModal('modalAutoCadastro')">&times;</span>
@@ -304,6 +324,7 @@
     </div>
   </div>
 
+  <!-- MODAL: CADASTRAR LEITOR (ADMIN) -->
   <div id="modalCadUsuario" class="modal" hidden>
     <div class="modal-content">
       <span class="close" onclick="fecharModal('modalCadUsuario')">&times;</span>
@@ -320,6 +341,7 @@
     </div>
   </div>
 
+  <!-- MODAL: CADASTRAR LIVRO (ADMIN) -->
   <div id="modalCadLivro" class="modal" hidden>
     <div class="modal-content">
       <span class="close" onclick="fecharModal('modalCadLivro')">&times;</span>
@@ -327,13 +349,14 @@
       <input type="text" id="cadTitulo" placeholder="Título do Livro">
       <input type="text" id="cadAutor" placeholder="Autor">
       <input type="text" id="cadIsbn" placeholder="ISBN">
-      <input type="text" id="cadCategoria" placeholder="Categoria/Gênero (ex: Romance, Poesia)">
+      <input type="text" id="cadCategoria" placeholder="Categoria/Gênero (ex: Romance, Regional)">
       <input type="text" id="cadCapa" placeholder="URL da Imagem (Opcional)">
       <input type="number" id="cadQtd" placeholder="Quantidade Total" value="1">
       <button class="btn-login" onclick="salvarLivro()">Cadastrar Livro</button>
     </div>
   </div>
 
+  <!-- MODAL: CONFIRMAÇÃO DE EMPRÉSTIMO -->
   <div id="modalConfirmacao" class="modal" hidden>
     <div class="modal-content">
       <span class="close" onclick="fecharModal('modalConfirmacao')">&times;</span>
@@ -349,7 +372,7 @@
   </footer>
 
   <script>
-    // COLE SUA URL DO GOOGLE APPS SCRIPT ABAIXO
+    // URL DA API DO GOOGLE APPS SCRIPT
     const API_URL = "https://script.google.com/macros/s/AKfycbwCVnRUqWDrd3irfBvMO_lgLe713w1z9QZRKhBBWkwJA687mGip3E4mQbnS5CuJsJcTog/exec";
 
     let acervoMemoria = [];
@@ -394,7 +417,7 @@
             alert("Senha incorreta!");
           }
         } catch (err) {
-          alert("Erro ao conectar com o servidor.");
+          alert("Erro ao conectar com a planilha.");
         }
 
       } else {
@@ -407,14 +430,14 @@
 
           if (json.success) {
             usuarioLogado = json.usuario;
-            document.getElementById("nomeLeitorLogado").innerText = usuarioLogado.Nome;
+            document.getElementById("nomeLeitorLogado").innerText = usuarioLogado.Nome || "Leitor";
             exibirTela("leitor");
             carregarAcervo();
           } else {
-            alert("Usuário não encontrado. Clique em '1º Acesso / Cadastrar-se'.");
+            alert("Usuário não encontrado. Clique em '1º Acesso / Cadastrar-se' para criar sua conta.");
           }
         } catch (err) {
-          alert("Erro ao consultar usuário.");
+          alert("Erro ao consultar base de leitores.");
         }
       }
     }
@@ -439,7 +462,6 @@
       document.getElementById("loginSenha").value = "";
     }
 
-    // AUTO CADASTRO
     async function salvarAutoCadastro() {
       const nome = document.getElementById("autoNome").value.trim();
       const email = document.getElementById("autoEmail").value.trim();
@@ -462,114 +484,157 @@
           document.getElementById("loginTelefone").value = telefone;
         }
       } catch (err) {
-        alert("Erro no cadastro.");
+        alert("Erro ao efetuar cadastro.");
       }
     }
 
-    // CARREGAR E EXIBIR EM ORDEM ALFABÉTICA POR CATEGORIA (SEM CAPAS)
+    // CARREGAR E RENDERIZAR O ACERVO POR CATEGORIAS DA PLANILHA EM ORDEM ALFABÉTICA
     async function carregarAcervo() {
       try {
         const res = await fetch(`${API_URL}?action=getAcervo`);
         const json = await res.json();
         if (json.success) {
           acervoMemoria = json.data;
-          renderizarAcervoPorCategorias(acervoMemoria);
+          renderizarAcervoCategorizado(acervoMemoria);
         }
       } catch (err) {
         console.error("Erro ao carregar acervo:", err);
       }
     }
 
-    function renderizarAcervoPorCategorias(listaLivros) {
-      const container = document.getElementById("conteudoAcervoCategorizado");
+    function renderizarAcervoCategorizado(listaLivros) {
+      const container = document.getElementById("containerAcervoCategorias");
       container.innerHTML = "";
 
       if (!listaLivros || listaLivros.length === 0) {
-        container.innerHTML = "<p>Nenhum livro encontrado.</p>";
+        container.innerHTML = "<p style='color: #64748b;'>Nenhum livro cadastrado no momento.</p>";
         return;
       }
 
-      // Agrupar livros por categoria separada por vírgula
+      // Mapeador de categorias -> [livros]
       const mapaCategorias = {};
 
       listaLivros.forEach(livro => {
-        const catTexto = livro.Categoria || "Geral";
-        const listaCat = catTexto.split(",").map(c => c.trim()).filter(c => c.length > 0);
+        // Tenta obter o campo de categoria tratando variações de nome do cabeçalho
+        const catBruta = livro.Categoria || livro.Categorias || livro.Gênero || livro.Genero || "Geral";
+        
+        // Separa por vírgula, remove espaços das pontas e filtra entradas vazias
+        const categoriasArray = catBruta
+          .split(",")
+          .map(c => c.trim())
+          .filter(c => c.length > 0);
 
-        listaCat.forEach(cat => {
-          const chave = cat.toLowerCase();
-          if (!mapaCategorias[chave]) {
-            mapaCategorias[chave] = { nome: cat, livros: [] };
+        categoriasArray.forEach(catNome => {
+          const chaveNormalizada = catNome.toLowerCase();
+
+          if (!mapaCategorias[chaveNormalizada]) {
+            mapaCategorias[chaveNormalizada] = {
+              nomeExibicao: catNome,
+              livros: []
+            };
           }
-          if (!mapaCategorias[chave].livros.some(l => l.ID_Livro === livro.ID_Livro)) {
-            mapaCategorias[chave].livros.push(livro);
+
+          // Garante que o livro não seja duplicado na MESMA categoria
+          const idLivroAtual = livro.ID_Livro || livro.ID || livro.ISBN || livro.Título;
+          const jaIncluso = mapaCategorias[chaveNormalizada].livros.some(l => {
+            const idExistente = l.ID_Livro || l.ID || l.ISBN || l.Título;
+            return idExistente === idLivroAtual;
+          });
+
+          if (!jaIncluso) {
+            mapaCategorias[chaveNormalizada].livros.push(livro);
           }
         });
       });
 
-      // Ordenar Categorias em Ordem Alfabética (A-Z)
-      const chavesOrdenadas = Object.keys(mapaCategorias).sort((a, b) => 
-        mapaCategorias[a].nome.localeCompare(mapaCategorias[b].nome, 'pt-BR', { sensitivity: 'base' })
-      );
+      // 1. ORDENAÇÃO ALFABÉTICA DAS CATEGORIAS (A-Z, PT-BR)
+      const chavesCategoriasOrdenadas = Object.keys(mapaCategorias).sort((a, b) => {
+        return mapaCategorias[a].nomeExibicao.localeCompare(mapaCategorias[b].nomeExibicao, 'pt-BR', { sensitivity: 'base' });
+      });
 
-      // Renderizar no HTML
-      chavesOrdenadas.forEach(chave => {
-        const catObj = mapaCategorias[chave];
+      // 2. CONSTRUÇÃO DO HTML POR CATEGORIA
+      chavesCategoriasOrdenadas.forEach(chave => {
+        const categoriaObj = mapaCategorias[chave];
 
-        // Ordenar Livros em Ordem Alfabética por Título (A-Z)
-        catObj.livros.sort((a, b) => (a.Título || "").localeCompare(b.Título || "", 'pt-BR', { sensitivity: 'base' }));
+        // ORDENAÇÃO ALFABÉTICA DOS LIVROS POR TÍTULO (E AUTOR COMO SECUNDÁRIO)
+        categoriaObj.livros.sort((a, b) => {
+          const tituloA = (a.Título || a.Titulo || "").trim();
+          const tituloB = (b.Título || b.Titulo || "").trim();
+          const compTitulo = tituloA.localeCompare(tituloB, 'pt-BR', { sensitivity: 'base' });
+          
+          if (compTitulo !== 0) return compTitulo;
+          
+          const autorA = (a.Autor || "").trim();
+          const autorB = (b.Autor || "").trim();
+          return autorA.localeCompare(autorB, 'pt-BR', { sensitivity: 'base' });
+        });
 
-        let htmlCat = `
-          <div class="categoria-secao">
-            <h3 class="categoria-titulo">📌 ${catObj.nome}</h3>
-            <div class="lista-livros-categoria">
+        let htmlCategoriaBloco = `
+          <div class="categoria-bloco">
+            <h3 class="categoria-header">📌 ${categoriaObj.nomeExibicao}</h3>
+            <div class="categoria-livros-lista">
         `;
 
-        catObj.livros.forEach(livro => {
-          const qtdDisp = parseInt(livro.Qtd_Disponivel) || 0;
-          const temEstoque = qtdDisp > 0;
+        categoriaObj.livros.forEach(livro => {
+          const titulo = livro.Título || livro.Titulo || "Título não informado";
+          const autor = livro.Autor || "Autor não informado";
+          const qtdDisponivel = parseInt(livro.Qtd_Disponivel !== undefined ? livro.Qtd_Disponivel : livro.Qtd_Total) || 0;
+          const idLivro = livro.ID_Livro || livro.ID || livro.ISBN || titulo;
 
-          htmlCat += `
-            <div class="item-livro-linha">
-              <div class="item-livro-info">
-                <h4>${livro.Título}</h4>
-                <p><strong>Autor:</strong> ${livro.Autor || "Não informado"}</p>
+          const temEstoque = qtdDisponivel > 0;
+
+          htmlCategoriaBloco += `
+            <div class="livro-linha-item">
+              <div class="livro-linha-detalhes">
+                <h4>${titulo}</h4>
+                <p><strong>Autor:</strong> ${autor}</p>
               </div>
               <div>
                 ${temEstoque 
-                  ? `<span class="badge badge-disponivel">Disponível (${qtdDisp})</span>` 
-                  : `<button class="btn-reservar-ativo" onclick="solicitarReserva('${livro.ID_Livro}', '${livro.Título.replace(/'/g, "\\'")}')">Reservar</button>`
+                  ? `<span class="badge-status badge-disponivel">Disponível (${qtdDisponivel})</span>` 
+                  : `<button class="btn-reservar-acao" onclick="solicitarReserva('${idLivro.toString().replace(/'/g, "\\'")}', '${titulo.replace(/'/g, "\\'")}')">Reservar</button>`
                 }
               </div>
             </div>
           `;
         });
 
-        htmlCat += `</div></div>`;
-        container.innerHTML += htmlCat;
+        htmlCategoriaBloco += `
+            </div>
+          </div>
+        `;
+
+        container.innerHTML += htmlCategoriaBloco;
       });
     }
 
     function filtrarAcervo() {
-      const termo = document.getElementById("inputBusca").value.toLowerCase();
+      const termo = document.getElementById("inputBusca").value.toLowerCase().trim();
+      
       if (!termo) {
-        renderizarAcervoPorCategorias(acervoMemoria);
+        renderizarAcervoCategorizado(acervoMemoria);
         return;
       }
 
-      const filtrados = acervoMemoria.filter(l => 
-        (l.Título && l.Título.toLowerCase().includes(termo)) || 
-        (l.Autor && l.Autor.toLowerCase().includes(termo)) ||
-        (l.Categoria && l.Categoria.toLowerCase().includes(termo))
-      );
+      const livrosFiltrados = acervoMemoria.filter(l => {
+        const titulo = (l.Título || l.Titulo || "").toLowerCase();
+        const autor = (l.Autor || "").toLowerCase();
+        const cat = (l.Categoria || l.Categorias || l.Gênero || "").toLowerCase();
+        return titulo.includes(termo) || autor.includes(termo) || cat.includes(termo);
+      });
 
-      renderizarAcervoPorCategorias(filtrados);
+      renderizarAcervoCategorizado(livrosFiltrados);
     }
 
     async function solicitarReserva(idLivro, tituloLivro) {
-      if (!usuarioLogado) return alert("Identifique-se primeiro!");
+      if (!usuarioLogado) {
+        alert("Sessão não identificada. Por favor, faça login novamente.");
+        return;
+      }
 
-      if (!confirm(`Confirmar reserva do livro "${tituloLivro}"?`)) return;
+      if (!confirm(`Deseja solicitar a reserva do livro "${tituloLivro}"?\nVocê será notificado quando o exemplar for devolvido.`)) {
+        return;
+      }
 
       try {
         const res = await fetch(API_URL, {
@@ -586,15 +651,15 @@
         const json = await res.json();
         alert(json.message);
       } catch (err) {
-        alert("Erro ao realizar reserva.");
+        alert("Erro ao processar a solicitação de reserva.");
       }
     }
 
-    // ADMIN
+    // OPERAÇÕES DO PAINEL ADMIN
     async function confirmarEmprestimo() {
       const tel = document.getElementById("empTelefone").value;
       const idLivro = document.getElementById("empIdLivro").value;
-      if (!tel || !idLivro) return alert("Preencha todos os campos.");
+      if (!tel || !idLivro) return alert("Preencha o telefone do leitor e o ID do livro.");
 
       try {
         const resUser = await fetch(`${API_URL}?action=buscarUsuarioPorTelefone&telefone=${tel}`);
@@ -603,16 +668,16 @@
         const resLivro = await fetch(`${API_URL}?action=buscarLivroPorId&idLivro=${idLivro}`);
         const jsonLivro = await resLivro.json();
 
-        if (!jsonUser.success) return alert("Leitor não encontrado.");
-        if (!jsonLivro.success) return alert("Livro não encontrado.");
+        if (!jsonUser.success) return alert("Leitor não cadastrado!");
+        if (!jsonLivro.success) return alert("Livro não encontrado!");
 
         dadosEmprestimoTemporario = { telefone: tel, idLivro: idLivro };
         document.getElementById("confNomeLeitor").innerText = jsonUser.usuario.Nome;
-        document.getElementById("confTituloLivro").innerText = jsonLivro.livro.Título;
+        document.getElementById("confTituloLivro").innerText = jsonLivro.livro.Título || jsonLivro.livro.Titulo;
 
         abrirModal("modalConfirmacao");
       } catch (err) {
-        alert("Erro na checagem.");
+        alert("Erro ao validar dados do empréstimo.");
       }
     }
 
@@ -659,7 +724,7 @@
     }
 
     async function devolverLivro(idEmprestimo) {
-      if (!confirm("Dar baixa nesta devolução?")) return;
+      if (!confirm("Confirmar baixa desta devolução?")) return;
 
       try {
         const res = await fetch(API_URL, {
@@ -668,12 +733,12 @@
         });
         const json = await res.json();
         if (json.success) {
-          if (json.alertaReserva) alert(`🚨 LIVRO RESERVADO! Entregar ao leitor: ${json.proximoLeitor}`);
-          else alert("Devolução registrada!");
+          if (json.alertaReserva) alert(`🚨 LIVRO RESERVADO! Entregar ao leitor da fila: ${json.proximoLeitor}`);
+          else alert("Devolução efetuada com sucesso!");
           carregarEmprestimos();
         }
       } catch (err) {
-        alert("Erro ao devolver.");
+        alert("Erro ao devolver livro.");
       }
     }
 
