@@ -99,7 +99,7 @@
       padding-top: 15px;
       border-top: 1px solid #f1f5f9;
       font-size: 0.75rem;
-      color: #0a2b59;
+      color: #94a3b8;
       text-align: center;
       line-height: 1.3;
     }
@@ -169,7 +169,7 @@
 
       <div id="groupTelefone" class="field-group">
         <label for="loginTelefone">Telefone / Celular (com DDD):</label>
-        <input type="text" id="loginTelefone" placeholder="Ex: 11999998888">
+        <input type="text" id="loginTelefone" value="81" placeholder="Ex: 81999998888" maxlength="11">
       </div>
 
       <div id="groupSenha" class="field-group" hidden>
@@ -210,7 +210,7 @@
       <div class="card-form">
         <h3>Registrar Empréstimo Rápido</h3>
         <div class="form-grid">
-          <input type="text" id="empTelefone" placeholder="Telefone do Leitor">
+          <input type="text" id="empTelefone" value="81" placeholder="Telefone do Leitor" maxlength="11">
           <input type="text" id="empIdLivro" placeholder="ID ou ISBN do Livro">
           <button onclick="confirmarEmprestimo()">Registrar Saída</button>
         </div>
@@ -242,7 +242,7 @@
       <h3>1º Acesso - Cadastro</h3>
       <input type="text" id="autoNome" placeholder="Nome Completo">
       <input type="email" id="autoEmail" placeholder="E-mail">
-      <input type="text" id="autoTelefone" placeholder="Telefone / WhatsApp (com DDD)">
+      <input type="text" id="autoTelefone" value="81" placeholder="Telefone / WhatsApp (com DDD)" maxlength="11">
       <select id="autoPerfil">
         <option value="Aluno">Aluno</option>
         <option value="Professor">Professor</option>
@@ -259,7 +259,7 @@
       <h3>Cadastrar Novo Leitor</h3>
       <input type="text" id="cadNome" placeholder="Nome Completo">
       <input type="email" id="cadEmail" placeholder="E-mail">
-      <input type="text" id="cadTelefone" placeholder="Telefone (com DDD)">
+      <input type="text" id="cadTelefone" value="81" placeholder="Telefone (com DDD)" maxlength="11">
       <select id="cadPerfil">
         <option value="Aluno">Aluno</option>
         <option value="Professor">Professor</option>
