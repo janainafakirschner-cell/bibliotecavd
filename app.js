@@ -1,31 +1,95 @@
-// URL do Google Apps Script (Substitua pela sua URL gerada na implantação)
 const API_URL = "https://script.google.com/macros/s/AKfycbwCVnRUqWDrd3irfBvMO_lgLe713w1z9QZRKhBBWkwJA687mGip3E4mQbnS5CuJsJcTog/exec";
 
 let acervoMemoria = [];
 let dadosEmprestimoTemporario = {};
 
-// Inicialização
-document.addEventListener("DOMContentLoaded", () => {
-  carregarAcervo();
-});
+// CONTROLE DE CAMPOS DO LOGIN
+function alternarCamposLogin() {
+  const perfil = document.getElementById("selectPerfil").value;
+  const groupTelefone = document.getElementById("groupTelefone");
+  const groupSenha = document.getElementById("groupSenha");
 
-// NAVEGAÇÃO DE ABAS
-function mudarAba(aba) {
-  document.getElementById("secLeitor").classList.remove("active");
-  document.getElementById("secAdmin").classList.remove("active");
-  document.getElementById("btnNavLeitor").classList.remove("active");
-  document.getElementById("btnNavAdmin").classList.remove("active");
-
-  if (aba === "leitor") {
-    document.getElementById("secLeitor").classList.add("active");
-    document.getElementById("btnNavLeitor").classList.add("active");
+  if (perfil === "Admin") {
+    groupTelefone.classList.add("hidden");
+    groupSenha.classList.remove("hidden");
   } else {
-    document.getElementById("secAdmin").classList.add("active");
-    document.getElementById("btnNavAdmin").classList.add("active");
+    groupTelefone.classList.remove("hidden");
+    groupSenha.classList.add("hidden");
   }
 }
 
-// 1. ÁREA DO LEITOR (ACERVO)
+// EXECUÇÃO DO LOGIN
+async function executarLogin() {
+  const perfil = document.getElementById("selectPerfil").value;
+
+  if (perfil === "Admin") {
+    const senha = document.getElementById("loginSenha").value;
+    if (!senha) return alert("Digite a senha do administrador.");
+
+    try {
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "loginAdmin", senha: senha })
+      });
+      const json = await res.json();
+
+      if (json.success) {
+        exibirTela("admin");
+        carregarEmprestimos();
+      } else {
+        alert("Senha incorreta!");
+      }
+    } catch (err) {
+      alert("Erro ao validar login.");
+    }
+
+  } else {
+    // Aluno ou Professor
+    const tel = document.getElementById("loginTelefone").value;
+    if (!tel) return alert("Digite o número de telefone.");
+
+    try {
+      const res = await fetch(`${API_URL}?action=buscarUsuarioPorTelefone&telefone=${tel}`);
+      const json = await res.json();
+
+      if (json.success) {
+        document.getElementById("nomeLeitorLogado").innerText = json.usuario.Nome;
+        exibirTela("leitor");
+        carregarAcervo();
+      } else {
+        alert("Usuário não encontrado. Solicite o cadastro na biblioteca.");
+      }
+    } catch (err) {
+      alert("Erro ao buscar dados do leitor.");
+    }
+  }
+}
+
+function exibirTela(tela) {
+  document.getElementById("secLogin").classList.add("hidden");
+  document.getElementById("secLeitor").classList.add("hidden");
+  document.getElementById("secAdmin").classList.add("hidden");
+  document.getElementById("btnSair").classList.remove("hidden");
+
+  if (tela === "leitor") {
+    document.getElementById("secLeitor").classList.remove("hidden");
+  } else if (tela === "admin") {
+    document.getElementById("secAdmin").classList.remove("hidden");
+  }
+}
+
+function deslogar() {
+  document.getElementById("secLogin").classList.remove("hidden");
+  document.getElementById("secLeitor").classList.add("hidden");
+  document.getElementById("secAdmin").classList.add("hidden");
+  document.getElementById("btnSair").classList.add("hidden");
+  
+  // Limpar campos
+  document.getElementById("loginTelefone").value = "";
+  document.getElementById("loginSenha").value = "";
+}
+
+// CATALOGO DO LEITOR
 async function carregarAcervo() {
   try {
     const res = await fetch(`${API_URL}?action=getAcervo`);
@@ -45,7 +109,7 @@ function renderizarAcervo(lista) {
 
   lista.forEach(livro => {
     const disponivel = parseInt(livro.Qtd_Disponivel) > 0;
-    const capa = livro.Capa_URL || "https://via.placeholder.com/150x220?text=Sem+Capa";
+    const capa = livro.Capa_URL || "https://via.placeholder.com/150x200?text=Sem+Capa";
 
     container.innerHTML += `
       <div class="card-livro">
@@ -55,7 +119,6 @@ function renderizarAcervo(lista) {
         <span class="badge ${disponivel ? 'badge-disponivel' : 'badge-esgotado'}">
           ${disponivel ? `Disponível (${livro.Qtd_Disponivel})` : 'Esgotado'}
         </span>
-        ${!disponivel ? `<button style="margin-top:10px;" onclick="solicitarReserva('${livro.ID_Livro}', '${livro.Título}')">Reservar</button>` : ''}
       </div>
     `;
   });
@@ -71,29 +134,7 @@ function filtrarAcervo() {
   renderizarAcervo(filtrados);
 }
 
-// 2. PAINEL ADMIN
-async function loginAdmin() {
-  const senha = document.getElementById("senhaAdmin").value;
-  try {
-    const res = await fetch(API_URL, {
-      method: "POST",
-      body: JSON.stringify({ action: "loginAdmin", senha: senha })
-    });
-    const json = await res.json();
-    
-    if (json.success) {
-      document.getElementById("boxLoginAdmin").classList.add("hidden");
-      document.getElementById("painelAdmin").classList.remove("hidden");
-      carregarEmprestimos();
-    } else {
-      alert("Senha incorreta!");
-    }
-  } catch (err) {
-    alert("Erro ao validar login.");
-  }
-}
-
-// VALIDAÇÃO PRÉVIA E CONFIRMAÇÃO DE EMPRÉSTIMO
+// EMPRÉSTIMO E DEVOLUÇÃO
 async function confirmarEmprestimo() {
   const tel = document.getElementById("empTelefone").value;
   const idLivro = document.getElementById("empIdLivro").value;
@@ -117,7 +158,7 @@ async function confirmarEmprestimo() {
 
     abrirModal("modalConfirmacao");
   } catch (err) {
-    alert("Erro ao buscar informações para confirmação.");
+    alert("Erro ao validar dados.");
   }
 }
 
@@ -132,7 +173,6 @@ async function executarEmprestimo() {
     if (json.success) {
       alert(`Empréstimo Registrado!\nVencimento: ${json.dataVencimento}`);
       fecharModal("modalConfirmacao");
-      carregarAcervo();
       carregarEmprestimos();
     } else {
       alert(json.message);
@@ -142,7 +182,6 @@ async function executarEmprestimo() {
   }
 }
 
-// CARREGAR E PROCESSAR DEVOLUÇÃO
 async function carregarEmprestimos() {
   try {
     const res = await fetch(`${API_URL}?action=getEmprestimos`);
@@ -180,15 +219,14 @@ async function devolverLivro(idEmprestimo) {
 
     if (json.success) {
       if (json.alertaReserva) {
-        alert(`🚨 ATENÇÃO: O livro "${json.tituloLivro}" possui uma reserva pendente para o leitor: ${json.proximoLeitor}. Guarde o exemplar para ele!`);
+        alert(`🚨 ATENÇÃO: O livro "${json.tituloLivro}" possui reserva para o leitor: ${json.proximoLeitor}. Guarde o exemplar para ele!`);
       } else {
-        alert("Devolução registrada com sucesso!");
+        alert("Devolução registrada!");
       }
-      carregarAcervo();
       carregarEmprestimos();
     }
   } catch (err) {
-    alert("Erro ao registrar devolução.");
+    alert("Erro na devolução.");
   }
 }
 
@@ -227,12 +265,9 @@ async function salvarLivro() {
   });
   const json = await res.json();
   alert(json.message);
-  if (json.success) {
-    fecharModal("modalCadLivro");
-    carregarAcervo();
-  }
+  if (json.success) fecharModal("modalCadLivro");
 }
 
-// MODAIS
-function abrirModal(id) { document.getElementById(id).style.display = "flex"; }
-function fecharModal(id) { document.getElementById(id).style.display = "none"; }
+// CONTROLADORES DE MODAL
+function abrirModal(id) { document.getElementById(id).classList.remove("hidden"); }
+function fecharModal(id) { document.getElementById(id).classList.add("hidden"); }
