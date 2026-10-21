@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Sistema de Biblioteca</title>
+  <title>Biblioteca Digital</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
@@ -12,82 +12,99 @@
   <header>
     <div class="header-container">
       <h1>📚 Biblioteca Digital</h1>
-      <nav>
-        <button id="btnNavLeitor" class="active" onclick="mudarAba('leitor')">Catálogo / Leitor</button>
-        <button id="btnNavAdmin" onclick="mudarAba('admin')">Área Administrativa</button>
-      </nav>
+      <button id="btnSair" class="btn-sair hidden" onclick="deslogar()">Sair / Trocar Conta</button>
     </div>
   </header>
 
   <main class="container">
 
-    <!-- ÁREA DO LEITOR -->
-    <section id="secLeitor" class="aba-conteudo active">
-      <div class="busca-box">
-        <input type="text" id="inputBusca" placeholder="Buscar por título, autor ou categoria..." onkeyup="filtrarAcervo()">
+    <!-- 1. TELA INICIAL: BLOCO DE LOGIN -->
+    <section id="secLogin" class="card-login">
+      <h2>Acesso ao Sistema</h2>
+      <p class="subtitulo">Selecione o seu perfil para continuar</p>
+      
+      <div class="field-group">
+        <label for="selectPerfil">Perfil de Acesso:</label>
+        <select id="selectPerfil" onchange="alternarCamposLogin()">
+          <option value="Aluno">Aluno</option>
+          <option value="Professor">Professor</option>
+          <option value="Admin">Administrador / Bibliotecário</option>
+        </select>
       </div>
-      <h2>Acervo de Livros</h2>
+
+      <!-- Campo Telefone (para Aluno e Professor) -->
+      <div id="groupTelefone" class="field-group">
+        <label for="loginTelefone">Telefone / Celular (com DDD):</label>
+        <input type="text" id="loginTelefone" placeholder="Ex: 11999998888">
+      </div>
+
+      <!-- Campo Senha (apenas para Admin) -->
+      <div id="groupSenha" class="field-group hidden">
+        <label for="loginSenha">Senha do Administrador:</label>
+        <input type="password" id="loginSenha" placeholder="Digite sua senha">
+      </div>
+
+      <button class="btn-login" onclick="executarLogin()">Entrar</button>
+    </section>
+
+    <!-- 2. ÁREA DO LEITOR (ALUNO / PROFESSOR) -->
+    <section id="secLeitor" class="hidden">
+      <div class="user-welcome">
+        <h3>Bem-vindo(a), <span id="nomeLeitorLogado">-</span>!</h3>
+      </div>
+      
+      <div class="busca-box">
+        <input type="text" id="inputBusca" placeholder="🔍 Buscar por título, autor ou categoria..." onkeyup="filtrarAcervo()">
+      </div>
+      
+      <h2>Catálogo do Acervo</h2>
       <div id="gridAcervo" class="grid-livros">
         <!-- Livros renderizados via JS -->
       </div>
     </section>
 
-    <!-- ÁREA ADMINISTRATIVA -->
-    <section id="secAdmin" class="aba-conteudo">
-      
-      <!-- TELA DE LOGIN ADMIN -->
-      <div id="boxLoginAdmin" class="card-form">
-        <h2>Acesso do Bibliotecário</h2>
-        <input type="password" id="senhaAdmin" placeholder="Digite a senha de administrador">
-        <button onclick="loginAdmin()">Entrar</button>
+    <!-- 3. PAINEL DO ADMINISTRADOR -->
+    <section id="secAdmin" class="hidden">
+      <div class="admin-actions">
+        <button onclick="abrirModal('modalCadUsuario')">➕ Cadastrar Leitor</button>
+        <button onclick="abrirModal('modalCadLivro')">➕ Cadastrar Livro</button>
+        <button onclick="carregarEmprestimos()">🔄 Atualizar Listas</button>
       </div>
 
-      <!-- PAINEL CONTROLADOR ADMIN (OCULTO ATÉ O LOGIN) -->
-      <div id="painelAdmin" class="hidden">
-        <div class="admin-actions">
-          <button onclick="abrirModal('modalCadUsuario')">➕ Cadastrar Leitor</button>
-          <button onclick="abrirModal('modalCadLivro')">➕ Cadastrar Livro</button>
-          <button onclick="carregarEmprestimos()">🔄 Atualizar Listas</button>
-        </div>
-
-        <!-- OPERAÇÃO RÁPIDA: EMPRÉSTIMO -->
-        <div class="card-form">
-          <h3>Registrar Empréstimo Rápido</h3>
-          <div class="form-grid">
-            <input type="text" id="empTelefone" placeholder="Telefone do Leitor">
-            <input type="text" id="empIdLivro" placeholder="ID ou ISBN do Livro">
-            <button onclick="confirmarEmprestimo()">Registrar Saída</button>
-          </div>
-        </div>
-
-        <!-- LISTA DE EMPRÉSTIMOS ATIVOS E DEVOLUÇÕES -->
-        <h3>Empréstimos Ativos</h3>
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>Leitor</th>
-                <th>Telefone</th>
-                <th>Livro (ID)</th>
-                <th>Data Vencimento</th>
-                <th>Ações</th>
-              </tr>
-            </thead>
-            <tbody id="tabelaEmprestimos">
-              <!-- Empréstimos renderizados via JS -->
-            </tbody>
-          </table>
+      <!-- OPERAÇÃO RÁPIDA: EMPRÉSTIMO -->
+      <div class="card-form">
+        <h3>Registrar Empréstimo Rápido</h3>
+        <div class="form-grid">
+          <input type="text" id="empTelefone" placeholder="Telefone do Leitor">
+          <input type="text" id="empIdLivro" placeholder="ID ou ISBN do Livro">
+          <button onclick="confirmarEmprestimo()">Registrar Saída</button>
         </div>
       </div>
 
+      <!-- LISTA DE EMPRÉSTIMOS ATIVOS -->
+      <h3>Empréstimos Ativos</h3>
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Leitor</th>
+              <th>Telefone</th>
+              <th>Livro (ID)</th>
+              <th>Data Vencimento</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaEmprestimos">
+            <!-- Empréstimos renderizados via JS -->
+          </tbody>
+        </table>
+      </div>
     </section>
 
   </main>
 
   <!-- MODAIS -->
-
-  <!-- Modal Cadastrar Usuário -->
-  <div id="modalCadUsuario" class="modal">
+  <div id="modalCadUsuario" class="modal hidden">
     <div class="modal-content">
       <span class="close" onclick="fecharModal('modalCadUsuario')">&times;</span>
       <h3>Cadastrar Novo Leitor</h3>
@@ -103,8 +120,7 @@
     </div>
   </div>
 
-  <!-- Modal Cadastrar Livro -->
-  <div id="modalCadLivro" class="modal">
+  <div id="modalCadLivro" class="modal hidden">
     <div class="modal-content">
       <span class="close" onclick="fecharModal('modalCadLivro')">&times;</span>
       <h3>Cadastrar Novo Livro</h3>
@@ -118,8 +134,7 @@
     </div>
   </div>
 
-  <!-- Modal Confirmação de Empréstimo -->
-  <div id="modalConfirmacao" class="modal">
+  <div id="modalConfirmacao" class="modal hidden">
     <div class="modal-content">
       <span class="close" onclick="fecharModal('modalConfirmacao')">&times;</span>
       <h3>Confirmação de Dados</h3>
