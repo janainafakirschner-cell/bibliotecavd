@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Biblioteca Digital</title>
+  <title>Biblioteca Digital Eneida Rabelo</title>
   <style>
     :root {
       --primary: #1e293b;
       --accent: #2563eb;
       --accent-hover: #1d4ed8;
-      --secondary: #64748b;
       --success: #16a34a;
       --danger: #dc2626;
       --bg: #f8fafc;
@@ -45,7 +44,7 @@
 
     main.container { max-width: 1000px; margin: 40px auto; padding: 0 20px; flex: 1; }
 
-    /* CARD DE LOGIN CENTRALIZADO */
+    /* LOGIN */
     .card-login {
       background: var(--card-bg);
       padding: 30px;
@@ -91,9 +90,6 @@
       margin-top: 10px;
     }
 
-    .btn-cadastro-novo:hover { background-color: #eff6ff; }
-
-    /* AVISO LGPD */
     .lgpd-notice {
       margin-top: 20px;
       padding-top: 15px;
@@ -107,35 +103,46 @@
     .user-welcome { background: #e0f2fe; color: #0369a1; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
     .busca-box input { margin-bottom: 20px; }
 
-    /* ESTILOS DE CATEGORIAS E LISTAGEM SEM CAPA */
+    /* NOVO NOVO LAYOUT DO ACERVO: CATEGORIAS E LISTA SEM CAPA */
     .categoria-secao {
-      margin-bottom: 30px;
+      margin-bottom: 25px;
+      background: white;
+      padding: 18px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
     }
 
     .categoria-titulo {
-      font-size: 1.2rem;
-      color: var(--primary);
-      border-bottom: 2px solid var(--accent);
+      font-size: 1.15rem;
+      color: var(--accent);
+      border-bottom: 2px solid #e2e8f0;
       padding-bottom: 6px;
-      margin-bottom: 15px;
-      text-transform: capitalize;
+      margin-bottom: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .item-livro-limpo {
-      background: white;
-      padding: 12px 16px;
-      border-radius: 6px;
-      margin-bottom: 10px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+    .lista-livros-categoria {
       display: flex;
-      justify-content: space-between;
-      align-items: center;
+      flex-direction: column;
       gap: 10px;
     }
 
+    .item-livro-linha {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 10px 12px;
+      background: #f8fafc;
+      border-radius: 6px;
+      border-left: 4px solid var(--accent);
+    }
+
     .item-livro-info h4 {
-      font-size: 1rem;
+      font-size: 0.98rem;
       color: #0f172a;
+      margin-bottom: 2px;
     }
 
     .item-livro-info p {
@@ -143,26 +150,24 @@
       color: #64748b;
     }
 
-    .badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; color: white; text-align: center; }
+    .badge { display: inline-block; padding: 5px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; color: white; }
     .badge-disponivel { background-color: var(--success); }
-    .badge-esgotado { background-color: var(--danger); }
-
+    
     .btn-reservar-ativo {
-      background-color: var(--accent);
+      background-color: var(--danger);
       color: white;
       border: none;
       padding: 6px 14px;
-      border-radius: 4px;
-      font-size: 0.85rem;
+      border-radius: 6px;
+      font-size: 0.82rem;
       font-weight: 600;
       cursor: pointer;
+      width: auto;
     }
 
-    .btn-reservar-ativo:hover {
-      background-color: var(--accent-hover);
-    }
+    .btn-reservar-ativo:hover { opacity: 0.9; }
 
-    /* FORMULÁRIOS ADMIN */
+    /* ADMIN */
     .card-form { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin: 20px 0; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-top: 10px; }
 
@@ -171,13 +176,12 @@
     th, td { padding: 12px; text-align: left; border-bottom: 1px solid #f1f5f9; }
     th { background-color: #f8fafc; }
 
-    .btn-devolver { background-color: var(--success); }
+    .btn-devolver { background-color: var(--success); width: auto; }
 
     .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; z-index: 1000; }
     .modal-content { background: white; padding: 24px; border-radius: 8px; width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; }
     .close { align-self: flex-end; font-size: 1.5rem; cursor: pointer; }
 
-    /* RODAPÉ CRÉDITOS */
     footer {
       text-align: center;
       padding: 15px;
@@ -201,7 +205,7 @@
 
   <main class="container">
 
-    <!-- TELA INICIAL: BLOCO DE LOGIN -->
+    <!-- TELA DE LOGIN -->
     <section id="secLogin" class="card-login">
       <h2>Acesso ao Sistema</h2>
       <p class="subtitulo">Selecione o seu perfil para continuar</p>
@@ -243,13 +247,13 @@
         <input type="text" id="inputBusca" placeholder="🔍 Buscar por título, autor ou categoria..." onkeyup="filtrarAcervo()">
       </div>
       
-      <h2>Catálogo do Acervo</h2>
-      <div id="gridAcervo"></div>
+      <h2 style="margin-bottom: 15px;">Catálogo do Acervo</h2>
+      <div id="conteudoAcervoCategorizado"></div>
     </section>
 
-    <!-- PAINEL ADMINISTRATIVO -->
+    <!-- PAINEL ADMIN -->
     <section id="secAdmin" hidden>
-      <div class="admin-actions">
+      <div style="display: flex; gap: 10px; margin-bottom: 15px;">
         <button onclick="abrirModal('modalCadUsuario')">➕ Cadastrar Leitor</button>
         <button onclick="abrirModal('modalCadLivro')">➕ Cadastrar Livro</button>
         <button onclick="carregarEmprestimos()">🔄 Atualizar Listas</button>
@@ -283,7 +287,7 @@
 
   </main>
 
-  <!-- MODAL: AUTO-CADASTRO (1º ACESSO DO ALUNO/PROFESSOR) -->
+  <!-- MODAIS -->
   <div id="modalAutoCadastro" class="modal" hidden>
     <div class="modal-content">
       <span class="close" onclick="fecharModal('modalAutoCadastro')">&times;</span>
@@ -300,7 +304,6 @@
     </div>
   </div>
 
-  <!-- MODAL: CADASTRAR LEITOR (ADMIN) -->
   <div id="modalCadUsuario" class="modal" hidden>
     <div class="modal-content">
       <span class="close" onclick="fecharModal('modalCadUsuario')">&times;</span>
@@ -313,11 +316,10 @@
         <option value="Professor">Professor</option>
       </select>
       <input type="text" id="cadTurma" placeholder="Turma/Classe (ex: 8º Ano A)">
-      <button onclick="salvarUsuario()">Cadastrar</button>
+      <button class="btn-login" onclick="salvarUsuario()">Cadastrar</button>
     </div>
   </div>
 
-  <!-- MODAL: CADASTRAR LIVRO (ADMIN) -->
   <div id="modalCadLivro" class="modal" hidden>
     <div class="modal-content">
       <span class="close" onclick="fecharModal('modalCadLivro')">&times;</span>
@@ -325,21 +327,20 @@
       <input type="text" id="cadTitulo" placeholder="Título do Livro">
       <input type="text" id="cadAutor" placeholder="Autor">
       <input type="text" id="cadIsbn" placeholder="ISBN">
-      <input type="text" id="cadCategoria" placeholder="Categoria/Gênero">
-      <input type="text" id="cadCapa" placeholder="URL da Imagem da Capa">
+      <input type="text" id="cadCategoria" placeholder="Categoria/Gênero (ex: Romance, Poesia)">
+      <input type="text" id="cadCapa" placeholder="URL da Imagem (Opcional)">
       <input type="number" id="cadQtd" placeholder="Quantidade Total" value="1">
-      <button onclick="salvarLivro()">Cadastrar Livro</button>
+      <button class="btn-login" onclick="salvarLivro()">Cadastrar Livro</button>
     </div>
   </div>
 
-  <!-- MODAL: CONFIRMAÇÃO DE EMPRÉSTIMO -->
   <div id="modalConfirmacao" class="modal" hidden>
     <div class="modal-content">
       <span class="close" onclick="fecharModal('modalConfirmacao')">&times;</span>
       <h3>Confirmação de Dados</h3>
       <p><strong>Leitor:</strong> <span id="confNomeLeitor">-</span></p>
       <p><strong>Livro:</strong> <span id="confTituloLivro">-</span></p>
-      <button onclick="executarEmprestimo()">Confirmar e Emprestar</button>
+      <button class="btn-login" onclick="executarEmprestimo()">Confirmar e Emprestar</button>
     </div>
   </div>
 
@@ -347,6 +348,372 @@
     developed by Jana Kirschner (beta)
   </footer>
 
-  <script src="app.js"></script>
+  <script>
+    // COLE SUA URL DO GOOGLE APPS SCRIPT ABAIXO
+    const API_URL = "https://script.google.com/macros/s/AKfycbwCVnRUqWDrd3irfBvMO_lgLe713w1z9QZRKhBBWkwJA687mGip3E4mQbnS5CuJsJcTog/exec";
+
+    let acervoMemoria = [];
+    let usuarioLogado = null;
+    let dadosEmprestimoTemporario = {};
+
+    function alternarCamposLogin() {
+      const perfil = document.getElementById("selectPerfil").value;
+      const groupTelefone = document.getElementById("groupTelefone");
+      const groupSenha = document.getElementById("groupSenha");
+      const btnAutoCadastro = document.getElementById("btnAutoCadastro");
+
+      if (perfil === "Admin") {
+        groupTelefone.hidden = true;
+        groupSenha.hidden = false;
+        btnAutoCadastro.hidden = true;
+      } else {
+        groupTelefone.hidden = false;
+        groupSenha.hidden = true;
+        btnAutoCadastro.hidden = false;
+      }
+    }
+
+    async function executarLogin() {
+      const perfil = document.getElementById("selectPerfil").value;
+
+      if (perfil === "Admin") {
+        const senha = document.getElementById("loginSenha").value;
+        if (!senha) return alert("Digite a senha do administrador.");
+
+        try {
+          const res = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "loginAdmin", senha: senha })
+          });
+          const json = await res.json();
+
+          if (json.success) {
+            exibirTela("admin");
+            carregarEmprestimos();
+          } else {
+            alert("Senha incorreta!");
+          }
+        } catch (err) {
+          alert("Erro ao conectar com o servidor.");
+        }
+
+      } else {
+        const tel = document.getElementById("loginTelefone").value;
+        if (!tel) return alert("Digite o número de telefone.");
+
+        try {
+          const res = await fetch(`${API_URL}?action=buscarUsuarioPorTelefone&telefone=${tel}`);
+          const json = await res.json();
+
+          if (json.success) {
+            usuarioLogado = json.usuario;
+            document.getElementById("nomeLeitorLogado").innerText = usuarioLogado.Nome;
+            exibirTela("leitor");
+            carregarAcervo();
+          } else {
+            alert("Usuário não encontrado. Clique em '1º Acesso / Cadastrar-se'.");
+          }
+        } catch (err) {
+          alert("Erro ao consultar usuário.");
+        }
+      }
+    }
+
+    function exibirTela(tela) {
+      document.getElementById("secLogin").hidden = true;
+      document.getElementById("secLeitor").hidden = true;
+      document.getElementById("secAdmin").hidden = true;
+      document.getElementById("btnSair").hidden = false;
+
+      if (tela === "leitor") document.getElementById("secLeitor").hidden = false;
+      if (tela === "admin") document.getElementById("secAdmin").hidden = false;
+    }
+
+    function deslogar() {
+      usuarioLogado = null;
+      document.getElementById("secLogin").hidden = false;
+      document.getElementById("secLeitor").hidden = true;
+      document.getElementById("secAdmin").hidden = true;
+      document.getElementById("btnSair").hidden = true;
+      document.getElementById("loginTelefone").value = "81";
+      document.getElementById("loginSenha").value = "";
+    }
+
+    // AUTO CADASTRO
+    async function salvarAutoCadastro() {
+      const nome = document.getElementById("autoNome").value.trim();
+      const email = document.getElementById("autoEmail").value.trim();
+      const telefone = document.getElementById("autoTelefone").value.trim();
+      const perfil = document.getElementById("autoPerfil").value;
+      const turma = document.getElementById("autoTurma").value.trim();
+
+      if (!nome || !telefone) return alert("Preencha Nome e Telefone!");
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "cadastrarUsuario", usuario: { nome, email, telefone, perfil, turma } })
+        });
+        const json = await res.json();
+        alert(json.message);
+
+        if (json.success) {
+          fecharModal("modalAutoCadastro");
+          document.getElementById("loginTelefone").value = telefone;
+        }
+      } catch (err) {
+        alert("Erro no cadastro.");
+      }
+    }
+
+    // CARREGAR E EXIBIR EM ORDEM ALFABÉTICA POR CATEGORIA (SEM CAPAS)
+    async function carregarAcervo() {
+      try {
+        const res = await fetch(`${API_URL}?action=getAcervo`);
+        const json = await res.json();
+        if (json.success) {
+          acervoMemoria = json.data;
+          renderizarAcervoPorCategorias(acervoMemoria);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar acervo:", err);
+      }
+    }
+
+    function renderizarAcervoPorCategorias(listaLivros) {
+      const container = document.getElementById("conteudoAcervoCategorizado");
+      container.innerHTML = "";
+
+      if (!listaLivros || listaLivros.length === 0) {
+        container.innerHTML = "<p>Nenhum livro encontrado.</p>";
+        return;
+      }
+
+      // Agrupar livros por categoria separada por vírgula
+      const mapaCategorias = {};
+
+      listaLivros.forEach(livro => {
+        const catTexto = livro.Categoria || "Geral";
+        const listaCat = catTexto.split(",").map(c => c.trim()).filter(c => c.length > 0);
+
+        listaCat.forEach(cat => {
+          const chave = cat.toLowerCase();
+          if (!mapaCategorias[chave]) {
+            mapaCategorias[chave] = { nome: cat, livros: [] };
+          }
+          if (!mapaCategorias[chave].livros.some(l => l.ID_Livro === livro.ID_Livro)) {
+            mapaCategorias[chave].livros.push(livro);
+          }
+        });
+      });
+
+      // Ordenar Categorias em Ordem Alfabética (A-Z)
+      const chavesOrdenadas = Object.keys(mapaCategorias).sort((a, b) => 
+        mapaCategorias[a].nome.localeCompare(mapaCategorias[b].nome, 'pt-BR', { sensitivity: 'base' })
+      );
+
+      // Renderizar no HTML
+      chavesOrdenadas.forEach(chave => {
+        const catObj = mapaCategorias[chave];
+
+        // Ordenar Livros em Ordem Alfabética por Título (A-Z)
+        catObj.livros.sort((a, b) => (a.Título || "").localeCompare(b.Título || "", 'pt-BR', { sensitivity: 'base' }));
+
+        let htmlCat = `
+          <div class="categoria-secao">
+            <h3 class="categoria-titulo">📌 ${catObj.nome}</h3>
+            <div class="lista-livros-categoria">
+        `;
+
+        catObj.livros.forEach(livro => {
+          const qtdDisp = parseInt(livro.Qtd_Disponivel) || 0;
+          const temEstoque = qtdDisp > 0;
+
+          htmlCat += `
+            <div class="item-livro-linha">
+              <div class="item-livro-info">
+                <h4>${livro.Título}</h4>
+                <p><strong>Autor:</strong> ${livro.Autor || "Não informado"}</p>
+              </div>
+              <div>
+                ${temEstoque 
+                  ? `<span class="badge badge-disponivel">Disponível (${qtdDisp})</span>` 
+                  : `<button class="btn-reservar-ativo" onclick="solicitarReserva('${livro.ID_Livro}', '${livro.Título.replace(/'/g, "\\'")}')">Reservar</button>`
+                }
+              </div>
+            </div>
+          `;
+        });
+
+        htmlCat += `</div></div>`;
+        container.innerHTML += htmlCat;
+      });
+    }
+
+    function filtrarAcervo() {
+      const termo = document.getElementById("inputBusca").value.toLowerCase();
+      if (!termo) {
+        renderizarAcervoPorCategorias(acervoMemoria);
+        return;
+      }
+
+      const filtrados = acervoMemoria.filter(l => 
+        (l.Título && l.Título.toLowerCase().includes(termo)) || 
+        (l.Autor && l.Autor.toLowerCase().includes(termo)) ||
+        (l.Categoria && l.Categoria.toLowerCase().includes(termo))
+      );
+
+      renderizarAcervoPorCategorias(filtrados);
+    }
+
+    async function solicitarReserva(idLivro, tituloLivro) {
+      if (!usuarioLogado) return alert("Identifique-se primeiro!");
+
+      if (!confirm(`Confirmar reserva do livro "${tituloLivro}"?`)) return;
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "registrarReserva",
+            idUsuario: usuarioLogado.ID || usuarioLogado.Telefone,
+            nomeUsuario: usuarioLogado.Nome,
+            idLivro: idLivro,
+            tituloLivro: tituloLivro
+          })
+        });
+
+        const json = await res.json();
+        alert(json.message);
+      } catch (err) {
+        alert("Erro ao realizar reserva.");
+      }
+    }
+
+    // ADMIN
+    async function confirmarEmprestimo() {
+      const tel = document.getElementById("empTelefone").value;
+      const idLivro = document.getElementById("empIdLivro").value;
+      if (!tel || !idLivro) return alert("Preencha todos os campos.");
+
+      try {
+        const resUser = await fetch(`${API_URL}?action=buscarUsuarioPorTelefone&telefone=${tel}`);
+        const jsonUser = await resUser.json();
+
+        const resLivro = await fetch(`${API_URL}?action=buscarLivroPorId&idLivro=${idLivro}`);
+        const jsonLivro = await resLivro.json();
+
+        if (!jsonUser.success) return alert("Leitor não encontrado.");
+        if (!jsonLivro.success) return alert("Livro não encontrado.");
+
+        dadosEmprestimoTemporario = { telefone: tel, idLivro: idLivro };
+        document.getElementById("confNomeLeitor").innerText = jsonUser.usuario.Nome;
+        document.getElementById("confTituloLivro").innerText = jsonLivro.livro.Título;
+
+        abrirModal("modalConfirmacao");
+      } catch (err) {
+        alert("Erro na checagem.");
+      }
+    }
+
+    async function executarEmprestimo() {
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "registrarEmprestimo", ...dadosEmprestimoTemporario })
+        });
+        const json = await res.json();
+        alert(json.message);
+        if (json.success) {
+          fecharModal("modalConfirmacao");
+          carregarEmprestimos();
+        }
+      } catch (err) {
+        alert("Erro ao registrar empréstimo.");
+      }
+    }
+
+    async function carregarEmprestimos() {
+      try {
+        const res = await fetch(`${API_URL}?action=getEmprestimos`);
+        const json = await res.json();
+        const tabela = document.getElementById("tabelaEmprestimos");
+        tabela.innerHTML = "";
+
+        if (json.success) {
+          json.data.filter(e => e.Status === "Ativo").forEach(emp => {
+            tabela.innerHTML += `
+              <tr>
+                <td>${emp.Nome}</td>
+                <td>${emp.Telefone}</td>
+                <td>${emp.ID_Livro}</td>
+                <td>${emp.DataVencimento}</td>
+                <td><button class="btn-devolver" onclick="devolverLivro('${emp.ID}')">Dar Baixa</button></td>
+              </tr>
+            `;
+          });
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function devolverLivro(idEmprestimo) {
+      if (!confirm("Dar baixa nesta devolução?")) return;
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "registrarDevolucao", idEmprestimo: idEmprestimo })
+        });
+        const json = await res.json();
+        if (json.success) {
+          if (json.alertaReserva) alert(`🚨 LIVRO RESERVADO! Entregar ao leitor: ${json.proximoLeitor}`);
+          else alert("Devolução registrada!");
+          carregarEmprestimos();
+        }
+      } catch (err) {
+        alert("Erro ao devolver.");
+      }
+    }
+
+    async function salvarUsuario() {
+      const usuario = {
+        nome: document.getElementById("cadNome").value,
+        email: document.getElementById("cadEmail").value,
+        telefone: document.getElementById("cadTelefone").value,
+        perfil: document.getElementById("cadPerfil").value,
+        turma: document.getElementById("cadTurma").value
+      };
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "cadastrarUsuario", usuario })
+      });
+      const json = await res.json();
+      alert(json.message);
+      if (json.success) fecharModal("modalCadUsuario");
+    }
+
+    async function salvarLivro() {
+      const livro = {
+        titulo: document.getElementById("cadTitulo").value,
+        autor: document.getElementById("cadAutor").value,
+        isbn: document.getElementById("cadIsbn").value,
+        categoria: document.getElementById("cadCategoria").value,
+        capaUrl: document.getElementById("cadCapa").value,
+        qtdTotal: document.getElementById("cadQtd").value
+      };
+      const res = await fetch(API_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "cadastrarLivro", livro })
+      });
+      const json = await res.json();
+      alert(json.message);
+      if (json.success) fecharModal("modalCadLivro");
+    }
+
+    function abrirModal(id) { document.getElementById(id).hidden = false; }
+    function fecharModal(id) { document.getElementById(id).hidden = true; }
+  </script>
 </body>
 </html>
