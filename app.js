@@ -33,7 +33,7 @@ async function executarLogin() {
     try {
       const res = await fetch(API_URL, {
         method: "POST",
-        body: JSON.stringify({ action: "loginAdmin", senha: senha })
+        body: JSON.stringify({ action: "loginAdmin", senha: adm123 })
       });
       const json = await res.json();
 
