@@ -5,10 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Biblioteca Digital</title>
   <style>
-    /* ESTILOS EMBUTIDOS PARA GARANTIR CARREGAMENTO 100% SEGURO NO GITHUB PAGES */
     :root {
       --primary: #1e293b;
       --accent: #2563eb;
+      --accent-hover: #1d4ed8;
+      --secondary: #64748b;
       --success: #16a34a;
       --danger: #dc2626;
       --bg: #f8fafc;
@@ -16,7 +17,7 @@
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
-    body { background-color: var(--bg); color: #0f172a; }
+    body { background-color: var(--bg); color: #0f172a; display: flex; flex-direction: column; min-height: 100vh; }
 
     header {
       background-color: var(--primary);
@@ -42,7 +43,7 @@
       cursor: pointer;
     }
 
-    .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+    main.container { max-width: 1000px; margin: 40px auto; padding: 0 20px; flex: 1; }
 
     /* CARD DE LOGIN CENTRALIZADO */
     .card-login {
@@ -70,13 +71,37 @@
 
     input:focus, select:focus { outline: none; border-color: var(--accent); }
 
-    .btn-login, button {
+    .btn-login {
       background-color: var(--accent);
       color: white;
       border: none;
       font-weight: 600;
       cursor: pointer;
       margin-top: 10px;
+    }
+
+    .btn-login:hover { background-color: var(--accent-hover); }
+
+    .btn-cadastro-novo {
+      background-color: transparent;
+      color: var(--accent);
+      border: 1px solid var(--accent);
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .btn-cadastro-novo:hover { background-color: #eff6ff; }
+
+    /* AVISO LGPD */
+    .lgpd-notice {
+      margin-top: 20px;
+      padding-top: 15px;
+      border-top: 1px solid #f1f5f9;
+      font-size: 0.75rem;
+      color: #94a3b8;
+      text-align: center;
+      line-height: 1.3;
     }
 
     .user-welcome { background: #e0f2fe; color: #0369a1; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
@@ -100,11 +125,20 @@
 
     .btn-devolver { background-color: var(--success); }
 
-    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; }
+    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; z-index: 1000; }
     .modal-content { background: white; padding: 24px; border-radius: 8px; width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; }
     .close { align-self: flex-end; font-size: 1.5rem; cursor: pointer; }
 
-    /* ATRIBUTO NATIVO HTML5 OCULTA MESMO SEM CSS EXTERNO */
+    /* RODAPÉ CRÉDITOS */
+    footer {
+      text-align: center;
+      padding: 15px;
+      font-size: 0.8rem;
+      color: #94a3b8;
+      background-color: var(--primary);
+      margin-top: auto;
+    }
+
     [hidden] { display: none !important; }
   </style>
 </head>
@@ -144,6 +178,11 @@
       </div>
 
       <button class="btn-login" onclick="executarLogin()">Entrar</button>
+      <button id="btnAutoCadastro" class="btn-cadastro-novo" onclick="abrirModal('modalAutoCadastro')">1º Acesso / Cadastrar-se</button>
+
+      <div class="lgpd-notice">
+        🔒 Este sistema está em conformidade com a <strong>LGPD</strong>. Seus dados são utilizados exclusivamente para o controle de acervo e empréstimos de livros.
+      </div>
     </section>
 
     <!-- ÁREA DO LEITOR -->
@@ -196,7 +235,24 @@
 
   </main>
 
-  <!-- MODAIS COM ATRIBUTO HIDDEN NATIVO -->
+  <!-- MODAL: AUTO-CADASTRO (1º ACESSO DO ALUNO/PROFESSOR) -->
+  <div id="modalAutoCadastro" class="modal" hidden>
+    <div class="modal-content">
+      <span class="close" onclick="fecharModal('modalAutoCadastro')">&times;</span>
+      <h3>1º Acesso - Cadastro</h3>
+      <input type="text" id="autoNome" placeholder="Nome Completo">
+      <input type="email" id="autoEmail" placeholder="E-mail">
+      <input type="text" id="autoTelefone" placeholder="Telefone / WhatsApp (com DDD)">
+      <select id="autoPerfil">
+        <option value="Aluno">Aluno</option>
+        <option value="Professor">Professor</option>
+      </select>
+      <input type="text" id="autoTurma" placeholder="Turma/Classe (ex: 8º Ano A ou '-')">
+      <button class="btn-login" onclick="salvarAutoCadastro()">Finalizar Cadastro</button>
+    </div>
+  </div>
+
+  <!-- MODAL: CADASTRAR LEITOR (ADMIN) -->
   <div id="modalCadUsuario" class="modal" hidden>
     <div class="modal-content">
       <span class="close" onclick="fecharModal('modalCadUsuario')">&times;</span>
@@ -213,6 +269,7 @@
     </div>
   </div>
 
+  <!-- MODAL: CADASTRAR LIVRO (ADMIN) -->
   <div id="modalCadLivro" class="modal" hidden>
     <div class="modal-content">
       <span class="close" onclick="fecharModal('modalCadLivro')">&times;</span>
@@ -227,6 +284,7 @@
     </div>
   </div>
 
+  <!-- MODAL: CONFIRMAÇÃO DE EMPRÉSTIMO -->
   <div id="modalConfirmacao" class="modal" hidden>
     <div class="modal-content">
       <span class="close" onclick="fecharModal('modalConfirmacao')">&times;</span>
@@ -236,6 +294,10 @@
       <button onclick="executarEmprestimo()">Confirmar e Emprestar</button>
     </div>
   </div>
+
+  <footer>
+    developed by Jana Kirschner (beta)
+  </footer>
 
   <script src="app.js"></script>
 </body>
