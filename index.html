@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Biblioteca Digital Eneida Rabelo </title>
+  <title>Biblioteca Digital</title>
   <style>
     :root {
       --primary: #1e293b;
@@ -106,7 +106,7 @@
     .user-welcome { background: #e0f2fe; color: #0369a1; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
     .busca-box input { margin-bottom: 20px; }
 
-    /* ESTRUTURA DO ACERVO POR CATEGORIAS (SEM IMAGENS) */
+    /* ESTRUTURA DO ACERVO LEITOR */
     .categoria-bloco {
       margin-bottom: 28px;
       background: #ffffff;
@@ -167,7 +167,6 @@
     }
 
     .badge-disponivel { background-color: var(--success); }
-    .badge-indisponivel { background-color: #94a3b8; }
 
     .btn-reservar-acao {
       background-color: var(--accent);
@@ -182,24 +181,46 @@
       width: auto;
     }
 
-    .btn-reservar-acao:hover {
-      background-color: var(--accent-hover);
-    }
+    .btn-reservar-acao:hover { background-color: var(--accent-hover); }
 
-    /* PAINEL ADMIN */
+    /* PAINEL ADMIN E TABELAS */
     .card-form { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin: 20px 0; }
     .form-grid { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-top: 10px; }
 
     .table-container { background: white; border-radius: 8px; overflow-x: auto; margin-top: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
-    table { width: 100%; border-collapse: collapse; }
+    table { width: 100%; border-collapse: collapse; min-width: 600px; }
     th, td { padding: 12px; text-align: left; border-bottom: 1px solid #f1f5f9; }
-    th { background-color: #f8fafc; }
+    th { background-color: #f8fafc; font-weight: 600; color: #334155; }
 
     .btn-devolver { background-color: var(--success); width: auto; }
 
+    /* BUSCA POR ISBN COMPONENTE */
+    .isbn-input-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    .btn-buscar-isbn {
+      width: auto;
+      white-space: nowrap;
+      background-color: var(--accent);
+      color: white;
+      padding: 10px 16px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .feedback-busca {
+      font-size: 0.82rem;
+      margin-top: 4px;
+      font-weight: 600;
+    }
+    .feedback-sucesso { color: var(--success); }
+    .feedback-alerta { color: var(--danger); }
+
     /* MODAL */
     .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; z-index: 1000; }
-    .modal-content { background: white; padding: 24px; border-radius: 8px; width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; }
+    .modal-content { background: white; padding: 24px; border-radius: 8px; width: 90%; max-width: 500px; display: flex; flex-direction: column; gap: 12px; max-height: 90vh; overflow-y: auto; }
     .close { align-self: flex-end; font-size: 1.5rem; cursor: pointer; }
 
     footer {
@@ -212,6 +233,11 @@
     }
 
     [hidden] { display: none !important; }
+
+    @media (max-width: 600px) {
+      .form-grid { grid-template-columns: 1fr; }
+      .isbn-input-group { flex-direction: column; }
+    }
   </style>
 </head>
 <body>
@@ -225,7 +251,7 @@
 
   <main class="container">
 
-    <!-- TELA INICIAL: BLOCO DE LOGIN -->
+    <!-- LOGIN -->
     <section id="secLogin" class="card-login">
       <h2>Acesso ao Sistema</h2>
       <p class="subtitulo">Selecione o seu perfil para continuar</p>
@@ -257,14 +283,14 @@
       </div>
     </section>
 
-    <!-- ÁREA DO LEITOR (ALUNO / PROFESSOR) -->
+    <!-- ÁREA LEITOR -->
     <section id="secLeitor" hidden>
       <div class="user-welcome">
         <h3>Bem-vindo(a), <span id="nomeLeitorLogado">-</span>!</h3>
       </div>
       
       <div class="busca-box">
-        <input type="text" id="inputBusca" placeholder="🔍 Buscar por título, autor ou categoria..." onkeyup="filtrarAcervo()">
+        <input type="text" id="inputBusca" placeholder="🔍 Buscar por título, autor ou categoria..." onkeyup="filtrarAcervoLeitor()">
       </div>
       
       <h2 style="margin-bottom: 16px;">Catálogo do Acervo</h2>
@@ -273,10 +299,11 @@
 
     <!-- PAINEL ADMINISTRATIVO -->
     <section id="secAdmin" hidden>
-      <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-        <button onclick="abrirModal('modalCadUsuario')">➕ Cadastrar Leitor</button>
-        <button onclick="abrirModal('modalCadLivro')">➕ Cadastrar Livro</button>
-        <button onclick="carregarEmprestimos()">🔄 Atualizar Listas</button>
+      <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+        <button onclick="abrirModal('modalCadUsuario')" style="width: auto;">➕ Cadastrar Leitor</button>
+        <button onclick="abrirModal('modalCadLivro')" style="width: auto;">➕ Cadastrar Livro</button>
+        <button onclick="abrirModal('modalConsultarAcervo')" style="width: auto; background-color: var(--primary);">🔍 Consultar Acervo</button>
+        <button onclick="carregarEmprestimos()" style="width: auto; background-color: #475569;">🔄 Atualizar Listas</button>
       </div>
 
       <div class="card-form">
@@ -306,6 +333,30 @@
     </section>
 
   </main>
+
+  <!-- MODAL: CONSULTAR ACERVO (ADMIN) -->
+  <div id="modalConsultarAcervo" class="modal" hidden>
+    <div class="modal-content" style="max-width: 800px;">
+      <span class="close" onclick="fecharModal('modalConsultarAcervo')">&times;</span>
+      <h3>Consulta do Acervo Completo</h3>
+      
+      <input type="text" id="buscaAcervoAdmin" placeholder="🔍 Pesquisar por título ou ISBN..." onkeyup="filtrarTabelaAcervoAdmin()" style="margin-top: 5px;">
+
+      <div class="table-container">
+        <table>
+          <thead>
+            <tr>
+              <th>Nome do Livro</th>
+              <th>ISBN</th>
+              <th style="text-align: center;">Emprestados</th>
+              <th style="text-align: center;">Disponíveis</th>
+            </tr>
+          </thead>
+          <tbody id="tabelaConsultaAcervoAdmin"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
 
   <!-- MODAL: AUTO-CADASTRO (1º ACESSO) -->
   <div id="modalAutoCadastro" class="modal" hidden>
@@ -337,21 +388,45 @@
         <option value="Professor">Professor</option>
       </select>
       <input type="text" id="cadTurma" placeholder="Turma/Classe (ex: 8º Ano A)">
-      <button class="btn-login" onclick="salvarUsuario()">Cadastrar</button>
+      <button class="btn-login" onclick="salvarUsuario()">Cadastrar Leitor</button>
     </div>
   </div>
 
-  <!-- MODAL: CADASTRAR LIVRO (ADMIN) -->
+  <!-- MODAL: CADASTRAR LIVRO POR ISBN (ADMIN) -->
   <div id="modalCadLivro" class="modal" hidden>
     <div class="modal-content">
       <span class="close" onclick="fecharModal('modalCadLivro')">&times;</span>
       <h3>Cadastrar Novo Livro</h3>
-      <input type="text" id="cadTitulo" placeholder="Título do Livro">
-      <input type="text" id="cadAutor" placeholder="Autor">
-      <input type="text" id="cadIsbn" placeholder="ISBN">
-      <input type="text" id="cadCategoria" placeholder="Categoria/Gênero (ex: Romance, Regional)">
-      <input type="text" id="cadCapa" placeholder="URL da Imagem (Opcional)">
-      <input type="number" id="cadQtd" placeholder="Quantidade Total" value="1">
+
+      <div class="field-group">
+        <label for="cadIsbn">ISBN (10 ou 13 dígitos):</label>
+        <div class="isbn-input-group">
+          <input type="text" id="cadIsbn" placeholder="Ex: 9788535902778">
+          <button type="button" id="btnBuscarIsbn" class="btn-buscar-isbn" onclick="buscarLivroPorISBN()">Buscar livro</button>
+        </div>
+        <div id="feedbackIsbn" class="feedback-busca"></div>
+      </div>
+
+      <div class="field-group">
+        <label for="cadTitulo">Título do Livro *:</label>
+        <input type="text" id="cadTitulo" placeholder="Título completo">
+      </div>
+
+      <div class="field-group">
+        <label for="cadAutor">Autor *:</label>
+        <input type="text" id="cadAutor" placeholder="Nome do autor">
+      </div>
+
+      <div class="field-group">
+        <label for="cadCategoria">Categoria / Gênero:</label>
+        <input type="text" id="cadCategoria" placeholder="Ex: Romance, Regional, Poesia">
+      </div>
+
+      <div class="field-group">
+        <label for="cadQtd">Quantidade de Exemplares *:</label>
+        <input type="number" id="cadQtd" value="1" min="1" step="1">
+      </div>
+
       <button class="btn-login" onclick="salvarLivro()">Cadastrar Livro</button>
     </div>
   </div>
@@ -372,10 +447,10 @@
   </footer>
 
   <script>
-    // URL DA API DO GOOGLE APPS SCRIPT
     const API_URL = "https://script.google.com/macros/s/AKfycbwCVnRUqWDrd3irfBvMO_lgLe713w1z9QZRKhBBWkwJA687mGip3E4mQbnS5CuJsJcTog/exec";
 
     let acervoMemoria = [];
+    let emprestimosMemoria = [];
     let usuarioLogado = null;
     let dadosEmprestimoTemporario = {};
 
@@ -413,6 +488,7 @@
           if (json.success) {
             exibirTela("admin");
             carregarEmprestimos();
+            carregarAcervoGlobal();
           } else {
             alert("Senha incorreta!");
           }
@@ -432,7 +508,7 @@
             usuarioLogado = json.usuario;
             document.getElementById("nomeLeitorLogado").innerText = usuarioLogado.Nome || "Leitor";
             exibirTela("leitor");
-            carregarAcervo();
+            carregarAcervoGlobal();
           } else {
             alert("Usuário não encontrado. Clique em '1º Acesso / Cadastrar-se' para criar sua conta.");
           }
@@ -462,6 +538,343 @@
       document.getElementById("loginSenha").value = "";
     }
 
+    async function carregarAcervoGlobal() {
+      try {
+        const res = await fetch(`${API_URL}?action=getAcervo`);
+        const json = await res.json();
+        if (json.success) {
+          acervoMemoria = json.data;
+          renderizarAcervoCategorizado(acervoMemoria);
+          renderizarTabelaAcervoAdmin(acervoMemoria);
+        }
+      } catch (err) {
+        console.error("Erro ao carregar acervo:", err);
+      }
+    }
+
+    // 1. RENDERIZAÇÃO LEITOR POR CATEGORIAS (A-Z)
+    function renderizarAcervoCategorizado(listaLivros) {
+      const container = document.getElementById("containerAcervoCategorias");
+      if (!container) return;
+      container.innerHTML = "";
+
+      if (!listaLivros || listaLivros.length === 0) {
+        container.innerHTML = "<p style='color: #64748b;'>Nenhum livro cadastrado no momento.</p>";
+        return;
+      }
+
+      const mapaCategorias = {};
+
+      listaLivros.forEach(livro => {
+        const catBruta = livro.Categoria || livro.Categorias || livro.Gênero || livro.Genero || "Geral";
+        const categoriasArray = catBruta.split(",").map(c => c.trim()).filter(c => c.length > 0);
+
+        categoriasArray.forEach(catNome => {
+          const chaveNormalizada = catNome.toLowerCase();
+
+          if (!mapaCategorias[chaveNormalizada]) {
+            mapaCategorias[chaveNormalizada] = { nomeExibicao: catNome, livros: [] };
+          }
+
+          const idLivroAtual = livro.ID_Livro || livro.ID || livro.ISBN || livro.Título;
+          const jaIncluso = mapaCategorias[chaveNormalizada].livros.some(l => {
+            return (l.ID_Livro || l.ID || l.ISBN || l.Título) === idLivroAtual;
+          });
+
+          if (!jaIncluso) {
+            mapaCategorias[chaveNormalizada].livros.push(livro);
+          }
+        });
+      });
+
+      const chavesOrdenadas = Object.keys(mapaCategorias).sort((a, b) => 
+        mapaCategorias[a].nomeExibicao.localeCompare(mapaCategorias[b].nomeExibicao, 'pt-BR', { sensitivity: 'base' })
+      );
+
+      chavesOrdenadas.forEach(chave => {
+        const categoriaObj = mapaCategorias[chave];
+
+        categoriaObj.livros.sort((a, b) => {
+          const tituloA = (a.Título || a.Titulo || "").trim();
+          const tituloB = (b.Título || b.Titulo || "").trim();
+          const compTitulo = tituloA.localeCompare(tituloB, 'pt-BR', { sensitivity: 'base' });
+          if (compTitulo !== 0) return compTitulo;
+          return (a.Autor || "").trim().localeCompare((b.Autor || "").trim(), 'pt-BR', { sensitivity: 'base' });
+        });
+
+        let htmlCategoriaBloco = `
+          <div class="categoria-bloco">
+            <h3 class="categoria-header">📌 ${categoriaObj.nomeExibicao}</h3>
+            <div class="categoria-livros-lista">
+        `;
+
+        categoriaObj.livros.forEach(livro => {
+          const titulo = livro.Título || livro.Titulo || "Título não informado";
+          const autor = livro.Autor || "Autor não informado";
+          const qtdDisponivel = parseInt(livro.Qtd_Disponivel !== undefined ? livro.Qtd_Disponivel : livro.Qtd_Total) || 0;
+          const idLivro = livro.ID_Livro || livro.ID || livro.ISBN || titulo;
+          const temEstoque = qtdDisponivel > 0;
+
+          htmlCategoriaBloco += `
+            <div class="livro-linha-item">
+              <div class="livro-linha-detalhes">
+                <h4>${titulo}</h4>
+                <p><strong>Autor:</strong> ${autor}</p>
+              </div>
+              <div>
+                ${temEstoque 
+                  ? `<span class="badge-status badge-disponivel">Disponível (${qtdDisponivel})</span>` 
+                  : `<button class="btn-reservar-acao" onclick="solicitarReserva('${idLivro.toString().replace(/'/g, "\\'")}', '${titulo.replace(/'/g, "\\'")}')">Reservar</button>`
+                }
+              </div>
+            </div>
+          `;
+        });
+
+        htmlCategoriaBloco += `</div></div>`;
+        container.innerHTML += htmlCategoriaBloco;
+      });
+    }
+
+    function filtrarAcervoLeitor() {
+      const termo = document.getElementById("inputBusca").value.toLowerCase().trim();
+      if (!termo) return renderizarAcervoCategorizado(acervoMemoria);
+
+      const filtrados = acervoMemoria.filter(l => {
+        const titulo = (l.Título || l.Titulo || "").toLowerCase();
+        const autor = (l.Autor || "").toLowerCase();
+        const cat = (l.Categoria || l.Categorias || "").toLowerCase();
+        return titulo.includes(termo) || autor.includes(termo) || cat.includes(termo);
+      });
+
+      renderizarAcervoCategorizado(filtrados);
+    }
+
+    // 2. CONSULTAR ACERVO (PERFIL ADMIN) COM CÁLCULO REAL DE EMPRESTADOS E DISPONÍVEIS
+    function renderizarTabelaAcervoAdmin(listaLivros) {
+      const tabela = document.getElementById("tabelaConsultaAcervoAdmin");
+      if (!tabela) return;
+      tabela.innerHTML = "";
+
+      if (!listaLivros || listaLivros.length === 0) {
+        tabela.innerHTML = "<tr><td colspan='4' style='text-align:center; color:#64748b;'>Nenhum livro encontrado.</td></tr>";
+        return;
+      }
+
+      // Ordena alfabeticamente por título
+      const livrosOrdenados = [...listaLivros].sort((a, b) => {
+        const titA = (a.Título || a.Titulo || "").trim();
+        const titB = (b.Título || b.Titulo || "").trim();
+        return titA.localeCompare(titB, 'pt-BR', { sensitivity: 'base' });
+      });
+
+      livrosOrdenados.forEach(livro => {
+        const titulo = livro.Título || livro.Titulo || "Sem título";
+        const isbn = (livro.ISBN && livro.ISBN.toString().trim() !== "") ? livro.ISBN : "Não informado";
+        const idLivroOficial = (livro.ID_Livro || livro.ID || "").toString().trim();
+        const isbnOficial = (livro.ISBN || "").toString().trim();
+
+        const qtdTotal = parseInt(livro.Qtd_Total) || 1;
+
+        // Contagem real baseada em Empréstimos Ativos
+        let contagemEmprestados = 0;
+        emprestimosMemoria.forEach(emp => {
+          if (emp.Status === "Ativo") {
+            const empIdLivro = (emp.ID_Livro || "").toString().trim();
+            if (empIdLivro === idLivroOficial || empIdLivro === isbnOficial) {
+              contagemEmprestados++;
+            }
+          }
+        });
+
+        // Fórmula: Disponíveis = Total - Emprestados
+        const qtdDisponiveis = Math.max(0, qtdTotal - contagemEmprestados);
+
+        tabela.innerHTML += `
+          <tr>
+            <td><strong>${titulo}</strong><br><small style="color:#64748b;">${livro.Autor || ''}</small></td>
+            <td>${isbn}</td>
+            <td style="text-align: center; color: var(--danger); font-weight: bold;">${contagemEmprestados}</td>
+            <td style="text-align: center; color: var(--success); font-weight: bold;">${qtdDisponiveis}</td>
+          </tr>
+        `;
+      });
+    }
+
+    function filtrarTabelaAcervoAdmin() {
+      const termo = document.getElementById("buscaAcervoAdmin").value.toLowerCase().trim();
+      if (!termo) return renderizarTabelaAcervoAdmin(acervoMemoria);
+
+      const filtrados = acervoMemoria.filter(l => {
+        const tit = (l.Título || l.Titulo || "").toLowerCase();
+        const isbn = (l.ISBN || "").toString().toLowerCase();
+        return tit.includes(termo) || isbn.includes(termo);
+      });
+
+      renderizarTabelaAcervoAdmin(filtrados);
+    }
+
+    // 3. BUSCA DE LIVROS POR ISBN (GOOGLE BOOKS + OPEN LIBRARY FALLBACK)
+    async function buscarLivroPorISBN() {
+      const isbnInput = document.getElementById("cadIsbn").value;
+      const feedback = document.getElementById("feedbackIsbn");
+      const btnBuscar = document.getElementById("btnBuscarIsbn");
+
+      // Sanitiza o ISBN
+      const isbnLimpo = isbnInput.replace(/[^0-9Xx]/g, "").toUpperCase();
+
+      if (!isbnLimpo || (isbnLimpo.length !== 10 && isbnLimpo.length !== 13)) {
+        feedback.innerText = "⚠️ Digite um ISBN-10 ou ISBN-13 válido (apenas números).";
+        feedback.className = "feedback-busca feedback-alerta";
+        return;
+      }
+
+      feedback.innerText = "⏳ Buscando dados bibliográficos...";
+      feedback.className = "feedback-busca";
+      btnBuscar.disabled = true;
+
+      try {
+        // Tentativa 1: Google Books API
+        let res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbnLimpo}`);
+        let data = await res.json();
+
+        if (data.totalItems > 0 && data.items[0].volumeInfo) {
+          const info = data.items[0].volumeInfo;
+          preencherFormularioLivro(info.title, info.authors ? info.authors.join(", ") : "", info.categories ? info.categories.join(", ") : "");
+          feedback.innerText = "✓ Dados localizados no Google Books! Você pode editá-los se desejar.";
+          feedback.className = "feedback-busca feedback-sucesso";
+          btnBuscar.disabled = false;
+          return;
+        }
+
+        // Tentativa 2: Fallback para Open Library API
+        res = await fetch(`https://openlibrary.org/api/books?bibkeys=ISBN:${isbnLimpo}&jscmd=data&format=json`);
+        data = await res.json();
+        const bookKey = `ISBN:${isbnLimpo}`;
+
+        if (data[bookKey]) {
+          const info = data[bookKey];
+          const autores = info.authors ? info.authors.map(a => a.name).join(", ") : "";
+          const cats = info.subjects ? info.subjects.map(s => s.name).join(", ") : "";
+          preencherFormularioLivro(info.title, autores, cats);
+          feedback.innerText = "✓ Dados localizados no Open Library! Você pode editá-los se desejar.";
+          feedback.className = "feedback-busca feedback-sucesso";
+          btnBuscar.disabled = false;
+          return;
+        }
+
+        // Não localizado em nenhuma API
+        feedback.innerText = "⚠️ Livro não localizado nas bases de dados públicas. Preencha os campos manualmente.";
+        feedback.className = "feedback-busca feedback-alerta";
+
+      } catch (err) {
+        feedback.innerText = "⚠️ Falha ao conectar às APIs de busca. Preencha os campos manualmente.";
+        feedback.className = "feedback-busca feedback-alerta";
+      } finally {
+        btnBuscar.disabled = false;
+      }
+    }
+
+    function preencherFormularioLivro(titulo, autor, categoria) {
+      if (titulo) document.getElementById("cadTitulo").value = titulo;
+      if (autor) document.getElementById("cadAutor").value = autor;
+      if (categoria && !document.getElementById("cadCategoria").value) {
+        document.getElementById("cadCategoria").value = categoria;
+      }
+    }
+
+    // OPERAÇÕES DE EMPRÉSTIMO E DEVOLUÇÃO
+    async function carregarEmprestimos() {
+      try {
+        const res = await fetch(`${API_URL}?action=getEmprestimos`);
+        const json = await res.json();
+        const tabela = document.getElementById("tabelaEmprestimos");
+        tabela.innerHTML = "";
+
+        if (json.success) {
+          emprestimosMemoria = json.data;
+          emprestimosMemoria.filter(e => e.Status === "Ativo").forEach(emp => {
+            tabela.innerHTML += `
+              <tr>
+                <td>${emp.Nome}</td>
+                <td>${emp.Telefone}</td>
+                <td>${emp.ID_Livro}</td>
+                <td>${emp.DataVencimento}</td>
+                <td><button class="btn-devolver" onclick="devolverLivro('${emp.ID}')">Dar Baixa</button></td>
+              </tr>
+            `;
+          });
+          // Recalcula acervo admin se tiver aberto
+          renderizarTabelaAcervoAdmin(acervoMemoria);
+        }
+      } catch (err) {
+        console.error(err);
+      }
+    }
+
+    async function confirmarEmprestimo() {
+      const tel = document.getElementById("empTelefone").value;
+      const idLivro = document.getElementById("empIdLivro").value;
+      if (!tel || !idLivro) return alert("Preencha o telefone do leitor e o ID do livro.");
+
+      try {
+        const resUser = await fetch(`${API_URL}?action=buscarUsuarioPorTelefone&telefone=${tel}`);
+        const jsonUser = await resUser.json();
+
+        const resLivro = await fetch(`${API_URL}?action=buscarLivroPorId&idLivro=${idLivro}`);
+        const jsonLivro = await resLivro.json();
+
+        if (!jsonUser.success) return alert("Leitor não cadastrado!");
+        if (!jsonLivro.success) return alert("Livro não encontrado!");
+
+        dadosEmprestimoTemporario = { telefone: tel, idLivro: idLivro };
+        document.getElementById("confNomeLeitor").innerText = jsonUser.usuario.Nome;
+        document.getElementById("confTituloLivro").innerText = jsonLivro.livro.Título || jsonLivro.livro.Titulo;
+
+        abrirModal("modalConfirmacao");
+      } catch (err) {
+        alert("Erro ao validar empréstimo.");
+      }
+    }
+
+    async function executarEmprestimo() {
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "registrarEmprestimo", ...dadosEmprestimoTemporario })
+        });
+        const json = await res.json();
+        alert(json.message);
+        if (json.success) {
+          fecharModal("modalConfirmacao");
+          carregarEmprestimos();
+          carregarAcervoGlobal();
+        }
+      } catch (err) {
+        alert("Erro ao efetuar empréstimo.");
+      }
+    }
+
+    async function devolverLivro(idEmprestimo) {
+      if (!confirm("Confirmar baixa desta devolução?")) return;
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "registrarDevolucao", idEmprestimo: idEmprestimo })
+        });
+        const json = await res.json();
+        if (json.success) {
+          if (json.alertaReserva) alert(`🚨 LIVRO RESERVADO! Entregar ao leitor: ${json.proximoLeitor}`);
+          else alert("Devolução registrada com sucesso!");
+          carregarEmprestimos();
+          carregarAcervoGlobal();
+        }
+      } catch (err) {
+        alert("Erro na devolução.");
+      }
+    }
+
     async function salvarAutoCadastro() {
       const nome = document.getElementById("autoNome").value.trim();
       const email = document.getElementById("autoEmail").value.trim();
@@ -484,261 +897,7 @@
           document.getElementById("loginTelefone").value = telefone;
         }
       } catch (err) {
-        alert("Erro ao efetuar cadastro.");
-      }
-    }
-
-    // CARREGAR E RENDERIZAR O ACERVO POR CATEGORIAS DA PLANILHA EM ORDEM ALFABÉTICA
-    async function carregarAcervo() {
-      try {
-        const res = await fetch(`${API_URL}?action=getAcervo`);
-        const json = await res.json();
-        if (json.success) {
-          acervoMemoria = json.data;
-          renderizarAcervoCategorizado(acervoMemoria);
-        }
-      } catch (err) {
-        console.error("Erro ao carregar acervo:", err);
-      }
-    }
-
-    function renderizarAcervoCategorizado(listaLivros) {
-      const container = document.getElementById("containerAcervoCategorias");
-      container.innerHTML = "";
-
-      if (!listaLivros || listaLivros.length === 0) {
-        container.innerHTML = "<p style='color: #64748b;'>Nenhum livro cadastrado no momento.</p>";
-        return;
-      }
-
-      // Mapeador de categorias -> [livros]
-      const mapaCategorias = {};
-
-      listaLivros.forEach(livro => {
-        // Tenta obter o campo de categoria tratando variações de nome do cabeçalho
-        const catBruta = livro.Categoria || livro.Categorias || livro.Gênero || livro.Genero || "Geral";
-        
-        // Separa por vírgula, remove espaços das pontas e filtra entradas vazias
-        const categoriasArray = catBruta
-          .split(",")
-          .map(c => c.trim())
-          .filter(c => c.length > 0);
-
-        categoriasArray.forEach(catNome => {
-          const chaveNormalizada = catNome.toLowerCase();
-
-          if (!mapaCategorias[chaveNormalizada]) {
-            mapaCategorias[chaveNormalizada] = {
-              nomeExibicao: catNome,
-              livros: []
-            };
-          }
-
-          // Garante que o livro não seja duplicado na MESMA categoria
-          const idLivroAtual = livro.ID_Livro || livro.ID || livro.ISBN || livro.Título;
-          const jaIncluso = mapaCategorias[chaveNormalizada].livros.some(l => {
-            const idExistente = l.ID_Livro || l.ID || l.ISBN || l.Título;
-            return idExistente === idLivroAtual;
-          });
-
-          if (!jaIncluso) {
-            mapaCategorias[chaveNormalizada].livros.push(livro);
-          }
-        });
-      });
-
-      // 1. ORDENAÇÃO ALFABÉTICA DAS CATEGORIAS (A-Z, PT-BR)
-      const chavesCategoriasOrdenadas = Object.keys(mapaCategorias).sort((a, b) => {
-        return mapaCategorias[a].nomeExibicao.localeCompare(mapaCategorias[b].nomeExibicao, 'pt-BR', { sensitivity: 'base' });
-      });
-
-      // 2. CONSTRUÇÃO DO HTML POR CATEGORIA
-      chavesCategoriasOrdenadas.forEach(chave => {
-        const categoriaObj = mapaCategorias[chave];
-
-        // ORDENAÇÃO ALFABÉTICA DOS LIVROS POR TÍTULO (E AUTOR COMO SECUNDÁRIO)
-        categoriaObj.livros.sort((a, b) => {
-          const tituloA = (a.Título || a.Titulo || "").trim();
-          const tituloB = (b.Título || b.Titulo || "").trim();
-          const compTitulo = tituloA.localeCompare(tituloB, 'pt-BR', { sensitivity: 'base' });
-          
-          if (compTitulo !== 0) return compTitulo;
-          
-          const autorA = (a.Autor || "").trim();
-          const autorB = (b.Autor || "").trim();
-          return autorA.localeCompare(autorB, 'pt-BR', { sensitivity: 'base' });
-        });
-
-        let htmlCategoriaBloco = `
-          <div class="categoria-bloco">
-            <h3 class="categoria-header">📌 ${categoriaObj.nomeExibicao}</h3>
-            <div class="categoria-livros-lista">
-        `;
-
-        categoriaObj.livros.forEach(livro => {
-          const titulo = livro.Título || livro.Titulo || "Título não informado";
-          const autor = livro.Autor || "Autor não informado";
-          const qtdDisponivel = parseInt(livro.Qtd_Disponivel !== undefined ? livro.Qtd_Disponivel : livro.Qtd_Total) || 0;
-          const idLivro = livro.ID_Livro || livro.ID || livro.ISBN || titulo;
-
-          const temEstoque = qtdDisponivel > 0;
-
-          htmlCategoriaBloco += `
-            <div class="livro-linha-item">
-              <div class="livro-linha-detalhes">
-                <h4>${titulo}</h4>
-                <p><strong>Autor:</strong> ${autor}</p>
-              </div>
-              <div>
-                ${temEstoque 
-                  ? `<span class="badge-status badge-disponivel">Disponível (${qtdDisponivel})</span>` 
-                  : `<button class="btn-reservar-acao" onclick="solicitarReserva('${idLivro.toString().replace(/'/g, "\\'")}', '${titulo.replace(/'/g, "\\'")}')">Reservar</button>`
-                }
-              </div>
-            </div>
-          `;
-        });
-
-        htmlCategoriaBloco += `
-            </div>
-          </div>
-        `;
-
-        container.innerHTML += htmlCategoriaBloco;
-      });
-    }
-
-    function filtrarAcervo() {
-      const termo = document.getElementById("inputBusca").value.toLowerCase().trim();
-      
-      if (!termo) {
-        renderizarAcervoCategorizado(acervoMemoria);
-        return;
-      }
-
-      const livrosFiltrados = acervoMemoria.filter(l => {
-        const titulo = (l.Título || l.Titulo || "").toLowerCase();
-        const autor = (l.Autor || "").toLowerCase();
-        const cat = (l.Categoria || l.Categorias || l.Gênero || "").toLowerCase();
-        return titulo.includes(termo) || autor.includes(termo) || cat.includes(termo);
-      });
-
-      renderizarAcervoCategorizado(livrosFiltrados);
-    }
-
-    async function solicitarReserva(idLivro, tituloLivro) {
-      if (!usuarioLogado) {
-        alert("Sessão não identificada. Por favor, faça login novamente.");
-        return;
-      }
-
-      if (!confirm(`Deseja solicitar a reserva do livro "${tituloLivro}"?\nVocê será notificado quando o exemplar for devolvido.`)) {
-        return;
-      }
-
-      try {
-        const res = await fetch(API_URL, {
-          method: "POST",
-          body: JSON.stringify({
-            action: "registrarReserva",
-            idUsuario: usuarioLogado.ID || usuarioLogado.Telefone,
-            nomeUsuario: usuarioLogado.Nome,
-            idLivro: idLivro,
-            tituloLivro: tituloLivro
-          })
-        });
-
-        const json = await res.json();
-        alert(json.message);
-      } catch (err) {
-        alert("Erro ao processar a solicitação de reserva.");
-      }
-    }
-
-    // OPERAÇÕES DO PAINEL ADMIN
-    async function confirmarEmprestimo() {
-      const tel = document.getElementById("empTelefone").value;
-      const idLivro = document.getElementById("empIdLivro").value;
-      if (!tel || !idLivro) return alert("Preencha o telefone do leitor e o ID do livro.");
-
-      try {
-        const resUser = await fetch(`${API_URL}?action=buscarUsuarioPorTelefone&telefone=${tel}`);
-        const jsonUser = await resUser.json();
-
-        const resLivro = await fetch(`${API_URL}?action=buscarLivroPorId&idLivro=${idLivro}`);
-        const jsonLivro = await resLivro.json();
-
-        if (!jsonUser.success) return alert("Leitor não cadastrado!");
-        if (!jsonLivro.success) return alert("Livro não encontrado!");
-
-        dadosEmprestimoTemporario = { telefone: tel, idLivro: idLivro };
-        document.getElementById("confNomeLeitor").innerText = jsonUser.usuario.Nome;
-        document.getElementById("confTituloLivro").innerText = jsonLivro.livro.Título || jsonLivro.livro.Titulo;
-
-        abrirModal("modalConfirmacao");
-      } catch (err) {
-        alert("Erro ao validar dados do empréstimo.");
-      }
-    }
-
-    async function executarEmprestimo() {
-      try {
-        const res = await fetch(API_URL, {
-          method: "POST",
-          body: JSON.stringify({ action: "registrarEmprestimo", ...dadosEmprestimoTemporario })
-        });
-        const json = await res.json();
-        alert(json.message);
-        if (json.success) {
-          fecharModal("modalConfirmacao");
-          carregarEmprestimos();
-        }
-      } catch (err) {
-        alert("Erro ao registrar empréstimo.");
-      }
-    }
-
-    async function carregarEmprestimos() {
-      try {
-        const res = await fetch(`${API_URL}?action=getEmprestimos`);
-        const json = await res.json();
-        const tabela = document.getElementById("tabelaEmprestimos");
-        tabela.innerHTML = "";
-
-        if (json.success) {
-          json.data.filter(e => e.Status === "Ativo").forEach(emp => {
-            tabela.innerHTML += `
-              <tr>
-                <td>${emp.Nome}</td>
-                <td>${emp.Telefone}</td>
-                <td>${emp.ID_Livro}</td>
-                <td>${emp.DataVencimento}</td>
-                <td><button class="btn-devolver" onclick="devolverLivro('${emp.ID}')">Dar Baixa</button></td>
-              </tr>
-            `;
-          });
-        }
-      } catch (err) {
-        console.error(err);
-      }
-    }
-
-    async function devolverLivro(idEmprestimo) {
-      if (!confirm("Confirmar baixa desta devolução?")) return;
-
-      try {
-        const res = await fetch(API_URL, {
-          method: "POST",
-          body: JSON.stringify({ action: "registrarDevolucao", idEmprestimo: idEmprestimo })
-        });
-        const json = await res.json();
-        if (json.success) {
-          if (json.alertaReserva) alert(`🚨 LIVRO RESERVADO! Entregar ao leitor da fila: ${json.proximoLeitor}`);
-          else alert("Devolução efetuada com sucesso!");
-          carregarEmprestimos();
-        }
-      } catch (err) {
-        alert("Erro ao devolver livro.");
+        alert("Erro no cadastro.");
       }
     }
 
@@ -760,21 +919,63 @@
     }
 
     async function salvarLivro() {
-      const livro = {
-        titulo: document.getElementById("cadTitulo").value,
-        autor: document.getElementById("cadAutor").value,
-        isbn: document.getElementById("cadIsbn").value,
-        categoria: document.getElementById("cadCategoria").value,
-        capaUrl: document.getElementById("cadCapa").value,
-        qtdTotal: document.getElementById("cadQtd").value
-      };
-      const res = await fetch(API_URL, {
-        method: "POST",
-        body: JSON.stringify({ action: "cadastrarLivro", livro })
-      });
-      const json = await res.json();
-      alert(json.message);
-      if (json.success) fecharModal("modalCadLivro");
+      const titulo = document.getElementById("cadTitulo").value.trim();
+      const autor = document.getElementById("cadAutor").value.trim();
+      const isbn = document.getElementById("cadIsbn").value.trim();
+      const categoria = document.getElementById("cadCategoria").value.trim();
+      const qtdTotal = parseInt(document.getElementById("cadQtd").value);
+
+      if (!titulo || !autor) return alert("Preencha o Título e o Autor do livro!");
+      if (isNaN(qtdTotal) || qtdTotal < 1) return alert("A quantidade de exemplares deve ser de pelo menos 1.");
+
+      const livro = { titulo, autor, isbn, categoria, capaUrl: "", qtdTotal };
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "cadastrarLivro", livro })
+        });
+        const json = await res.json();
+        alert(json.message);
+        if (json.success) {
+          fecharModal("modalCadLivro");
+          limparFormularioLivro();
+          carregarAcervoGlobal();
+        }
+      } catch (err) {
+        alert("Erro ao cadastrar livro.");
+      }
+    }
+
+    function limparFormularioLivro() {
+      document.getElementById("cadIsbn").value = "";
+      document.getElementById("cadTitulo").value = "";
+      document.getElementById("cadAutor").value = "";
+      document.getElementById("cadCategoria").value = "";
+      document.getElementById("cadQtd").value = "1";
+      document.getElementById("feedbackIsbn").innerText = "";
+    }
+
+    async function solicitarReserva(idLivro, tituloLivro) {
+      if (!usuarioLogado) return alert("Sessão expirada. Faça login novamente.");
+      if (!confirm(`Deseja solicitar a reserva do livro "${tituloLivro}"?`)) return;
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "registrarReserva",
+            idUsuario: usuarioLogado.ID || usuarioLogado.Telefone,
+            nomeUsuario: usuarioLogado.Nome,
+            idLivro: idLivro,
+            tituloLivro: tituloLivro
+          })
+        });
+        const json = await res.json();
+        alert(json.message);
+      } catch (err) {
+        alert("Erro ao realizar reserva.");
+      }
     }
 
     function abrirModal(id) { document.getElementById(id).hidden = false; }
