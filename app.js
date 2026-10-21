@@ -9,13 +9,16 @@ function alternarCamposLogin() {
   const perfil = document.getElementById("selectPerfil").value;
   const groupTelefone = document.getElementById("groupTelefone");
   const groupSenha = document.getElementById("groupSenha");
+  const btnAutoCadastro = document.getElementById("btnAutoCadastro");
 
   if (perfil === "Admin") {
     groupTelefone.hidden = true;
     groupSenha.hidden = false;
+    btnAutoCadastro.hidden = true; // Oculta botão de cadastro para admin
   } else {
     groupTelefone.hidden = false;
     groupSenha.hidden = true;
+    btnAutoCadastro.hidden = false;
   }
 }
 
@@ -58,7 +61,7 @@ async function executarLogin() {
         exibirTela("leitor");
         carregarAcervo();
       } else {
-        alert("Usuário não encontrado. Solicite o cadastro ao bibliotecário.");
+        alert("Usuário não encontrado. Clique em '1º Acesso / Cadastrar-se' para criar sua conta.");
       }
     } catch (err) {
       alert("Erro ao conectar com a base de leitores.");
@@ -87,6 +90,36 @@ function deslogar() {
   
   document.getElementById("loginTelefone").value = "";
   document.getElementById("loginSenha").value = "";
+}
+
+// AUTO CADASTRO DO LEITOR (1º ACESSO)
+async function salvarAutoCadastro() {
+  const nome = document.getElementById("autoNome").value;
+  const email = document.getElementById("autoEmail").value;
+  const telefone = document.getElementById("autoTelefone").value;
+  const perfil = document.getElementById("autoPerfil").value;
+  const turma = document.getElementById("autoTurma").value;
+
+  if (!nome || !telefone) return alert("Por favor, preencha o Nome e o Telefone.");
+
+  const usuario = { nome, email, telefone, perfil, turma };
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({ action: "cadastrarUsuario", usuario: usuario })
+    });
+    const json = await res.json();
+    alert(json.message);
+
+    if (json.success) {
+      fecharModal("modalAutoCadastro");
+      // Preenche o telefone na tela de login automaticamente para facilitar
+      document.getElementById("loginTelefone").value = telefone;
+    }
+  } catch (err) {
+    alert("Erro ao realizar cadastro.");
+  }
 }
 
 // ACERVO DO LEITOR
@@ -235,7 +268,7 @@ async function devolverLivro(idEmprestimo) {
   }
 }
 
-// OPERAÇÕES DE CADASTRO
+// OPERAÇÕES DE CADASTRO (ADMIN)
 async function salvarUsuario() {
   const usuario = {
     nome: document.getElementById("cadNome").value,
