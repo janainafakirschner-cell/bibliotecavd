@@ -1,4 +1,4 @@
-// ATENÇÃO: Cole a URL do seu Google Apps Script implantado aqui!
+// ATENÇÃO: Substitua o texto abaixo pela URL da sua implantação do Google Apps Script
 const API_URL = "https://script.google.com/macros/s/AKfycbwCVnRUqWDrd3irfBvMO_lgLe713w1z9QZRKhBBWkwJA687mGip3E4mQbnS5CuJsJcTog/exec";
 
 let acervoMemoria = [];
@@ -14,7 +14,7 @@ function alternarCamposLogin() {
   if (perfil === "Admin") {
     groupTelefone.hidden = true;
     groupSenha.hidden = false;
-    btnAutoCadastro.hidden = true; // Oculta botão de cadastro para admin
+    btnAutoCadastro.hidden = true;
   } else {
     groupTelefone.hidden = false;
     groupSenha.hidden = true;
@@ -44,7 +44,8 @@ async function executarLogin() {
         alert("Senha incorreta!");
       }
     } catch (err) {
-      alert("Erro ao validar login do Administrador.");
+      alert("Erro ao conectar com a planilha. Verifique a URL em API_URL.");
+      console.error(err);
     }
 
   } else {
@@ -64,7 +65,8 @@ async function executarLogin() {
         alert("Usuário não encontrado. Clique em '1º Acesso / Cadastrar-se' para criar sua conta.");
       }
     } catch (err) {
-      alert("Erro ao conectar com a base de leitores.");
+      alert("Erro ao buscar dados do leitor. Verifique se a URL da API está correta.");
+      console.error(err);
     }
   }
 }
@@ -92,15 +94,34 @@ function deslogar() {
   document.getElementById("loginSenha").value = "";
 }
 
-// AUTO CADASTRO DO LEITOR (1º ACESSO)
+// AUTO CADASTRO DO LEITOR (1º ACESSO - CORRIGIDO)
 async function salvarAutoCadastro() {
-  const nome = document.getElementById("autoNome").value;
-  const email = document.getElementById("autoEmail").value;
-  const telefone = document.getElementById("autoTelefone").value;
-  const perfil = document.getElementById("autoPerfil").value;
-  const turma = document.getElementById("autoTurma").value;
+  const nomeEl = document.getElementById("autoNome");
+  const emailEl = document.getElementById("autoEmail");
+  const telefoneEl = document.getElementById("autoTelefone");
+  const perfilEl = document.getElementById("autoPerfil");
+  const turmaEl = document.getElementById("autoTurma");
 
-  if (!nome || !telefone) return alert("Por favor, preencha o Nome e o Telefone.");
+  if (!nomeEl || !telefoneEl) {
+    alert("Erro interno: Campos de formulário não encontrados no HTML.");
+    return;
+  }
+
+  const nome = nomeEl.value.trim();
+  const email = emailEl ? emailEl.value.trim() : "";
+  const telefone = telefoneEl.value.trim();
+  const perfil = perfilEl ? perfilEl.value : "Aluno";
+  const turma = turmaEl ? turmaEl.value.trim() : "-";
+
+  if (!nome || !telefone) {
+    alert("Por favor, preencha o Nome Completo e o Telefone.");
+    return;
+  }
+
+  if (API_URL.includes("SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI")) {
+    alert("Aviso: Você precisa colar a URL do seu Google Apps Script no topo do arquivo app.js!");
+    return;
+  }
 
   const usuario = { nome, email, telefone, perfil, turma };
 
@@ -109,16 +130,23 @@ async function salvarAutoCadastro() {
       method: "POST",
       body: JSON.stringify({ action: "cadastrarUsuario", usuario: usuario })
     });
+
     const json = await res.json();
     alert(json.message);
 
     if (json.success) {
       fecharModal("modalAutoCadastro");
-      // Preenche o telefone na tela de login automaticamente para facilitar
       document.getElementById("loginTelefone").value = telefone;
+      
+      // Limpar campos do modal
+      nomeEl.value = "";
+      if (emailEl) emailEl.value = "";
+      telefoneEl.value = "";
+      if (turmaEl) turmaEl.value = "";
     }
   } catch (err) {
-    alert("Erro ao realizar cadastro.");
+    alert("Erro ao salvar cadastro. Verifique se a URL do Apps Script foi implantada como 'Qualquer pessoa' (Anyone).");
+    console.error("Detalhes do erro:", err);
   }
 }
 
