@@ -4,1020 +4,131 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Sistema de Biblioteca</title>
-  <style>
-    body {
-      font-family: Arial, Helvetica, sans-serif;
-      background-color: #ffffff;
-      margin: 0;
-      padding: 20px;
-      color: #000000;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .container-login {
-      max-width: 420px;
-      margin: 40px auto;
-      padding: 25px;
-      border: 3px solid #000000;
-      border-radius: 20px;
-      background: #ffffff;
-    }
-
-    .container-login h2 {
-      text-align: center;
-      margin-top: 0;
-      margin-bottom: 25px;
-      font-size: 1.5rem;
-    }
-
-    .campo-grupo {
-      margin-bottom: 20px;
-    }
-
-    .campo-grupo label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 6px;
-      font-size: 1rem;
-    }
-
-    .campo-grupo select,
-    .campo-grupo input[type="text"],
-    .campo-grupo input[type="password"] {
-      width: 100%;
-      padding: 12px;
-      border: 3px solid #000000;
-      border-radius: 12px;
-      font-size: 1rem;
-      box-sizing: border-box;
-      outline: none;
-    }
-
-    .btn-entrar {
-      background-color: #a6e22e;
-      color: #000000;
-      border: 3px solid #000000;
-      border-radius: 12px;
-      padding: 10px 28px;
-      font-size: 1.1rem;
-      font-weight: bold;
-      cursor: pointer;
-      display: block;
-      margin-bottom: 20px;
-    }
-
-    .btn-entrar:hover {
-      background-color: #8ed018;
-    }
-
-    .btn-entrar:disabled {
-      background-color: #cccccc !important;
-      cursor: not-allowed;
-      border-color: #888888;
-      color: #666666;
-    }
-
-    .link-cadastro {
-      margin-top: 15px;
-    }
-
-    .link-cadastro a {
-      color: #d32f2f;
-      font-weight: bold;
-      text-decoration: none;
-      font-size: 1rem;
-    }
-
-    .container {
-      max-width: 900px;
-      margin: 20px auto;
-      background: #ffffff;
-      padding: 25px;
-      border: 3px solid #000000;
-      border-radius: 16px;
-    }
-
-    .header-user {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 2px solid #ddd;
-      padding-bottom: 12px;
-    }
-
-    .btn-sair {
-      background-color: #d32f2f;
-      color: white;
-      border: 2px solid #000;
-      padding: 8px 16px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
-    }
-
-    .grid-admin {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-      max-width: 450px;
-      margin: 25px 0;
-    }
-
-    .card-btn {
-      background-color: #ffffff;
-      border: 3px solid #000000;
-      border-radius: 18px;
-      height: 110px;
-      font-size: 1.2em;
-      font-weight: bold;
-      color: #000000;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .card-btn:hover {
-      background-color: #f0f0f0;
-    }
-
-    .secao-admin {
-      margin-top: 20px;
-    }
-
-    .secao-admin input {
-      padding: 10px;
-      border: 2px solid #000;
-      border-radius: 8px;
-      margin-bottom: 10px;
-    }
-
-    .caixa-confirmacao {
-      background-color: #e8f5e9;
-      border: 2px dashed #2e7d32;
-      border-radius: 10px;
-      padding: 12px;
-      margin: 10px 0 15px 0;
-      color: #1b5e20;
-    }
-
-    .caixa-erro {
-      background-color: #ffebee;
-      border: 2px solid #d32f2f;
-      border-radius: 10px;
-      padding: 12px;
-      margin: 10px 0 15px 0;
-      color: #c62828;
-      font-weight: bold;
-    }
-
-    .caixa-alerta-reserva {
-      background-color: #fff3e0;
-      border: 3px solid #e65100;
-      border-radius: 12px;
-      padding: 15px;
-      margin: 15px 0;
-      color: #bf360c;
-      font-weight: bold;
-    }
-
-    .card-ranking {
-      background-color: #fffde7;
-      border: 3px solid #fbc02d;
-      border-radius: 12px;
-      padding: 15px;
-      margin-bottom: 20px;
-    }
-
-    .btn-voltar-menu {
-      padding: 10px 18px;
-      border: 2px solid #000;
-      border-radius: 8px;
-      font-weight: bold;
-      cursor: pointer;
-      background-color: #f0f0f0;
-    }
-
-    .titulo-secao-destaque {
-      background-color: #1b5e20;
-      color: #ffffff;
-      padding: 12px 18px;
-      border-radius: 10px;
-      font-size: 1.25rem;
-      font-weight: bold;
-      letter-spacing: 0.8px;
-      margin-top: 30px;
-      margin-bottom: 15px;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .modal {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .modal-content {
-      background: #fff;
-      padding: 25px;
-      border-radius: 16px;
-      border: 3px solid #000;
-      width: 90%;
-      max-width: 400px;
-    }
-
-    .modal-content input, .modal-content select {
-      width: 100%;
-      padding: 10px;
-      margin-top: 4px;
-      margin-bottom: 12px;
-      border: 2px solid #000;
-      border-radius: 8px;
-      box-sizing: border-box;
-    }
-
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-
-    th, td {
-      border: 2px solid #000;
-      padding: 10px;
-      text-align: left;
-    }
-
-    th {
-      background-color: #f2f2f2;
-    }
-  </style>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <!-- TELA DE LOGIN -->
-  <div id="telaLogin" class="container-login">
-    <h2>Sistema de Biblioteca</h2>
-
-    <div class="campo-grupo">
-      <label for="selectPerfil">Perfil de Acesso:</label>
-      <select id="selectPerfil" onchange="mudarPerfilLogin()">
-        <option value="Aluno">Aluno</option>
-        <option value="Professor">Professor</option>
-        <option value="Administrador">Administrador</option>
-      </select>
+  <!-- CABEÇALHO -->
+  <header>
+    <div class="header-container">
+      <h1>📚 Biblioteca Digital</h1>
+      <nav>
+        <button id="btnNavLeitor" class="active" onclick="mudarAba('leitor')">Catálogo / Leitor</button>
+        <button id="btnNavAdmin" onclick="mudarAba('admin')">Área Administrativa</button>
+      </nav>
     </div>
+  </header>
 
-    <div id="grupoCelular" class="campo-grupo">
-      <label for="telLogin">Celular:</label>
-      <input type="text" id="telLogin" value="5581" placeholder="55819XXXXXXXX">
-    </div>
+  <main class="container">
 
-    <div id="grupoSenhaAdmin" class="campo-grupo hidden">
-      <label for="senhaAdmin">Senha de Administrador:</label>
-      <input type="password" id="senhaAdmin" placeholder="Digite a senha">
-    </div>
-
-    <button id="btnEntrar" onclick="processarLogin()" class="btn-entrar">Entrar</button>
-
-    <div class="link-cadastro" id="linkPrimeiroAcesso">
-      <a href="#" onclick="abrirModalPrimeiroAcesso(); return false;">cadastrar 1º acesso</a>
-    </div>
-  </div>
-
-
-  <!-- PAINEL DO LEITOR -->
-  <div id="painelUsuario" class="container hidden">
-    <div class="header-user">
-      <div>
-        <h2>Acervo da Biblioteca</h2>
-        <span>Olá, <b id="nomeUsuarioHeader"></b> (<span id="perfilUsuarioHeader"></span> - Turma: <span id="turmaUsuarioHeader">-</span>)!</span>
+    <!-- ÁREA DO LEITOR -->
+    <section id="secLeitor" class="aba-conteudo active">
+      <div class="busca-box">
+        <input type="text" id="inputBusca" placeholder="Buscar por título, autor ou categoria..." onkeyup="filtrarAcervo()">
       </div>
-      <button onclick="sair()" class="btn-sair">Sair</button>
-    </div>
-
-    <div id="cardRanking" class="card-ranking" style="margin-top: 20px;">
-      <h3 style="margin-top:0; color: #f57f17;">🏆 Conquistas do Leitor</h3>
-      <p style="margin: 5px 0;">Livros devolvidos: <b id="qtdLivrosLidos">0</b></p>
-      <p style="margin: 5px 0;">Categoria: <b id="nomeCategoriaLeitor" style="font-size: 1.1rem; color: #d81b60;">Leitor Baby</b></p>
-      <p id="fraseIncentivo" style="font-style: italic; color: #555; margin-top: 10px;">"Todo grande leitor começa pela primeira página!"</p>
-    </div>
-
-    <div id="gridLivros">A carregar acervo...</div>
-  </div>
-
-
-  <!-- PAINEL DO ADMINISTRADOR -->
-  <div id="painelAdmin" class="container hidden">
-    <div class="header-user">
-      <h2>Painel do Administrador</h2>
-      <button onclick="sair()" class="btn-sair">Sair</button>
-    </div>
-    
-    <div id="menuAdminCards" class="grid-admin">
-      <button class="card-btn" onclick="mostrarSecaoAdmin('secaoCadastrar')">cadastrar</button>
-      <button class="card-btn" onclick="mostrarSecaoAdmin('secaoEmprestimo')">emprestimo</button>
-      <button class="card-btn" onclick="mostrarSecaoAdmin('secaoDevolucao')">devolução</button>
-      <button class="card-btn" onclick="mostrarSecaoAdmin('secaoReservas')">reservas</button>
-    </div>
-
-    <!-- CADASTRAR LIVRO -->
-    <div id="secaoCadastrar" class="secao-admin hidden">
-      <h3>Cadastrar Novo Livro</h3>
-      <input type="text" id="isbnLivro" placeholder="ISBN do Livro"><br>
-      <input type="text" id="tituloLivro" placeholder="Título"><br>
-      <input type="text" id="autorLivro" placeholder="Autor"><br>
-      <input type="text" id="editoraLivro" placeholder="Editora"><br>
-      <input type="text" id="categoriaLivro" placeholder="Categoria(s) (ex: Prosa, Romance, História de amor)"><br>
-      <input type="number" id="qtdLivro" value="1" style="width: 80px;" placeholder="Qtd">
-      <br><br>
-      <button onclick="cadastrarLivro()" class="btn-entrar">Salvar Livro</button>
-      <button onclick="voltarMenuAdmin()" class="btn-voltar-menu">← Voltar ao Menu</button>
-    </div>
-
-    <!-- EMPRÉSTIMO -->
-    <div id="secaoEmprestimo" class="secao-admin hidden">
-      <h3>Registrar Empréstimo Manual</h3>
-      <label>1. Telefone do Utilizador (DDD + Número):</label><br>
-      <div style="display:flex; gap:10px; align-items:center;">
-        <input type="text" id="empTelAluno" value="5581" placeholder="55819XXXXXXXX" style="margin-bottom:0;" oninput="resetarValidacaoUsuarioEmp()">
-        <button onclick="buscarNomePorTelefone('emp')" style="padding:10px 15px; cursor:pointer;">Procurar Nome</button>
+      <h2>Acervo de Livros</h2>
+      <div id="gridAcervo" class="grid-livros">
+        <!-- Livros renderizados via JS -->
       </div>
+    </section>
 
-      <div id="empConfirmacaoNome" class="caixa-confirmacao hidden">
-        Utilizador Registado: <b id="empNomeCompleto">---</b>
-      </div>
-
-      <div id="empErroUsuario" class="caixa-erro hidden">
-        ⚠️ Utilizador NÃO REGISTADO no sistema! Não é possível realizar o empréstimo.
-      </div>
-      <br>
-
-      <label>2. ISBN do Livro:</label><br>
-      <div style="display:flex; gap:10px; align-items:center;">
-        <input type="text" id="empIsbnLivro" placeholder="Digite o ISBN" style="margin-bottom:0;">
-        <button onclick="buscarLivroPorIsbn('emp')" style="padding:10px 15px; cursor:pointer;">Procurar Livro</button>
-      </div>
-
-      <div id="empConfirmacaoLivro" class="caixa-confirmacao hidden">
-        Livro: <b id="empNomeLivro">---</b><br>
-        📅 <b>Data Prevista de Devolução: <span id="empDataDevolucaoPrevista">---</span></b>
-      </div>
-      <br><br>
+    <!-- ÁREA ADMINISTRATIVA -->
+    <section id="secAdmin" class="aba-conteudo">
       
-      <button id="btnConfirmarEmprestimo" onclick="adminConfirmarEmprestimo()" class="btn-entrar" disabled>Confirmar Empréstimo</button>
-      <button onclick="voltarMenuAdmin()" class="btn-voltar-menu">← Voltar ao Menu</button>
-    </div>
-
-    <!-- DEVOLUÇÃO -->
-    <div id="secaoDevolucao" class="secao-admin hidden">
-      <h3>Registrar Devolução de Livro</h3>
-      <label>1. Telefone do Utilizador (Procurar Livros Emprestados):</label><br>
-      <div style="display:flex; gap:10px; align-items:center;">
-        <input type="text" id="devTelAluno" value="5581" placeholder="55819XXXXXXXX" style="margin-bottom:0;">
-        <button onclick="buscarEmprestimosDevolucao()" style="padding:10px 15px; cursor:pointer;">Procurar Nome & Livros</button>
+      <!-- TELA DE LOGIN ADMIN -->
+      <div id="boxLoginAdmin" class="card-form">
+        <h2>Acesso do Bibliotecário</h2>
+        <input type="password" id="senhaAdmin" placeholder="Digite a senha de administrador">
+        <button onclick="loginAdmin()">Entrar</button>
       </div>
 
-      <div id="devConfirmacaoNome" class="caixa-confirmacao hidden">
-        Utilizador: <b id="devNomeCompleto">---</b>
-        <div id="devListaEmprestimosAtivos" style="margin-top:10px;"></div>
+      <!-- PAINEL CONTROLADOR ADMIN (OCULTO ATÉ O LOGIN) -->
+      <div id="painelAdmin" class="hidden">
+        <div class="admin-actions">
+          <button onclick="abrirModal('modalCadUsuario')">➕ Cadastrar Leitor</button>
+          <button onclick="abrirModal('modalCadLivro')">➕ Cadastrar Livro</button>
+          <button onclick="carregarEmprestimos()">🔄 Atualizar Listas</button>
+        </div>
+
+        <!-- OPERAÇÃO RÁPIDA: EMPRÉSTIMO -->
+        <div class="card-form">
+          <h3>Registrar Empréstimo Rápido</h3>
+          <div class="form-grid">
+            <input type="text" id="empTelefone" placeholder="Telefone do Leitor">
+            <input type="text" id="empIdLivro" placeholder="ID ou ISBN do Livro">
+            <button onclick="confirmarEmprestimo()">Registrar Saída</button>
+          </div>
+        </div>
+
+        <!-- LISTA DE EMPRÉSTIMOS ATIVOS E DEVOLUÇÕES -->
+        <h3>Empréstimos Ativos</h3>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Leitor</th>
+                <th>Telefone</th>
+                <th>Livro (ID)</th>
+                <th>Data Vencimento</th>
+                <th>Ações</th>
+              </tr>
+            </thead>
+            <tbody id="tabelaEmprestimos">
+              <!-- Empréstimos renderizados via JS -->
+            </tbody>
+          </table>
+        </div>
       </div>
-      <br>
 
-      <label>2. ISBN do Livro a Devolver:</label><br>
-      <div style="display:flex; gap:10px; align-items:center;">
-        <input type="text" id="devIsbnLivro" placeholder="Digite o ISBN" style="margin-bottom:0;">
-        <button onclick="buscarLivroPorIsbn('dev')" style="padding:10px 15px; cursor:pointer;">Procurar Livro</button>
-      </div>
+    </section>
 
-      <div id="devConfirmacaoLivro" class="caixa-confirmacao hidden">
-        Livro: <b id="devNomeLivro">---</b>
-      </div>
+  </main>
 
-      <div id="devAlertaReserva" class="caixa-alerta-reserva hidden">
-        ⚠️ ATENÇÃO: Este livro possui uma RESERVA PENDENTE na fila de espera! Guarde o livro para o próximo leitor.
-      </div>
-      <br><br>
-      
-      <button onclick="adminConfirmarDevolucao()" class="btn-entrar">Confirmar Devolução</button>
-      <button onclick="voltarMenuAdmin()" class="btn-voltar-menu">← Voltar ao Menu</button>
-    </div>
+  <!-- MODAIS -->
 
-    <!-- GERENCIAR RESERVAS -->
-    <div id="secaoReservas" class="secao-admin hidden">
-      <h3>Fila de Espera / Reservas</h3>
-      <div id="listaReservasAdmin">A carregar reservas...</div>
-      <div style="margin-top: 20px;">
-        <button onclick="voltarMenuAdmin()" class="btn-voltar-menu">← Voltar ao Menu</button>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- MODAL PRIMEIRO ACESSO -->
-  <div id="modalPrimeiroAcesso" class="modal hidden">
+  <!-- Modal Cadastrar Usuário -->
+  <div id="modalCadUsuario" class="modal">
     <div class="modal-content">
-      <h3>Cadastrar 1º Acesso</h3>
-      <label>Nome Completo:</label>
-      <input type="text" id="cadNome" placeholder="Digite seu nome">
-      
-      <label>Perfil:</label>
-      <select id="cadPerfil" onchange="toggleCampoTurmaModal()">
+      <span class="close" onclick="fecharModal('modalCadUsuario')">&times;</span>
+      <h3>Cadastrar Novo Leitor</h3>
+      <input type="text" id="cadNome" placeholder="Nome Completo">
+      <input type="email" id="cadEmail" placeholder="E-mail">
+      <input type="text" id="cadTelefone" placeholder="Telefone (com DDD)">
+      <select id="cadPerfil">
         <option value="Aluno">Aluno</option>
         <option value="Professor">Professor</option>
       </select>
-
-      <div id="grupoModalTurma">
-        <label>Turma / Ano:</label>
-        <input type="text" id="cadTurma" placeholder="ex: 1º Ano A">
-      </div>
-      
-      <label>E-mail:</label>
-      <input type="email" id="cadEmail" placeholder="seuemail@exemplo.com">
-      
-      <label>Celular (DDD + Número):</label>
-      <input type="text" id="cadTelefone" value="5581" placeholder="55819XXXXXXXX">
-      
-      <div style="margin-top: 15px; display: flex; gap: 10px;">
-        <button onclick="salvarPrimeiroAcesso()" class="btn-entrar" style="margin-bottom:0;">Salvar Cadastro</button>
-        <button onclick="fecharModalPrimeiroAcesso()" class="btn-sair">Cancelar</button>
-      </div>
+      <input type="text" id="cadTurma" placeholder="Turma/Classe (ex: 8º Ano A)">
+      <button onclick="salvarUsuario()">Cadastrar</button>
     </div>
   </div>
 
-  <script>
-    // =========================================================================
-    // INSIRA ABAIXO A SUA URL DA IMPLANTAÇÃO DO GOOGLE APPS SCRIPT (TERMINADA EM /exec)
-    // =========================================================================
-    var API_URL = "https://script.google.com/macros/s/AKfycbxYVwGesxio2lTOHFJciw476xu1hRVRdlIGh0luLkM2wfVheRtXwzw-OuKVcEHsUWIcXA/exec";
-
-    var usuarioLogado = null;
-    var senhaAdminLogado = "";
-    var usuarioValidoParaEmprestimo = false;
-
-    // Helper genérico para requisições seguras com o Apps Script
-    function executarRequisicao(paramsUrl, metodo) {
-      metodo = metodo || "GET";
-      var url = API_URL + "?" + paramsUrl;
-      return fetch(url, { method: metodo })
-        .then(function(res) {
-          if (!res.ok) throw new Error("Erro na rede: " + res.statusText);
-          return res.json();
-        });
-    }
-
-    function toggleCampoTurmaModal() {
-      var perf = document.getElementById("cadPerfil").value;
-      var gTurma = document.getElementById("grupoModalTurma");
-      if (perf === "Professor") {
-        gTurma.classList.add("hidden");
-      } else {
-        gTurma.classList.remove("hidden");
-      }
-    }
-
-    function mudarPerfilLogin() {
-      var perfil = document.getElementById("selectPerfil").value;
-      var grupoCelular = document.getElementById("grupoCelular");
-      var grupoSenhaAdmin = document.getElementById("grupoSenhaAdmin");
-      var linkCadastro = document.getElementById("linkPrimeiroAcesso");
-
-      if (perfil === "Administrador") {
-        grupoSenhaAdmin.classList.remove("hidden");
-        grupoCelular.classList.add("hidden");
-        if (linkCadastro) linkCadastro.classList.add("hidden");
-      } else {
-        grupoSenhaAdmin.classList.add("hidden");
-        grupoCelular.classList.remove("hidden");
-        if (linkCadastro) linkCadastro.classList.remove("hidden");
-      }
-    }
-
-    function processarLogin() {
-      var perfil = document.getElementById("selectPerfil").value;
-
-      if (perfil === "Administrador") {
-        var senhaInput = document.getElementById("senhaAdmin");
-        var senha = senhaInput ? senhaInput.value : "";
-        if (!senha) return alert("Digite a senha de administrador!");
-
-        if (senha === "admin123") {
-          senhaAdminLogado = senha;
-          mostrarTela("painelAdmin");
-          voltarMenuAdmin();
-          if (senhaInput) senhaInput.value = "";
-        } else {
-          alert("Senha incorreta!");
-        }
-      } else {
-        var telInput = document.getElementById("telLogin");
-        var tel = telInput ? telInput.value.replace(/\D/g, "") : "";
-        if (!tel || tel === "5581") return alert("Digite seu celular completo com DDD!");
-
-        executarRequisicao("acao=loginAluno&telefone=" + encodeURIComponent(tel))
-          .then(function(data) {
-            if (data.status === "sucesso") {
-              usuarioLogado = data.aluno;
-              alert("Bem-vindo(a), " + usuarioLogado.nome + "!");
-              
-              document.getElementById("nomeUsuarioHeader").innerText = usuarioLogado.nome;
-              document.getElementById("perfilUsuarioHeader").innerText = usuarioLogado.perfil || perfil;
-              document.getElementById("turmaUsuarioHeader").innerText = usuarioLogado.turma || "-";
-
-              mostrarTela("painelUsuario");
-              carregarAcervo();
-              carregarHistoricoERanking();
-            } else {
-              alert(data.mensagem);
-            }
-          })
-          .catch(function(err) { 
-            console.error(err);
-            alert("Erro ao conectar com o servidor. Verifique a URL em API_URL e as permissões no Apps Script."); 
-          });
-      }
-    }
-
-    function carregarHistoricoERanking() {
-      if (!usuarioLogado) return;
-
-      executarRequisicao("acao=getHistoricoUsuario&idUsuario=" + encodeURIComponent(usuarioLogado.id) + "&telefone=" + encodeURIComponent(usuarioLogado.telefone))
-        .then(function(data) {
-          if (data.status === "sucesso") {
-            var lidos = data.totalLidos || 0;
-            document.getElementById("qtdLivrosLidos").innerText = lidos;
-
-            var categoria = "🐣 Leitor Baby";
-            var frase = "Todo grande leitor começa pela primeira página. Continue assim!";
-
-            if (lidos >= 10) {
-              categoria = "🚀 Leitor Ultra";
-              frase = "Fantástico! É um verdadeiro devorador de livros e inspiração para todos!";
-            } else if (lidos >= 6) {
-              categoria = "⭐ Leitor Notável";
-              frase = "Impressionante! Os livros já fazem parte da sua rotina!";
-            } else if (lidos >= 3) {
-              categoria = "📚 Leitor Aprendiz";
-              frase = "A sua jornada no conhecimento está a ganhar ritmo! Parabéns!";
-            }
-
-            document.getElementById("nomeCategoriaLeitor").innerText = categoria;
-            document.getElementById("fraseIncentivo").innerText = '"' + frase + '"';
-          }
-        });
-    }
-
-    function sair() {
-      usuarioLogado = null;
-      senhaAdminLogado = "";
-      mostrarTela("telaLogin");
-    }
-
-    function mostrarTela(idTela) {
-      var telas = ["telaLogin", "painelUsuario", "painelAdmin"];
-      telas.forEach(function(t) {
-        var el = document.getElementById(t);
-        if (el) el.classList.add("hidden");
-      });
-      var telaAlvo = document.getElementById(idTela);
-      if (telaAlvo) telaAlvo.classList.remove("hidden");
-    }
-
-    function abrirModalPrimeiroAcesso() {
-      document.getElementById("modalPrimeiroAcesso").classList.remove("hidden");
-      toggleCampoTurmaModal();
-    }
-
-    function fecharModalPrimeiroAcesso() {
-      document.getElementById("modalPrimeiroAcesso").classList.add("hidden");
-    }
-
-    function salvarPrimeiroAcesso() {
-      var nome = document.getElementById("cadNome").value;
-      var perfil = document.getElementById("cadPerfil").value;
-      var turma = document.getElementById("cadTurma").value;
-      var email = document.getElementById("cadEmail").value;
-      var tel = document.getElementById("cadTelefone").value.replace(/\D/g, "");
-
-      if (!nome || !tel || tel === "5581") return alert("Preencha o nome e o celular!");
-
-      var params = new URLSearchParams();
-      params.append("acao", "cadastrarUsuario");
-      params.append("nome", nome);
-      params.append("perfil", perfil);
-      params.append("turma", perfil === "Aluno" ? turma : "-");
-      params.append("email", email);
-      params.append("telefone", tel);
-
-      executarRequisicao(params.toString(), "POST")
-        .then(function(data) {
-          alert(data.mensagem);
-          if (data.status === "sucesso") {
-            fecharModalPrimeiroAcesso();
-            document.getElementById("telLogin").value = tel;
-          }
-        })
-        .catch(function(err) {
-          alert("Erro de conexão ao salvar cadastro.");
-        });
-    }
-
-    function mostrarSecaoAdmin(idSecao) {
-      document.getElementById("menuAdminCards").classList.add("hidden");
-      var secoes = document.querySelectorAll(".secao-admin");
-      secoes.forEach(function(s) { s.classList.add("hidden"); });
-      document.getElementById(idSecao).classList.remove("hidden");
-
-      if (idSecao === "secaoReservas") carregarReservasAdmin();
-    }
-
-    function resetarValidacaoUsuarioEmp() {
-      usuarioValidoParaEmprestimo = false;
-      document.getElementById('btnConfirmarEmprestimo').disabled = true;
-      document.getElementById('empConfirmacaoNome').classList.add('hidden');
-      document.getElementById('empErroUsuario').classList.add('hidden');
-    }
-
-    function voltarMenuAdmin() {
-      var secoes = document.querySelectorAll(".secao-admin");
-      secoes.forEach(function(s) { s.classList.add("hidden"); });
-      document.getElementById("menuAdminCards").classList.remove("hidden");
-
-      resetarValidacaoUsuarioEmp();
-      document.getElementById('devConfirmacaoNome').classList.add('hidden');
-      document.getElementById('empConfirmacaoLivro').classList.add('hidden');
-      document.getElementById('devConfirmacaoLivro').classList.add('hidden');
-      document.getElementById('devAlertaReserva').classList.add('hidden');
-    }
-
-    function buscarNomePorTelefone(tipo) {
-      var campoTelId = tipo === 'emp' ? 'empTelAluno' : 'devTelAluno';
-      var caixaId = tipo === 'emp' ? 'empConfirmacaoNome' : 'devConfirmacaoNome';
-      var nomeId = tipo === 'emp' ? 'empNomeCompleto' : 'devNomeCompleto';
-
-      var tel = document.getElementById(campoTelId).value.replace(/\D/g, "");
-      if (!tel || tel === "5581") return alert("Digite um celular válido com DDD!");
-
-      executarRequisicao("acao=buscarUsuarioPorTelefone&telefone=" + encodeURIComponent(tel))
-        .then(function(data) {
-          if (data.status === "sucesso") {
-            var infoTurma = data.perfil === "Aluno" ? " — Turma: " + data.turma : "";
-            document.getElementById(nomeId).innerText = data.nome + " (" + data.perfil + infoTurma + ")";
-            document.getElementById(caixaId).classList.remove("hidden");
-
-            if (tipo === 'emp') {
-              usuarioValidoParaEmprestimo = true;
-              document.getElementById('empErroUsuario').classList.add('hidden');
-              document.getElementById('btnConfirmarEmprestimo').disabled = false;
-            }
-          } else {
-            document.getElementById(caixaId).classList.add("hidden");
-            if (tipo === 'emp') {
-              usuarioValidoParaEmprestimo = false;
-              document.getElementById('btnConfirmarEmprestimo').disabled = true;
-              document.getElementById('empErroUsuario').classList.remove('hidden');
-            }
-            alert("⚠️ NOTIFICAÇÃO DE ERRO:\n\n" + data.mensagem);
-          }
-        });
-    }
-
-    function buscarEmprestimosDevolucao() {
-      var tel = document.getElementById("devTelAluno").value.replace(/\D/g, "");
-      if (!tel || tel === "5581") return alert("Digite o celular completo com DDD!");
-
-      executarRequisicao("acao=buscarEmprestimosAtivosPorTelefone&telefone=" + encodeURIComponent(tel))
-        .then(function(data) {
-          if (data.status === "sucesso") {
-            var infoTurma = data.perfil === "Aluno" ? " — Turma: " + data.turma : "";
-            document.getElementById("devNomeCompleto").innerText = data.nome + " (" + data.perfil + infoTurma + ")";
-            var containerList = document.getElementById("devListaEmprestimosAtivos");
-            
-            if (data.emprestimosAtivos && data.emprestimosAtivos.length > 0) {
-              var html = '<b style="display:block; margin-top:8px;">Livros Atualmente em Mãos:</b><ul style="margin:5px 0; padding-left:20px;">';
-              data.emprestimosAtivos.forEach(function(item) {
-                var statusAtraso = item.diasAtraso > 0 
-                  ? ' <span style="color:#d32f2f; font-weight:bold;">(atrasado ' + item.diasAtraso + ' ' + (item.diasAtraso === 1 ? 'dia' : 'dias') + ')</span>' 
-                  : ' <span style="color:#2e7d32; font-weight:bold;">(Em dia)</span>';
-                
-                html += '<li><b>' + item.tituloLivro + '</b> <small style="color:#444;">(ISBN: ' + item.isbnLivro + ')</small> — ' + item.dataVencimento + ': ' + statusAtraso + '</li>';
-              });
-              html += '</ul>';
-              containerList.innerHTML = html;
-            } else {
-              containerList.innerHTML = '<p style="color:#555; margin:5px 0;">Nenhum livro pendente de devolução para este utilizador.</p>';
-            }
-
-            document.getElementById("devConfirmacaoNome").classList.remove("hidden");
-          } else {
-            document.getElementById("devConfirmacaoNome").classList.add("hidden");
-            alert("⚠️ NOTIFICAÇÃO DE ERRO:\n\n" + data.mensagem);
-          }
-        });
-    }
-
-    function buscarLivroPorIsbn(tipo) {
-      var campoIsbnId = tipo === 'emp' ? 'empIsbnLivro' : 'devIsbnLivro';
-      var caixaId = tipo === 'emp' ? 'empConfirmacaoLivro' : 'devConfirmacaoLivro';
-      var nomeId = tipo === 'emp' ? 'empNomeLivro' : 'devNomeLivro';
-
-      var isbn = document.getElementById(campoIsbnId).value.trim();
-      if (!isbn) return alert("Digite o ISBN do livro!");
-
-      executarRequisicao("acao=buscarLivroPorIsbn&isbn=" + encodeURIComponent(isbn))
-        .then(function(data) {
-          if (data.status === "sucesso") {
-            document.getElementById(nomeId).innerText = data.titulo + " (Autor: " + data.autor + ")";
-            
-            if (tipo === 'emp') {
-              var dataDev = new Date();
-              dataDev.setDate(dataDev.getDate() + 14);
-              var dataDevStr = dataDev.toLocaleDateString('pt-BR');
-              document.getElementById("empDataDevolucaoPrevista").innerText = dataDevStr;
-            }
-
-            document.getElementById(caixaId).classList.remove("hidden");
-          } else {
-            document.getElementById(caixaId).classList.add("hidden");
-            alert(data.mensagem);
-          }
-        });
-    }
-
-    function carregarAcervo() {
-      var grid = document.getElementById("gridLivros");
-      if (!grid) return;
-      grid.innerHTML = "A carregar acervo...";
-
-      executarRequisicao("acao=getLivros")
-        .then(function(data) {
-          if (data.status === "sucesso") {
-            grid.innerHTML = "";
-            var categoriasMap = {};
-
-            function formatarNomeSecao(str) {
-              if (!str) return "Geral / Outros";
-              return str.trim().toLowerCase().split(" ").map(function(palavra) {
-                if (palavra.length === 0) return "";
-                return palavra.charAt(0).toUpperCase() + palavra.slice(1);
-              }).join(" ");
-            }
-
-            data.livros.forEach(function(livro) {
-              var strCat = (livro.categoria && livro.categoria.trim() !== "") ? livro.categoria.trim() : "Geral / Outros";
-              var listaCategorias = strCat.split(/[,/]+/);
-
-              listaCategorias.forEach(function(catItem) {
-                var catLimpa = catItem.trim();
-                if (catLimpa !== "") {
-                  var chaveBusca = catLimpa.toLowerCase();
-                  var nomeFormatado = formatarNomeSecao(catLimpa);
-
-                  var chaveExistente = Object.keys(categoriasMap).find(function(k) {
-                    return k.toLowerCase() === chaveBusca;
-                  });
-
-                  if (chaveExistente) {
-                    var jaExiste = categoriasMap[chaveExistente].some(function(l) { return l.id === livro.id; });
-                    if (!jaExiste) categoriasMap[chaveExistente].push(livro);
-                  } else {
-                    categoriasMap[nomeFormatado] = [livro];
-                  }
-                }
-              });
-            });
-
-            var secoesOrdenadas = Object.keys(categoriasMap).sort(function(a, b) {
-              return a.localeCompare(b, 'pt-BR', { sensitivity: 'base' });
-            });
-
-            secoesOrdenadas.forEach(function(nomeCategoria) {
-              var blocoCat = document.createElement("div");
-              blocoCat.style.marginBottom = "35px";
-
-              var tituloCat = document.createElement("div");
-              tituloCat.className = "titulo-secao-destaque";
-              tituloCat.innerHTML = '<span>📚</span> <span>' + nomeCategoria + '</span>';
-              blocoCat.appendChild(tituloCat);
-
-              var listaLivros = document.createElement("ul");
-              listaLivros.style.listStyle = "none";
-              listaLivros.style.padding = "0";
-              listaLivros.style.margin = "0";
-
-              var livrosDaSecao = categoriasMap[nomeCategoria].sort(function(a, b) {
-                return (a.titulo || "").localeCompare((b.titulo || ""), 'pt-BR', { sensitivity: 'base' });
-              });
-
-              livrosDaSecao.forEach(function(livro) {
-                var disponivel = parseInt(livro.qtdDisponivel);
-                var semExemplares = isNaN(disponivel) || disponivel < 1;
-
-                var item = document.createElement("li");
-                item.style.padding = "12px 10px";
-                item.style.borderBottom = "1px solid #e0e0e0";
-                item.style.display = "flex";
-                item.style.justifyContent = "space-between";
-                item.style.alignItems = "center";
-
-                var elementoAcaoHtml = semExemplares 
-                  ? '<button onclick="solicitarOuReservar(\'' + (livro.isbn && livro.isbn !== '-' ? livro.isbn : livro.id) + '\')" style="background:#e65100; color:#fff; border:none; padding:8px 14px; border-radius:6px; cursor:pointer; font-weight:bold;">Reservar (Fila de Espera)</button>' 
-                  : '<span style="color:#2e7d32; font-weight:bold; font-size:0.95rem;">✓ Disponível na Biblioteca</span>';
-
-                item.innerHTML = 
-                  '<div>' +
-                    '<strong style="font-size:1.05rem;">' + livro.titulo + '</strong> — <small style="color:#555;">Autor: ' + livro.autor + '</small><br>' +
-                    '<span style="font-size: 0.9em; color: ' + (semExemplares ? '#d32f2f' : '#2e7d32') + ';">' +
-                      'Disponíveis no acervo: <strong>' + (isNaN(disponivel) ? 0 : disponivel) + '</strong>' +
-                    '</span>' +
-                  '</div>' +
-                  '<div>' + elementoAcaoHtml + '</div>';
-
-                listaLivros.appendChild(item);
-              });
-
-              blocoCat.appendChild(listaLivros);
-              grid.appendChild(blocoCat);
-            });
-          } else {
-            grid.innerHTML = "Erro ao carregar acervo: " + data.mensagem;
-          }
-        })
-        .catch(function() {
-          grid.innerHTML = "Erro ao conectar com o servidor para carregar o acervo.";
-        });
-    }
-
-    function solicitarOuReservar(idLivroOuIsbn) {
-      if (!usuarioLogado) return alert("Efetue login primeiro!");
-
-      if (!confirm("Todos os exemplares estão emprestados. Deseja entrar na fila de espera deste livro?")) return;
-
-      var params = new URLSearchParams();
-      params.append("acao", "reservarLivro");
-      params.append("idLivro", String(idLivroOuIsbn));
-      params.append("idAluno", String(usuarioLogado.id));
-
-      executarRequisicao(params.toString(), "POST")
-        .then(function(data) {
-          alert(data.mensagem);
-          if (data.status === "sucesso") carregarAcervo();
-        });
-    }
-
-    function cadastrarLivro() {
-      var params = new URLSearchParams();
-      params.append("acao", "cadastrarLivro");
-      params.append("senhaAdmin", senhaAdminLogado);
-      params.append("isbn", document.getElementById('isbnLivro').value);
-      params.append("titulo", document.getElementById('tituloLivro').value);
-      params.append("autor", document.getElementById('autorLivro').value);
-      params.append("editora", document.getElementById('editoraLivro').value);
-      params.append("categoria", document.getElementById('categoriaLivro').value);
-      params.append("qtdTotal", document.getElementById('qtdLivro').value);
-
-      executarRequisicao(params.toString(), "POST")
-        .then(function(data) {
-          alert(data.mensagem);
-          if (data.status === "sucesso") {
-            document.getElementById('isbnLivro').value = "";
-            document.getElementById('tituloLivro').value = "";
-            document.getElementById('autorLivro').value = "";
-            document.getElementById('editoraLivro').value = "";
-            document.getElementById('categoriaLivro').value = "";
-            carregarAcervo();
-          }
-        });
-    }
-
-    function adminConfirmarEmprestimo() {
-      if (!usuarioValidoParaEmprestimo) {
-        return alert("🚫 ERRO DE REGISTO:\n\nNão é possível registar o empréstimo! Clique em 'Procurar Nome' para confirmar se o utilizador possui registo no sistema.");
-      }
-
-      var params = new URLSearchParams();
-      params.append("acao", "emprestarPorIsbn");
-      params.append("telefoneAluno", document.getElementById('empTelAluno').value.replace(/\D/g, ""));
-      params.append("isbn", document.getElementById('empIsbnLivro').value.trim());
-
-      executarRequisicao(params.toString(), "POST")
-        .then(function(data) {
-          if (data.status === "sucesso") {
-            alert(data.mensagem);
-            document.getElementById('empTelAluno').value = "5581";
-            document.getElementById('empIsbnLivro').value = "";
-            voltarMenuAdmin();
-            carregarAcervo();
-          } else {
-            alert("⚠️ " + data.mensagem);
-          }
-        });
-    }
-
-    function adminConfirmarDevolucao() {
-      var isbnDigitado = document.getElementById('devIsbnLivro').value.trim();
-      if (!isbnDigitado) return alert("Por favor, informe ou escaneie o ISBN do livro para devolução!");
-
-      var params = new URLSearchParams();
-      params.append("acao", "devolverPorIsbn");
-      params.append("isbn", isbnDigitado);
-
-      executarRequisicao(params.toString(), "POST")
-        .then(function(data) {
-          if (data.status === "sucesso") {
-            alert("✅ " + data.mensagem);
-
-            if (data.temReserva) {
-              document.getElementById('devAlertaReserva').classList.remove("hidden");
-              alert("⚠️ DEVOLUÇÃO CONCLUÍDA COM AVISO:\nEste livro tem uma reserva pendente! Por favor, guarde-o para o próximo leitor.");
-            } else {
-              document.getElementById('devTelAluno').value = "5581";
-              document.getElementById('devIsbnLivro').value = "";
-              voltarMenuAdmin();
-            }
-            carregarAcervo();
-          } else {
-            alert("❌ Erro ao devolver: " + data.mensagem);
-          }
-        })
-        .catch(function(err) {
-          console.error(err);
-          alert("⚠️ Erro de conexão ao comunicar com o servidor.\n\nVerifique se a variável API_URL está correta e se a implantação no Apps Script está configurada para acesso por 'Qualquer pessoa'.");
-        });
-    }
-
-    function carregarReservasAdmin() {
-      var container = document.getElementById('listaReservasAdmin');
-      container.innerHTML = "A carregar reservas...";
-
-      executarRequisicao("acao=getReservas")
-        .then(function(data) {
-          if (data.status === "sucesso" && data.reservas && data.reservas.length > 0) {
-            var html = '<div style="overflow-x:auto;"><table>' +
-              '<tr>' +
-                '<th>Requerente (Nome & Turma/Perfil)</th>' +
-                '<th>Telemóvel / Celular</th>' +
-                '<th>Livro Reservado</th>' +
-                '<th>ISBN</th>' +
-                '<th>Status</th>' +
-                '<th>Ação</th>' +
-              '</tr>';
-            
-            data.reservas.forEach(function(r) {
-              var detalheRequerente = r.perfilRequerente === "Aluno" 
-                ? '<b>' + r.nomeRequerente + '</b><br><small style="color:#555;">Turma: ' + (r.turmaRequerente || '-') + '</small>' 
-                : '<b>' + r.nomeRequerente + '</b><br><small style="color:#555;">Perfil: Professor</small>';
-
-              html += '<tr>' +
-                '<td>' + detalheRequerente + '</td>' +
-                '<td>' + r.celularRequerente + '</td>' +
-                '<td><b>' + r.nomeLivro + '</b></td>' +
-                '<td>' + (r.isbnLivro || '-') + '</td>' +
-                '<td><span style="background:#fff3e0; color:#e65100; padding:3px 8px; border-radius:4px; font-weight:bold;">' + r.status + '</span></td>' +
-                '<td><button onclick="concluirERedirecionarEmprestimo(\'' + r.idReserva + '\', \'' + r.celularRequerente + '\', \'' + (r.isbnLivro || '') + '\')" style="background-color:#a6e22e; border:2px solid #000; border-radius:6px; font-weight:bold; cursor:pointer; padding:6px 12px;">Concluir e Emprestar</button></td>' +
-              '</tr>';
-            });
-            container.innerHTML = html + '</table></div>';
-          } else {
-            container.innerHTML = "<p style='padding:15px; background:#f9f9f9; border:1px solid #ddd; border-radius:8px;'>Nenhuma reserva pendente encontrada.</p>";
-          }
-        });
-    }
-
-    function concluirERedirecionarEmprestimo(idReserva, celular, isbn) {
-      var params = new URLSearchParams();
-      params.append("acao", "concluirReserva");
-      params.append("idReserva", idReserva);
-
-      executarRequisicao(params.toString(), "POST")
-        .then(function(data) {
-          alert("Reserva concluída! A redirecionar para a tela de Empréstimo...");
-          mostrarSecaoAdmin('secaoEmprestimo');
-          
-          if (celular && celular !== "-") {
-            document.getElementById('empTelAluno').value = celular;
-            buscarNomePorTelefone('emp');
-          }
-          if (isbn) {
-            document.getElementById('empIsbnLivro').value = isbn;
-            buscarLivroPorIsbn('emp');
-          }
-        });
-    }
-
-    window.onload = function() {
-      mudarPerfilLogin();
-    };
-  </script>
+  <!-- Modal Cadastrar Livro -->
+  <div id="modalCadLivro" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="fecharModal('modalCadLivro')">&times;</span>
+      <h3>Cadastrar Novo Livro</h3>
+      <input type="text" id="cadTitulo" placeholder="Título do Livro">
+      <input type="text" id="cadAutor" placeholder="Autor">
+      <input type="text" id="cadIsbn" placeholder="ISBN">
+      <input type="text" id="cadCategoria" placeholder="Categoria/Gênero">
+      <input type="text" id="cadCapa" placeholder="URL da Imagem da Capa">
+      <input type="number" id="cadQtd" placeholder="Quantidade Total" value="1">
+      <button onclick="salvarLivro()">Cadastrar Livro</button>
+    </div>
+  </div>
+
+  <!-- Modal Confirmação de Empréstimo -->
+  <div id="modalConfirmacao" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="fecharModal('modalConfirmacao')">&times;</span>
+      <h3>Confirmação de Dados</h3>
+      <p><strong>Leitor:</strong> <span id="confNomeLeitor">-</span></p>
+      <p><strong>Livro:</strong> <span id="confTituloLivro">-</span></p>
+      <button onclick="executarEmprestimo()">Confirmar e Emprestar</button>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
