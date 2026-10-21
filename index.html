@@ -4,21 +4,122 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Biblioteca Digital</title>
-  <link rel="stylesheet" href="style.css">
+  <style>
+    /* ESTILOS EMBUTIDOS PARA GARANTIR CARREGAMENTO 100% SEGURO NO GITHUB PAGES */
+    :root {
+      --primary: #1e293b;
+      --accent: #2563eb;
+      --success: #16a34a;
+      --danger: #dc2626;
+      --bg: #f8fafc;
+      --card-bg: #ffffff;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, sans-serif; }
+    body { background-color: var(--bg); color: #0f172a; }
+
+    header {
+      background-color: var(--primary);
+      color: white;
+      padding: 1.2rem 1rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .header-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn-sair {
+      background: transparent;
+      border: 1px solid #94a3b8;
+      color: white;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+
+    /* CARD DE LOGIN CENTRALIZADO */
+    .card-login {
+      background: var(--card-bg);
+      padding: 30px;
+      border-radius: 12px;
+      max-width: 420px;
+      margin: 0 auto;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    }
+
+    .card-login h2 { text-align: center; margin-bottom: 6px; }
+    .subtitulo { color: #64748b; font-size: 0.9rem; text-align: center; margin-bottom: 24px; }
+
+    .field-group { margin-bottom: 16px; display: flex; flex-direction: column; gap: 6px; }
+    .field-group label { font-weight: 600; font-size: 0.85rem; color: #334155; }
+
+    input, select, button {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      font-size: 0.95rem;
+    }
+
+    input:focus, select:focus { outline: none; border-color: var(--accent); }
+
+    .btn-login, button {
+      background-color: var(--accent);
+      color: white;
+      border: none;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 10px;
+    }
+
+    .user-welcome { background: #e0f2fe; color: #0369a1; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+    .busca-box input { margin-bottom: 20px; }
+
+    .grid-livros { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; }
+    .card-livro { background: white; border-radius: 8px; padding: 15px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; justify-content: space-between; }
+    .card-livro img { width: 100%; height: 200px; object-fit: cover; border-radius: 4px; margin-bottom: 10px; }
+
+    .badge { display: inline-block; padding: 4px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; color: white; margin-top: 6px; text-align: center; }
+    .badge-disponivel { background-color: var(--success); }
+    .badge-esgotado { background-color: var(--danger); }
+
+    .card-form { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); margin: 20px 0; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr auto; gap: 10px; margin-top: 10px; }
+
+    .table-container { background: white; border-radius: 8px; overflow-x: auto; margin-top: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.05); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 12px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+    th { background-color: #f8fafc; }
+
+    .btn-devolver { background-color: var(--success); }
+
+    .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.4); display: flex; justify-content: center; align-items: center; }
+    .modal-content { background: white; padding: 24px; border-radius: 8px; width: 90%; max-width: 400px; display: flex; flex-direction: column; gap: 10px; }
+    .close { align-self: flex-end; font-size: 1.5rem; cursor: pointer; }
+
+    /* ATRIBUTO NATIVO HTML5 OCULTA MESMO SEM CSS EXTERNO */
+    [hidden] { display: none !important; }
+  </style>
 </head>
 <body>
 
-  <!-- CABEÇALHO -->
   <header>
     <div class="header-container">
       <h1>📚 Biblioteca Digital</h1>
-      <button id="btnSair" class="btn-sair hidden" onclick="deslogar()">Sair / Trocar Conta</button>
+      <button id="btnSair" class="btn-sair" onclick="deslogar()" hidden>Sair / Trocar Conta</button>
     </div>
   </header>
 
   <main class="container">
 
-    <!-- 1. TELA INICIAL: BLOCO DE LOGIN -->
+    <!-- TELA INICIAL: BLOCO DE LOGIN -->
     <section id="secLogin" class="card-login">
       <h2>Acesso ao Sistema</h2>
       <p class="subtitulo">Selecione o seu perfil para continuar</p>
@@ -32,14 +133,12 @@
         </select>
       </div>
 
-      <!-- Campo Telefone (para Aluno e Professor) -->
       <div id="groupTelefone" class="field-group">
         <label for="loginTelefone">Telefone / Celular (com DDD):</label>
         <input type="text" id="loginTelefone" placeholder="Ex: 11999998888">
       </div>
 
-      <!-- Campo Senha (apenas para Admin) -->
-      <div id="groupSenha" class="field-group hidden">
+      <div id="groupSenha" class="field-group" hidden>
         <label for="loginSenha">Senha do Administrador:</label>
         <input type="password" id="loginSenha" placeholder="Digite sua senha">
       </div>
@@ -47,8 +146,8 @@
       <button class="btn-login" onclick="executarLogin()">Entrar</button>
     </section>
 
-    <!-- 2. ÁREA DO LEITOR (ALUNO / PROFESSOR) -->
-    <section id="secLeitor" class="hidden">
+    <!-- ÁREA DO LEITOR -->
+    <section id="secLeitor" hidden>
       <div class="user-welcome">
         <h3>Bem-vindo(a), <span id="nomeLeitorLogado">-</span>!</h3>
       </div>
@@ -58,20 +157,17 @@
       </div>
       
       <h2>Catálogo do Acervo</h2>
-      <div id="gridAcervo" class="grid-livros">
-        <!-- Livros renderizados via JS -->
-      </div>
+      <div id="gridAcervo" class="grid-livros"></div>
     </section>
 
-    <!-- 3. PAINEL DO ADMINISTRADOR -->
-    <section id="secAdmin" class="hidden">
+    <!-- PAINEL ADMINISTRATIVO -->
+    <section id="secAdmin" hidden>
       <div class="admin-actions">
         <button onclick="abrirModal('modalCadUsuario')">➕ Cadastrar Leitor</button>
         <button onclick="abrirModal('modalCadLivro')">➕ Cadastrar Livro</button>
         <button onclick="carregarEmprestimos()">🔄 Atualizar Listas</button>
       </div>
 
-      <!-- OPERAÇÃO RÁPIDA: EMPRÉSTIMO -->
       <div class="card-form">
         <h3>Registrar Empréstimo Rápido</h3>
         <div class="form-grid">
@@ -81,7 +177,6 @@
         </div>
       </div>
 
-      <!-- LISTA DE EMPRÉSTIMOS ATIVOS -->
       <h3>Empréstimos Ativos</h3>
       <div class="table-container">
         <table>
@@ -94,17 +189,15 @@
               <th>Ações</th>
             </tr>
           </thead>
-          <tbody id="tabelaEmprestimos">
-            <!-- Empréstimos renderizados via JS -->
-          </tbody>
+          <tbody id="tabelaEmprestimos"></tbody>
         </table>
       </div>
     </section>
 
   </main>
 
-  <!-- MODAIS -->
-  <div id="modalCadUsuario" class="modal hidden">
+  <!-- MODAIS COM ATRIBUTO HIDDEN NATIVO -->
+  <div id="modalCadUsuario" class="modal" hidden>
     <div class="modal-content">
       <span class="close" onclick="fecharModal('modalCadUsuario')">&times;</span>
       <h3>Cadastrar Novo Leitor</h3>
@@ -120,7 +213,7 @@
     </div>
   </div>
 
-  <div id="modalCadLivro" class="modal hidden">
+  <div id="modalCadLivro" class="modal" hidden>
     <div class="modal-content">
       <span class="close" onclick="fecharModal('modalCadLivro')">&times;</span>
       <h3>Cadastrar Novo Livro</h3>
@@ -134,7 +227,7 @@
     </div>
   </div>
 
-  <div id="modalConfirmacao" class="modal hidden">
+  <div id="modalConfirmacao" class="modal" hidden>
     <div class="modal-content">
       <span class="close" onclick="fecharModal('modalConfirmacao')">&times;</span>
       <h3>Confirmação de Dados</h3>
