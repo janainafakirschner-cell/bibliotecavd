@@ -1,7 +1,8 @@
-// ATENÇÃO: Substitua o texto abaixo pela URL da sua implantação do Google Apps Script
+// ATENÇÃO: Substitua a URL abaixo pela sua URL do Google Apps Script
 const API_URL = "https://script.google.com/macros/s/AKfycbwCVnRUqWDrd3irfBvMO_lgLe713w1z9QZRKhBBWkwJA687mGip3E4mQbnS5CuJsJcTog/exec";
 
 let acervoMemoria = [];
+let usuarioLogado = null;
 let dadosEmprestimoTemporario = {};
 
 // CONTROLE DE CAMPOS NO LOGIN
@@ -44,7 +45,7 @@ async function executarLogin() {
         alert("Senha incorreta!");
       }
     } catch (err) {
-      alert("Erro ao conectar com a planilha. Verifique a URL em API_URL.");
+      alert("Erro ao conectar com a planilha.");
       console.error(err);
     }
 
@@ -58,14 +59,15 @@ async function executarLogin() {
       const json = await res.json();
 
       if (json.success) {
-        document.getElementById("nomeLeitorLogado").innerText = json.usuario.Nome;
+        usuarioLogado = json.usuario;
+        document.getElementById("nomeLeitorLogado").innerText = usuarioLogado.Nome;
         exibirTela("leitor");
         carregarAcervo();
       } else {
         alert("Usuário não encontrado. Clique em '1º Acesso / Cadastrar-se' para criar sua conta.");
       }
     } catch (err) {
-      alert("Erro ao buscar dados do leitor. Verifique se a URL da API está correta.");
+      alert("Erro ao buscar dados do leitor.");
       console.error(err);
     }
   }
@@ -85,16 +87,17 @@ function exibirTela(tela) {
 }
 
 function deslogar() {
+  usuarioLogado = null;
   document.getElementById("secLogin").hidden = false;
   document.getElementById("secLeitor").hidden = true;
   document.getElementById("secAdmin").hidden = true;
   document.getElementById("btnSair").hidden = true;
   
-  document.getElementById("loginTelefone").value = "";
+  document.getElementById("loginTelefone").value = "81";
   document.getElementById("loginSenha").value = "";
 }
 
-// AUTO CADASTRO DO LEITOR (1º ACESSO - CORRIGIDO)
+// AUTO CADASTRO DO LEITOR (1º ACESSO)
 async function salvarAutoCadastro() {
   const nomeEl = document.getElementById("autoNome");
   const emailEl = document.getElementById("autoEmail");
@@ -102,10 +105,7 @@ async function salvarAutoCadastro() {
   const perfilEl = document.getElementById("autoPerfil");
   const turmaEl = document.getElementById("autoTurma");
 
-  if (!nomeEl || !telefoneEl) {
-    alert("Erro interno: Campos de formulário não encontrados no HTML.");
-    return;
-  }
+  if (!nomeEl || !telefoneEl) return alert("Erro interno nos campos.");
 
   const nome = nomeEl.value.trim();
   const email = emailEl ? emailEl.value.trim() : "";
@@ -113,15 +113,7 @@ async function salvarAutoCadastro() {
   const perfil = perfilEl ? perfilEl.value : "Aluno";
   const turma = turmaEl ? turmaEl.value.trim() : "-";
 
-  if (!nome || !telefone) {
-    alert("Por favor, preencha o Nome Completo e o Telefone.");
-    return;
-  }
-
-  if (API_URL.includes("SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI")) {
-    alert("Aviso: Você precisa colar a URL do seu Google Apps Script no topo do arquivo app.js!");
-    return;
-  }
+  if (!nome || !telefone) return alert("Preencha Nome e Telefone.");
 
   const usuario = { nome, email, telefone, perfil, turma };
 
@@ -137,70 +129,155 @@ async function salvarAutoCadastro() {
     if (json.success) {
       fecharModal("modalAutoCadastro");
       document.getElementById("loginTelefone").value = telefone;
-      
-      // Limpar campos do modal
       nomeEl.value = "";
       if (emailEl) emailEl.value = "";
-      telefoneEl.value = "";
       if (turmaEl) turmaEl.value = "";
     }
   } catch (err) {
-    alert("Erro ao salvar cadastro. Verifique se a URL do Apps Script foi implantada como 'Qualquer pessoa' (Anyone).");
-    console.error("Detalhes do erro:", err);
+    alert("Erro ao realizar cadastro.");
   }
 }
 
-// ACERVO DO LEITOR
+// CARREGAR E RENDERIZAR ACERVO POR CATEGORIA E EM ORDEM ALFABÉTICA
 async function carregarAcervo() {
   try {
     const res = await fetch(`${API_URL}?action=getAcervo`);
     const json = await res.json();
     if (json.success) {
       acervoMemoria = json.data;
-      renderizarAcervo(acervoMemoria);
+      renderizarAcervoPorCategorias(acervoMemoria);
     }
   } catch (err) {
     console.error("Erro ao carregar acervo:", err);
   }
 }
 
-function renderizarAcervo(lista) {
+function renderizarAcervoPorCategorias(listaLivros) {
   const container = document.getElementById("gridAcervo");
   container.innerHTML = "";
 
-  if (lista.length === 0) {
+  if (!listaLivros || listaLivros.length === 0) {
     container.innerHTML = "<p>Nenhum livro encontrado no momento.</p>";
     return;
   }
 
-  lista.forEach(livro => {
-    const disponivel = parseInt(livro.Qtd_Disponivel) > 0;
-    const capa = livro.Capa_URL || "https://via.placeholder.com/150x200?text=Sem+Capa";
+  // 1. Mapear livros por categorias (Trata categorias separadas por vírgula)
+  const categoriasMap = {};
 
-    container.innerHTML += `
-      <div class="card-livro">
-        <img src="${capa}" alt="${livro.Título}">
-        <h4>${livro.Título}</h4>
-        <p><small>${livro.Autor}</small></p>
-        <span class="badge ${disponivel ? 'badge-disponivel' : 'badge-esgotado'}">
-          ${disponivel ? `Disponível (${livro.Qtd_Disponivel})` : 'Esgotado'}
-        </span>
-      </div>
+  listaLivros.forEach(livro => {
+    const stringCategorias = livro.Categoria || "Geral";
+    // Divide por vírgula e limpa espaços extras
+    const categorias = stringCategorias.split(",").map(c => c.trim()).filter(c => c.length > 0);
+
+    categorias.forEach(cat => {
+      // Normalizar nome da categoria para chave
+      const catChave = cat.toLowerCase();
+      if (!categoriasMap[catChave]) {
+        categoriasMap[catChave] = {
+          nomeFormatado: cat,
+          livros: []
+        };
+      }
+      
+      // Evita duplicar o mesmo livro na mesma categoria
+      const jaExiste = categoriasMap[catChave].livros.some(l => l.ID_Livro === livro.ID_Livro);
+      if (!jaExiste) {
+        categoriasMap[catChave].livros.push(livro);
+      }
+    });
+  });
+
+  // 2. Ordenar Categorias em Ordem Alfabética (A-Z)
+  const categoriasOrdenadas = Object.keys(categoriasMap).sort((a, b) => 
+    categoriasMap[a].nomeFormatado.localeCompare(categoriasMap[b].nomeFormatado, 'pt-BR', { sensitivity: 'base' })
+  );
+
+  // 3. Renderizar cada Categoria e seus Livros ordenados de A-Z
+  categoriasOrdenadas.forEach(chaveCat => {
+    const categoria = categoriasMap[chaveCat];
+
+    // Ordenar os livros da categoria em Ordem Alfabética por Título (A-Z)
+    categoria.livros.sort((a, b) => (a.Título || "").localeCompare(b.Título || "", 'pt-BR', { sensitivity: 'base' }));
+
+    let HTMLCategoria = `
+      <div class="categoria-secao">
+        <h3 class="categoria-titulo">📌 ${categoria.nomeFormatado}</h3>
     `;
+
+    categoria.livros.forEach(livro => {
+      const qtdDisponivel = parseInt(livro.Qtd_Disponivel) || 0;
+      const disponivel = qtdDisponivel > 0;
+
+      HTMLCategoria += `
+        <div class="item-livro-limpo">
+          <div class="item-livro-info">
+            <h4>${livro.Título}</h4>
+            <p><strong>Autor:</strong> ${livro.Autor || "Não informado"}</p>
+          </div>
+          <div>
+            ${disponivel 
+              ? `<span class="badge badge-disponivel">Disponível (${qtdDisponivel})</span>` 
+              : `<button class="btn-reservar-ativo" onclick="solicitarReserva('${livro.ID_Livro}', '${livro.Título}')">Reservar</button>`
+            }
+          </div>
+        </div>
+      `;
+    });
+
+    HTMLCategoria += `</div>`;
+    container.innerHTML += HTMLCategoria;
   });
 }
 
 function filtrarAcervo() {
   const termo = document.getElementById("inputBusca").value.toLowerCase();
+  
+  if (!termo) {
+    renderizarAcervoPorCategorias(acervoMemoria);
+    return;
+  }
+
   const filtrados = acervoMemoria.filter(l => 
     (l.Título && l.Título.toLowerCase().includes(termo)) || 
     (l.Autor && l.Autor.toLowerCase().includes(termo)) ||
     (l.Categoria && l.Categoria.toLowerCase().includes(termo))
   );
-  renderizarAcervo(filtrados);
+
+  renderizarAcervoPorCategorias(filtrados);
 }
 
-// PAINEL DE EMPRÉSTIMO E DEVOLUÇÃO
+// AÇÃO DE RESERVA DE LIVRO
+async function solicitarReserva(idLivro, tituloLivro) {
+  if (!usuarioLogado) {
+    alert("Erro: Leitor não identificado.");
+    return;
+  }
+
+  if (!confirm(`Deseja reservar o livro "${tituloLivro}"?\nVocê receberá uma notificação quando ele for devolvido.`)) {
+    return;
+  }
+
+  try {
+    const res = await fetch(API_URL, {
+      method: "POST",
+      body: JSON.stringify({
+        action: "registrarReserva",
+        idUsuario: usuarioLogado.ID || usuarioLogado.Telefone,
+        nomeUsuario: usuarioLogado.Nome,
+        idLivro: idLivro,
+        tituloLivro: tituloLivro
+      })
+    });
+
+    const json = await res.json();
+    alert(json.message);
+  } catch (err) {
+    alert("Erro ao processar reserva.");
+    console.error(err);
+  }
+}
+
+// PAINEL DE EMPRÉSTIMO E DEVOLUÇÃO (ADMIN)
 async function confirmarEmprestimo() {
   const tel = document.getElementById("empTelefone").value;
   const idLivro = document.getElementById("empIdLivro").value;
@@ -269,7 +346,7 @@ async function carregarEmprestimos() {
       });
     }
   } catch (err) {
-    console.error("Erro ao carregar lista de empréstimos:", err);
+    console.error("Erro ao carregar empréstimos:", err);
   }
 }
 
@@ -296,7 +373,7 @@ async function devolverLivro(idEmprestimo) {
   }
 }
 
-// OPERAÇÕES DE CADASTRO (ADMIN)
+// CADASTROS (ADMIN)
 async function salvarUsuario() {
   const usuario = {
     nome: document.getElementById("cadNome").value,
@@ -334,6 +411,6 @@ async function salvarLivro() {
   if (json.success) fecharModal("modalCadLivro");
 }
 
-// CONTROLADORES DOS MODAIS
+// CONTROLADORES DE MODAIS
 function abrirModal(id) { document.getElementById(id).hidden = false; }
 function fecharModal(id) { document.getElementById(id).hidden = true; }
