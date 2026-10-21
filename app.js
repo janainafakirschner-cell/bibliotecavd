@@ -1,5 +1,5 @@
 // URL do Google Apps Script (Substitua pela sua URL gerada na implantação)
-const API_URL = "SUA_URL_DO_GOOGLE_APPS_SCRIPT_AQUI";
+const API_URL = "https://script.google.com/macros/s/AKfycbwCVnRUqWDrd3irfBvMO_lgLe713w1z9QZRKhBBWkwJA687mGip3E4mQbnS5CuJsJcTog/exec";
 
 let acervoMemoria = [];
 let dadosEmprestimoTemporario = {};
