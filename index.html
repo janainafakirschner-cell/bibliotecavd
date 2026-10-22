@@ -14,6 +14,10 @@
       --danger: #dc2626;
       --bg: #f8fafc;
       --card-bg: #ffffff;
+      /* Paleta do Perfil do Leitor */
+      --user-card-bg: #f8fafc;
+      --user-card-border: #cbd5e1;
+      --user-card-accent: #4f46e5;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
@@ -103,6 +107,7 @@
 
     .user-welcome { background: #e0f2fe; color: #0369a1; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
 
+    /* ESTILOS DA SEÇÃO MEUS LIVROS LIDOS (SEM ESPAÇO DE CAPA) */
     .secao-livros-lidos {
       background: #ffffff;
       border-radius: 8px;
@@ -112,45 +117,38 @@
       border: 1px solid #e2e8f0;
     }
 
-    .grid-livros-lidos {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-      gap: 15px;
+    .lista-livros-lidos {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
       margin-top: 15px;
     }
 
-    .card-livro-lido {
+    .card-livro-lido-sem-capa {
       display: flex;
-      gap: 12px;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      border-radius: 6px;
-      padding: 12px;
-    }
-
-    .capa-livro-lido {
-      width: 60px;
-      height: 85px;
-      object-fit: cover;
-      border-radius: 4px;
-      background: #cbd5e1;
-      display: flex;
+      justify-content: space-between;
       align-items: center;
-      justify-content: center;
-      font-size: 0.7rem;
-      color: #475569;
-      text-align: center;
+      padding: 14px 16px;
+      background-color: var(--user-card-bg);
+      border-radius: 6px;
+      border-left: 5px solid var(--user-card-accent);
+      border-top: 1px solid var(--user-card-border);
+      border-right: 1px solid var(--user-card-border);
+      border-bottom: 1px solid var(--user-card-border);
+      gap: 15px;
+      flex-wrap: wrap;
     }
 
-    .detalhes-livro-lido { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
-    .detalhes-livro-lido h4 { font-size: 0.95rem; color: #0f172a; font-weight: 600; }
-    .detalhes-livro-lido p { font-size: 0.8rem; color: #64748b; }
+    .detalhes-lido { flex: 1; min-width: 240px; }
+    .detalhes-lido h4 { font-size: 1.05rem; color: #0f172a; font-weight: 600; margin-bottom: 4px; }
+    .detalhes-lido p { font-size: 0.85rem; color: #475569; margin-bottom: 2px; }
 
     .star-rating-container { display: flex; align-items: center; gap: 4px; margin-top: 6px; }
     .star-btn { background: none; border: none; padding: 0; width: auto; font-size: 1.3rem; color: #cbd5e1; cursor: pointer; line-height: 1; }
     .star-btn.ativa { color: #f59e0b; }
-    .star-rating-label { font-size: 0.75rem; color: #475569; margin-left: 6px; }
+    .star-rating-label { font-size: 0.8rem; color: #475569; margin-left: 6px; font-weight: 600; }
 
+    /* ESTILOS DO CATÁLOGO DE LIVROS DO ACERVO */
     .categoria-bloco {
       margin-bottom: 28px;
       background: #ffffff;
@@ -180,10 +178,12 @@
       border-radius: 6px;
       border-left: 4px solid var(--accent);
       gap: 15px;
+      flex-wrap: wrap;
     }
 
     .livro-linha-detalhes h4 { font-size: 1rem; color: #0f172a; font-weight: 600; margin-bottom: 3px; }
     .livro-linha-detalhes p { font-size: 0.88rem; color: #64748b; }
+    .badge-avaliacao-acervo { font-size: 0.82rem; color: #d97706; font-weight: 600; margin-top: 4px; display: inline-block; }
 
     .badge-status {
       display: inline-block;
@@ -259,7 +259,7 @@
 
   <main class="container">
 
-    <!-- LOGIN -->
+    <!-- SEÇÃO LOGIN -->
     <section id="secLogin" class="card-login">
       <h2>Acesso ao Sistema</h2>
       <p class="subtitulo">Selecione o seu perfil para continuar</p>
@@ -291,16 +291,17 @@
       </div>
     </section>
 
-    <!-- ÁREA LEITOR -->
+    <!-- SEÇÃO LEITOR (ALUNO / PROFESSOR) -->
     <section id="secLeitor" hidden>
       <div class="user-welcome">
         <h3>Bem-vindo(a), <span id="nomeLeitorLogado">-</span>! (<span id="perfilLeitorLogado">-</span>)</h3>
       </div>
 
+      <!-- SEÇÃO MEUS LIVROS LIDOS -->
       <div class="secao-livros-lidos">
-        <h3 style="color: var(--primary);">📖 Meus Livros Lidos</h3>
-        <p style="font-size: 0.85rem; color: #64748b; margin-top: 4px;">Histórico das obras que você leu e devolveu à biblioteca.</p>
-        <div id="containerLivrosLidos" class="grid-livros-lidos"></div>
+        <h3 style="color: var(--user-card-accent);">📖 Meus Livros Lidos</h3>
+        <p style="font-size: 0.85rem; color: #64748b; margin-top: 4px;">Histórico das obras que você leu, devolveu e avaliou.</p>
+        <div id="containerLivrosLidos" class="lista-livros-lidos"></div>
       </div>
       
       <div class="field-group">
@@ -321,7 +322,7 @@
         <button onclick="carregarEmprestimos()" style="width: auto; background-color: #475569;">🔄 Atualizar Listas</button>
       </div>
 
-      <!-- EMPRÉSTIMO -->
+      <!-- PAINEL DE EMPRÉSTIMO -->
       <div class="card-form">
         <h3>Registrar Empréstimo</h3>
 
@@ -352,7 +353,7 @@
 
         <div class="etapa-box" style="background-color: #faf5ff;">
           <div class="etapa-titulo" style="color: #6b21a8;">ETAPA 4 — Confirmação</div>
-          <div id="resumoEmprestimoBox">Complete os dados acima para revisar o empréstimo.</div>
+          <div id="resumoEmprestimoBox">Complete as etapas acima para revisar o empréstimo.</div>
           <div style="display: flex; gap: 10px; margin-top: 15px;">
             <button type="button" id="btnConfirmarEmp" class="btn-login" style="background-color: var(--success);" onclick="processarConfirmacaoEmprestimo()" disabled>Confirmar Empréstimo</button>
             <button type="button" class="btn-login" style="background-color: var(--secondary);" onclick="cancelarFluxoEmprestimo()">Cancelar</button>
@@ -379,12 +380,12 @@
 
   </main>
 
-  <!-- MODAL: CADASTRO RÁPIDO DE LIVRO (EMPRÉSTIMO) -->
+  <!-- MODAL: CADASTRO RÁPIDO DE LIVRO (NO EMPRÉSTIMO) -->
   <div id="modalCadastroRapidoLivro" class="modal" hidden>
     <div class="modal-content">
       <span class="close" onclick="fecharModal('modalCadastroRapidoLivro')">&times;</span>
       <h3>➕ Cadastro Rápido de Livro</h3>
-      <p style="font-size: 0.85rem; color: #64748b;">Este ISBN não está cadastrado. Preencha os dados para adicioná-lo ao acervo e continuar o empréstimo.</p>
+      <p style="font-size: 0.85rem; color: #64748b;">Este ISBN não consta no acervo. Revise os dados abaixo para adicioná-lo e prosseguir com o empréstimo.</p>
       
       <div class="field-group">
         <label for="rapidoIsbn">ISBN:</label>
@@ -404,7 +405,7 @@
       </div>
       <div class="field-group">
         <label for="rapidoCategoria">Categoria:</label>
-        <input type="text" id="rapidoCategoria" placeholder="Ex: Literatura, História">
+        <input type="text" id="rapidoCategoria" placeholder="Ex: Literatura, Ficção">
       </div>
       <div class="field-group">
         <label for="rapidoQtd">Quantidade de Exemplares *:</label>
@@ -509,11 +510,12 @@
       <h3>Cadastrar Livro</h3>
       <div class="flex-row-btn">
         <input type="text" id="cadIsbn" placeholder="ISBN (10 ou 13 dígitos)">
-        <button type="button" onclick="buscarLivroPorISBN()">Buscar ISBN</button>
+        <button type="button" onclick="buscarLivroPorISBN()">Pesquisar ISBN</button>
       </div>
       <div id="feedbackIsbn" style="font-size: 0.8rem; font-weight: 600;"></div>
       <input type="text" id="cadTitulo" placeholder="Título Completo">
       <input type="text" id="cadAutor" placeholder="Autor">
+      <input type="text" id="cadEditora" placeholder="Editora">
       <input type="text" id="cadCategoria" placeholder="Categorias (separadas por vírgula)">
       <input type="number" id="cadQtd" value="1" min="1">
       <button class="btn-login" onclick="salvarLivroAdmin()">Salvar Livro</button>
@@ -523,7 +525,7 @@
   <footer>developed by Jana Kirschner (beta)</footer>
 
   <script>
-    // Inserir a URL do Web App implantado no Google Apps Script
+    // URL da API do Google Apps Script
     const API_URL = "https://script.google.com/macros/s/AKfycbwCVnRUqWDrd3irfBvMO_lgLe713w1z9QZRKhBBWkwJA687mGip3E4mQbnS5CuJsJcTog/exec";
 
     let acervoMemoria = [];
@@ -541,8 +543,8 @@
     });
 
     /**
-     * FORMATAÇÃO DE DATAS CENTRALIZADA (DD/MM/AA e DD/MM/AA HH:mm)
-     * Evita problemas de fuso horário.
+     * FORMATAÇÃO DE DATAS SEM DESLOCAMENTO DE FUSO HORÁRIO
+     * Sem conversões UTC indevidas.
      */
     function formatarDataBR(valData, incluirHora = false) {
       if (!valData || valData === "" || valData === null || valData === undefined) return "—";
@@ -550,6 +552,7 @@
       try {
         let str = valData.toString().trim();
 
+        // Presença de 'T' indica formato de timestamp ISO
         if (str.includes("T")) {
           const dt = new Date(str);
           if (isNaN(dt.getTime())) return "—";
@@ -566,6 +569,7 @@
           return `${dia}/${mes}/${ano}`;
         }
 
+        // String simples no formato YYYY-MM-DD
         if (str.includes("-")) {
           const partes = str.split("-");
           if (partes.length >= 3) {
@@ -702,14 +706,17 @@
           renderizarTabelaAcervoAdmin(acervoMemoria);
         }
       } catch (e) {
-        document.getElementById("containerAcervoCategorias").textContent = "Erro ao carregar o catálogo de livros.";
+        document.getElementById("containerAcervoCategorias").textContent = "Erro ao carregar o catálogo.";
       }
     }
 
+    /**
+     * RENDERIZA MEUS LIVROS LIDOS (SEM ESPAÇO DE CAPA)
+     */
     async function carregarLivrosLidos() {
       if (!usuarioLogado) return;
       const container = document.getElementById("containerLivrosLidos");
-      container.textContent = "Carregando seu histórico de leitura...";
+      container.textContent = "Carregando histórico de leituras...";
 
       try {
         const res = await fetch(`${API_URL}?action=getLivrosLidos&telefone=${encodeURIComponent(usuarioLogado.Telefone)}`);
@@ -718,24 +725,14 @@
 
         if (json.success && json.data && json.data.length > 0) {
           json.data.forEach(item => {
-            const card = criarElementoSeguro("div", "", "card-livro-lido");
+            const card = criarElementoSeguro("div", "", "card-livro-lido-sem-capa");
 
-            if (item.Capa_URL && item.Capa_URL.trim() !== "") {
-              const img = document.createElement("img");
-              img.src = item.Capa_URL;
-              img.alt = item.Titulo;
-              img.className = "capa-livro-lido";
-              card.appendChild(img);
-            } else {
-              const capaPadrao = criarElementoSeguro("div", "Sem Capa", "capa-livro-lido");
-              card.appendChild(capaPadrao);
-            }
-
-            const det = criarElementoSeguro("div", "", "detalhes-livro-lido");
+            const det = criarElementoSeguro("div", "", "detalhes-lido");
             det.appendChild(criarElementoSeguro("h4", item.Titulo));
             det.appendChild(criarElementoSeguro("p", "Autor: " + item.Autor));
             det.appendChild(criarElementoSeguro("p", `Retirada: ${formatarDataBR(item.DataEmprestimo)} | Devolução: ${formatarDataBR(item.DataDevolucao)}`));
 
+            // Controle de Estrelas Interativo
             const starBox = criarElementoSeguro("div", "", "star-rating-container");
             starBox.setAttribute("aria-label", `Sua nota: ${item.NotaEstrelas || 0} de 5 estrelas`);
 
@@ -750,15 +747,15 @@
             const labelNota = criarElementoSeguro("span", item.NotaEstrelas > 0 ? `${item.NotaEstrelas}/5` : "Avaliar", "star-rating-label");
             starBox.appendChild(labelNota);
 
-            det.appendChild(starBox);
             card.appendChild(det);
+            card.appendChild(starBox);
             container.appendChild(card);
           });
         } else {
-          container.appendChild(criarElementoSeguro("p", "Você ainda não possui livros no seu histórico de leituras devolvidas. Quando você devolver um livro emprestado, ele aparecerá nesta área.", "subtitulo"));
+          container.appendChild(criarElementoSeguro("p", "Você ainda não tem livros no seu histórico de leituras. Quando devolver um livro emprestado, ele aparecerá aqui.", "subtitulo"));
         }
       } catch (e) {
-        container.textContent = "Erro ao recuperar seu histórico de leitura.";
+        container.textContent = "Erro ao recuperar o histórico de leitura.";
       }
     }
 
@@ -779,12 +776,16 @@
         alert(json.message);
         if (json.success) {
           carregarLivrosLidos();
+          carregarAcervoGlobal(); // Atualiza média no catálogo
         }
       } catch (e) {
         alert("Erro ao gravar sua avaliação.");
       }
     }
 
+    /**
+     * RENDERIZA ACERVO CATEGORIZADO COM MOSTRA DE RANQUEAMENTO (ESTRELAS)
+     */
     function renderizarAcervoCategorizado(listaLivros) {
       const container = document.getElementById("containerAcervoCategorias");
       container.textContent = "";
@@ -824,6 +825,13 @@
           const det = criarElementoSeguro("div", "", "livro-linha-detalhes");
           det.appendChild(criarElementoSeguro("h4", livro.Título));
           det.appendChild(criarElementoSeguro("p", "Autor: " + (livro.Autor || "Desconhecido")));
+
+          // Exibição do Ranqueamento / Média de Estrelas
+          let textoAval = "Ainda sem avaliações";
+          if (livro.qtdAvaliacoes && livro.qtdAvaliacoes > 0) {
+            textoAval = `${livro.mediaAvaliacao} ★ (${livro.qtdAvaliacoes} ${livro.qtdAvaliacoes === 1 ? 'avaliação' : 'avaliações'})`;
+          }
+          det.appendChild(criarElementoSeguro("span", textoAval, "badge-avaliacao-acervo"));
 
           const acao = criarElementoSeguro("div");
           const qtdDisp = parseInt(livro.Qtd_Disponivel, 10);
@@ -886,7 +894,7 @@
           resContainer.appendChild(criarElementoSeguro("div", json.message || "Leitor não encontrado.", "info-card-alerta"));
         }
       } catch (err) {
-        resContainer.appendChild(criarElementoSeguro("div", "Erro na busca por leitor.", "info-card-alerta"));
+        resContainer.appendChild(criarElementoSeguro("div", "Erro ao buscar leitor.", "info-card-alerta"));
       }
       atualizarResumoEmprestimo();
     }
@@ -913,9 +921,8 @@
       if (achados.length === 0) {
         livroEmprestimoSelecionado = null;
         const boxNaoEncontrado = criarElementoSeguro("div", "", "info-card-alerta");
-        boxNaoEncontrado.appendChild(criarElementoSeguro("p", "Nenhum livro cadastrado com este ISBN/Título."));
+        boxNaoEncontrado.appendChild(criarElementoSeguro("p", "Nenhum livro cadastrado com este ISBN/Título no acervo."));
 
-        // Se for uma busca por código numérico (ISBN), abre botão de Cadastro Rápido
         const limpoNum = termo.replace(/\D/g, "");
         if (limpoNum.length === 10 || limpoNum.length === 13) {
           const btnRapido = criarElementoSeguro("button", "➕ Fazer Cadastro Rápido deste ISBN", "btn-login");
@@ -955,7 +962,6 @@
 
       abrirModal("modalCadastroRapidoLivro");
 
-      // Auto-busca em APIs abertas
       try {
         let res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
         let data = await res.json();
@@ -997,7 +1003,7 @@
           buscarLivroEmprestimo();
         }
       } catch (e) {
-        alert("Erro ao efetuar cadastro rápido.");
+        alert("Erro no cadastro rápido.");
       } finally {
         btn.disabled = false;
       }
@@ -1010,7 +1016,7 @@
       const disp = parseInt(livro.Qtd_Disponivel, 10);
       if (disp <= 0) {
         livroEmprestimoSelecionado = null;
-        resContainer.appendChild(criarElementoSeguro("div", `O livro "${livro.Título}" não possui exemplares disponíveis no momento.`, "info-card-alerta"));
+        resContainer.appendChild(criarElementoSeguro("div", `O livro "${livro.Título}" não possui exemplares disponíveis.`, "info-card-alerta"));
       } else {
         livroEmprestimoSelecionado = livro;
         const card = criarElementoSeguro("div", "", "info-card-sucesso");
@@ -1164,7 +1170,6 @@
         tb.textContent = "";
 
         if (json.success) {
-          // Filtra posições ordenadas apenas para reservas Pendentes
           let contadorPosicao = 1;
           json.data.forEach((r) => {
             const tr = document.createElement("tr");
@@ -1203,7 +1208,7 @@
         return;
       }
 
-      fb.textContent = "Consultando serviços bibliográficos...";
+      fb.textContent = "Consultando repositório bibliográfico...";
       try {
         let res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
         let data = await res.json();
@@ -1212,12 +1217,13 @@
           const info = data.items[0].volumeInfo;
           document.getElementById("cadTitulo").value = info.title || "";
           document.getElementById("cadAutor").value = info.authors ? info.authors.join(", ") : "";
+          document.getElementById("cadEditora").value = info.publisher || "";
           document.getElementById("cadCategoria").value = info.categories ? info.categories.join(", ") : "";
           fb.textContent = "Dados bibliográficos recuperados!";
         } else {
-          fb.textContent = "ISBN não localizado em APIs abertas. Preencha manualmente.";
+          fb.textContent = "ISBN não localizado online. Preencha manualmente.";
         }
-      } catch (e) { fb.textContent = "Erro na consulta externa. Preencha manualmente."; }
+      } catch (e) { fb.textContent = "Erro na consulta online. Preencha manualmente."; }
     }
 
     async function salvarAutoCadastro() {
@@ -1227,8 +1233,8 @@
       const perfil = document.getElementById("autoPerfil").value;
       const turma = document.getElementById("autoTurma").value.trim();
 
-      if (!nome || !tel) { alert("Preencha os campos obrigatórios: Nome e Telefone."); return; }
-      if (perfil === "Aluno" && !turma) { alert("A informação de Turma é obrigatória para Alunos."); return; }
+      if (!nome || !tel) { alert("Preencha Nome e Telefone."); return; }
+      if (perfil === "Aluno" && !turma) { alert("Informe a Turma do Aluno."); return; }
 
       const res = await fetch(API_URL, {
         method: "POST",
@@ -1264,6 +1270,7 @@
         isbn: document.getElementById("cadIsbn").value.trim(),
         titulo: document.getElementById("cadTitulo").value.trim(),
         autor: document.getElementById("cadAutor").value.trim(),
+        editora: document.getElementById("cadEditora").value.trim(),
         categoria: document.getElementById("cadCategoria").value.trim(),
         qtdTotal: document.getElementById("cadQtd").value
       };
