@@ -91,7 +91,7 @@
       margin-top: 10px;
     }
 
-    .lgpd-notice {
+    .privacy-notice {
       margin-top: 20px;
       padding-top: 15px;
       border-top: 1px solid #f1f5f9;
@@ -102,6 +102,54 @@
     }
 
     .user-welcome { background: #e0f2fe; color: #0369a1; padding: 15px; border-radius: 8px; margin-bottom: 20px; }
+
+    .secao-livros-lidos {
+      background: #ffffff;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 25px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+      border: 1px solid #e2e8f0;
+    }
+
+    .grid-livros-lidos {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+
+    .card-livro-lido {
+      display: flex;
+      gap: 12px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      padding: 12px;
+    }
+
+    .capa-livro-lido {
+      width: 60px;
+      height: 85px;
+      object-fit: cover;
+      border-radius: 4px;
+      background: #cbd5e1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.7rem;
+      color: #475569;
+      text-align: center;
+    }
+
+    .detalhes-livro-lido { flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+    .detalhes-livro-lido h4 { font-size: 0.95rem; color: #0f172a; font-weight: 600; }
+    .detalhes-livro-lido p { font-size: 0.8rem; color: #64748b; }
+
+    .star-rating-container { display: flex; align-items: center; gap: 4px; margin-top: 6px; }
+    .star-btn { background: none; border: none; padding: 0; width: auto; font-size: 1.3rem; color: #cbd5e1; cursor: pointer; line-height: 1; }
+    .star-btn.ativa { color: #f59e0b; }
+    .star-rating-label { font-size: 0.75rem; color: #475569; margin-left: 6px; }
 
     .categoria-bloco {
       margin-bottom: 28px;
@@ -211,7 +259,7 @@
 
   <main class="container">
 
-    <!-- SEÇÃO LOGIN -->
+    <!-- LOGIN -->
     <section id="secLogin" class="card-login">
       <h2>Acesso ao Sistema</h2>
       <p class="subtitulo">Selecione o seu perfil para continuar</p>
@@ -238,26 +286,32 @@
       <button id="btnLoginAction" class="btn-login" onclick="executarLogin()">Entrar</button>
       <button id="btnAutoCadastro" class="btn-cadastro-novo" onclick="abrirModal('modalAutoCadastro')">1º Acesso / Cadastrar-se</button>
 
-      <div class="lgpd-notice">
-        🔒 Sistema em conformidade com a LGPD. O acesso por telefone não substitui a verificação por senha para operações restritas.
+      <div class="privacy-notice">
+        🔒 Seus dados cadastrais são armazenados com segurança para gestão de empréstimos da biblioteca.
       </div>
     </section>
 
-    <!-- SEÇÃO LEITOR (ALUNO / PROFESSOR) -->
+    <!-- ÁREA LEITOR -->
     <section id="secLeitor" hidden>
       <div class="user-welcome">
         <h3>Bem-vindo(a), <span id="nomeLeitorLogado">-</span>! (<span id="perfilLeitorLogado">-</span>)</h3>
       </div>
+
+      <div class="secao-livros-lidos">
+        <h3 style="color: var(--primary);">📖 Meus Livros Lidos</h3>
+        <p style="font-size: 0.85rem; color: #64748b; margin-top: 4px;">Histórico das obras que você leu e devolveu à biblioteca.</p>
+        <div id="containerLivrosLidos" class="grid-livros-lidos"></div>
+      </div>
       
       <div class="field-group">
-        <input type="text" id="inputBusca" placeholder="🔍 Buscar por título, autor ou categoria..." onkeyup="filtrarAcervoLeitor()">
+        <input type="text" id="inputBusca" placeholder="🔍 Buscar acervo por título, autor ou categoria..." onkeyup="filtrarAcervoLeitor()">
       </div>
       
       <h2 style="margin-bottom: 16px;">Catálogo do Acervo</h2>
       <div id="containerAcervoCategorias"></div>
     </section>
 
-    <!-- SEÇÃO PAINEL ADMINISTRATIVO -->
+    <!-- PAINEL ADMINISTRATIVO -->
     <section id="secAdmin" hidden>
       <div style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
         <button onclick="abrirModal('modalCadUsuario')" style="width: auto;">➕ Cadastrar Leitor</button>
@@ -267,7 +321,7 @@
         <button onclick="carregarEmprestimos()" style="width: auto; background-color: #475569;">🔄 Atualizar Listas</button>
       </div>
 
-      <!-- FORMULÁRIO DE EMPRÉSTIMO -->
+      <!-- EMPRÉSTIMO -->
       <div class="card-form">
         <h3>Registrar Empréstimo</h3>
 
@@ -313,7 +367,7 @@
             <tr>
               <th>Leitor</th>
               <th>Telefone</th>
-              <th>Livro (ID)</th>
+              <th>Livro</th>
               <th>Data Vencimento</th>
               <th>Ações</th>
             </tr>
@@ -324,6 +378,42 @@
     </section>
 
   </main>
+
+  <!-- MODAL: CADASTRO RÁPIDO DE LIVRO (EMPRÉSTIMO) -->
+  <div id="modalCadastroRapidoLivro" class="modal" hidden>
+    <div class="modal-content">
+      <span class="close" onclick="fecharModal('modalCadastroRapidoLivro')">&times;</span>
+      <h3>➕ Cadastro Rápido de Livro</h3>
+      <p style="font-size: 0.85rem; color: #64748b;">Este ISBN não está cadastrado. Preencha os dados para adicioná-lo ao acervo e continuar o empréstimo.</p>
+      
+      <div class="field-group">
+        <label for="rapidoIsbn">ISBN:</label>
+        <input type="text" id="rapidoIsbn" readonly>
+      </div>
+      <div class="field-group">
+        <label for="rapidoTitulo">Título do Livro *:</label>
+        <input type="text" id="rapidoTitulo" placeholder="Título completo">
+      </div>
+      <div class="field-group">
+        <label for="rapidoAutor">Autor *:</label>
+        <input type="text" id="rapidoAutor" placeholder="Nome do autor">
+      </div>
+      <div class="field-group">
+        <label for="rapidoEditora">Editora:</label>
+        <input type="text" id="rapidoEditora" placeholder="Nome da editora">
+      </div>
+      <div class="field-group">
+        <label for="rapidoCategoria">Categoria:</label>
+        <input type="text" id="rapidoCategoria" placeholder="Ex: Literatura, História">
+      </div>
+      <div class="field-group">
+        <label for="rapidoQtd">Quantidade de Exemplares *:</label>
+        <input type="number" id="rapidoQtd" value="1" min="1">
+      </div>
+
+      <button id="btnSalvarRapido" class="btn-login" onclick="salvarLivroCadastroRapido()">Salvar e Selecionar para Empréstimo</button>
+    </div>
+  </div>
 
   <!-- MODAL: RECIBO -->
   <div id="modalRecibo" class="modal" hidden>
@@ -344,10 +434,10 @@
         <table>
           <thead>
             <tr>
-              <th>Posição</th>
+              <th>Posição na Fila</th>
               <th>Título do Livro</th>
               <th>Leitor</th>
-              <th>Data/Hora Reserva</th>
+              <th>Data/Hora Solicitação</th>
               <th>Status</th>
             </tr>
           </thead>
@@ -433,7 +523,7 @@
   <footer>developed by Jana Kirschner (beta)</footer>
 
   <script>
-    // URL da API implantada no Google Apps Script
+    // Inserir a URL do Web App implantado no Google Apps Script
     const API_URL = "https://script.google.com/macros/s/AKfycbwCVnRUqWDrd3irfBvMO_lgLe713w1z9QZRKhBBWkwJA687mGip3E4mQbnS5CuJsJcTog/exec";
 
     let acervoMemoria = [];
@@ -446,11 +536,55 @@
 
     window.addEventListener("DOMContentLoaded", () => {
       definirDataDevolucaoPadrao();
+      document.getElementById("containerAcervoCategorias").textContent = "Carregando acervo...";
+      carregarAcervoGlobal();
     });
+
+    /**
+     * FORMATAÇÃO DE DATAS CENTRALIZADA (DD/MM/AA e DD/MM/AA HH:mm)
+     * Evita problemas de fuso horário.
+     */
+    function formatarDataBR(valData, incluirHora = false) {
+      if (!valData || valData === "" || valData === null || valData === undefined) return "—";
+
+      try {
+        let str = valData.toString().trim();
+
+        if (str.includes("T")) {
+          const dt = new Date(str);
+          if (isNaN(dt.getTime())) return "—";
+
+          const dia = String(dt.getDate()).padStart(2, '0');
+          const mes = String(dt.getMonth() + 1).padStart(2, '0');
+          const ano = String(dt.getFullYear()).slice(-2);
+
+          if (incluirHora) {
+            const hora = String(dt.getHours()).padStart(2, '0');
+            const min = String(dt.getMinutes()).padStart(2, '0');
+            return `${dia}/${mes}/${ano} ${hora}:${min}`;
+          }
+          return `${dia}/${mes}/${ano}`;
+        }
+
+        if (str.includes("-")) {
+          const partes = str.split("-");
+          if (partes.length >= 3) {
+            const ano = partes[0].trim().slice(-2);
+            const mes = partes[1].trim().padStart(2, '0');
+            const dia = partes[2].trim().substring(0, 2).padStart(2, '0');
+            return `${dia}/${mes}/${ano}`;
+          }
+        }
+
+        return str;
+      } catch (e) {
+        return "—";
+      }
+    }
 
     function criarElementoSeguro(tag, texto, classe = "") {
       const el = document.createElement(tag);
-      if (texto) el.textContent = texto;
+      if (texto !== undefined && texto !== null) el.textContent = texto;
       if (classe) el.className = classe;
       return el;
     }
@@ -486,7 +620,7 @@
       try {
         if (perfil === "Admin") {
           const senha = document.getElementById("loginSenha").value;
-          if (!senha) { alert("Digite a senha administrativa."); return; }
+          if (!senha) { alert("Informe a senha de administrador."); return; }
 
           const res = await fetch(API_URL, {
             method: "POST",
@@ -506,7 +640,7 @@
 
         } else {
           const tel = document.getElementById("loginTelefone").value.trim();
-          if (!tel) { alert("Digite o número de telefone."); return; }
+          if (!tel) { alert("Informe o número de telefone cadastrado."); return; }
 
           const res = await fetch(`${API_URL}?action=buscarUsuarioPorTelefone&telefone=${encodeURIComponent(tel)}&perfil=${encodeURIComponent(perfil)}`);
           const json = await res.json();
@@ -517,12 +651,13 @@
             document.getElementById("perfilLeitorLogado").textContent = usuarioLogado.Perfil;
             exibirTela("leitor");
             carregarAcervoGlobal();
+            carregarLivrosLidos();
           } else {
             alert(json.message);
           }
         }
       } catch (err) {
-        alert("Erro na conexão com a API.");
+        alert("Falha de comunicação com o servidor.");
       } finally {
         btn.disabled = false;
       }
@@ -538,7 +673,15 @@
       if (tela === "admin") document.getElementById("secAdmin").hidden = false;
     }
 
-    function deslogar() {
+    async function deslogar() {
+      if (adminToken) {
+        try {
+          await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "logoutAdmin", token: adminToken })
+          });
+        } catch (e) {}
+      }
       usuarioLogado = null;
       adminToken = null;
       document.getElementById("secLogin").hidden = false;
@@ -559,7 +702,86 @@
           renderizarTabelaAcervoAdmin(acervoMemoria);
         }
       } catch (e) {
-        console.error("Erro ao obter acervo:", e);
+        document.getElementById("containerAcervoCategorias").textContent = "Erro ao carregar o catálogo de livros.";
+      }
+    }
+
+    async function carregarLivrosLidos() {
+      if (!usuarioLogado) return;
+      const container = document.getElementById("containerLivrosLidos");
+      container.textContent = "Carregando seu histórico de leitura...";
+
+      try {
+        const res = await fetch(`${API_URL}?action=getLivrosLidos&telefone=${encodeURIComponent(usuarioLogado.Telefone)}`);
+        const json = await res.json();
+        container.textContent = "";
+
+        if (json.success && json.data && json.data.length > 0) {
+          json.data.forEach(item => {
+            const card = criarElementoSeguro("div", "", "card-livro-lido");
+
+            if (item.Capa_URL && item.Capa_URL.trim() !== "") {
+              const img = document.createElement("img");
+              img.src = item.Capa_URL;
+              img.alt = item.Titulo;
+              img.className = "capa-livro-lido";
+              card.appendChild(img);
+            } else {
+              const capaPadrao = criarElementoSeguro("div", "Sem Capa", "capa-livro-lido");
+              card.appendChild(capaPadrao);
+            }
+
+            const det = criarElementoSeguro("div", "", "detalhes-livro-lido");
+            det.appendChild(criarElementoSeguro("h4", item.Titulo));
+            det.appendChild(criarElementoSeguro("p", "Autor: " + item.Autor));
+            det.appendChild(criarElementoSeguro("p", `Retirada: ${formatarDataBR(item.DataEmprestimo)} | Devolução: ${formatarDataBR(item.DataDevolucao)}`));
+
+            const starBox = criarElementoSeguro("div", "", "star-rating-container");
+            starBox.setAttribute("aria-label", `Sua nota: ${item.NotaEstrelas || 0} de 5 estrelas`);
+
+            for (let i = 1; i <= 5; i++) {
+              const starBtn = criarElementoSeguro("button", "★", "star-btn" + (i <= item.NotaEstrelas ? " ativa" : ""));
+              starBtn.type = "button";
+              starBtn.title = `Avaliar com ${i} estrelas`;
+              starBtn.onclick = () => enviarAvaliacaoEstrelas(item.ID_Livro, i);
+              starBox.appendChild(starBtn);
+            }
+
+            const labelNota = criarElementoSeguro("span", item.NotaEstrelas > 0 ? `${item.NotaEstrelas}/5` : "Avaliar", "star-rating-label");
+            starBox.appendChild(labelNota);
+
+            det.appendChild(starBox);
+            card.appendChild(det);
+            container.appendChild(card);
+          });
+        } else {
+          container.appendChild(criarElementoSeguro("p", "Você ainda não possui livros no seu histórico de leituras devolvidas. Quando você devolver um livro emprestado, ele aparecerá nesta área.", "subtitulo"));
+        }
+      } catch (e) {
+        container.textContent = "Erro ao recuperar seu histórico de leitura.";
+      }
+    }
+
+    async function enviarAvaliacaoEstrelas(idLivro, nota) {
+      if (!usuarioLogado) return;
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "salvarAvaliacao",
+            telefone: usuarioLogado.Telefone,
+            idLivro: idLivro,
+            nota: nota
+          })
+        });
+        const json = await res.json();
+        alert(json.message);
+        if (json.success) {
+          carregarLivrosLidos();
+        }
+      } catch (e) {
+        alert("Erro ao gravar sua avaliação.");
       }
     }
 
@@ -650,13 +872,13 @@
       }
 
       try {
-        const res = await fetch(`${API_URL}?action=buscarUsuarioPorTelefone&telefone=${encodeURIComponent(tel)}`);
+        const res = await fetch(`${API_URL}?action=buscarUsuarioPorTelefone&telefone=${encodeURIComponent(tel)}&token=${encodeURIComponent(adminToken)}`);
         const json = await res.json();
 
         if (json.success && json.usuario) {
           leitorEmprestimoSelecionado = json.usuario;
           const card = criarElementoSeguro("div", "", "info-card-sucesso");
-          card.appendChild(criarElementoSeguro("strong", "Leitor: " + json.usuario.Nome));
+          card.appendChild(criarElementoSeguro("strong", "Leitor Identificado: " + json.usuario.Nome));
           card.appendChild(criarElementoSeguro("div", `Perfil: ${json.usuario.Perfil} | Turma: ${json.usuario.Turma}`));
           resContainer.appendChild(card);
         } else {
@@ -664,37 +886,50 @@
           resContainer.appendChild(criarElementoSeguro("div", json.message || "Leitor não encontrado.", "info-card-alerta"));
         }
       } catch (err) {
-        resContainer.appendChild(criarElementoSeguro("div", "Erro de consulta na API.", "info-card-alerta"));
+        resContainer.appendChild(criarElementoSeguro("div", "Erro na busca por leitor.", "info-card-alerta"));
       }
       atualizarResumoEmprestimo();
     }
 
-    function buscarLivroEmprestimo() {
-      const termo = document.getElementById("empBuscaLivro").value.toLowerCase().trim();
+    async function buscarLivroEmprestimo() {
+      const termo = document.getElementById("empBuscaLivro").value.trim();
       const resContainer = document.getElementById("resLivroEmprestimo");
       resContainer.textContent = "";
 
       if (!termo) {
-        resContainer.appendChild(criarElementoSeguro("div", "Digite um ISBN ou título para buscar.", "info-card-alerta"));
+        resContainer.appendChild(criarElementoSeguro("div", "Digite o ISBN ou o Título para buscar.", "info-card-alerta"));
         livroEmprestimoSelecionado = null;
         atualizarResumoEmprestimo();
         return;
       }
 
+      const termoLower = termo.toLowerCase();
       const achados = acervoMemoria.filter(l => {
-        return (l.Título || "").toLowerCase().includes(termo) ||
-               (l.ISBN || "").toString().toLowerCase().includes(termo) ||
-               (l.ID_Livro || "").toString().toLowerCase() === termo;
+        return (l.Título || "").toLowerCase().includes(termoLower) ||
+               (l.ISBN && l.ISBN.toString().toLowerCase().includes(termoLower)) ||
+               (l.ID_Livro && l.ID_Livro.toString().toLowerCase() === termoLower);
       });
 
       if (achados.length === 0) {
         livroEmprestimoSelecionado = null;
-        resContainer.appendChild(criarElementoSeguro("div", "Nenhum livro localizado.", "info-card-alerta"));
+        const boxNaoEncontrado = criarElementoSeguro("div", "", "info-card-alerta");
+        boxNaoEncontrado.appendChild(criarElementoSeguro("p", "Nenhum livro cadastrado com este ISBN/Título."));
+
+        // Se for uma busca por código numérico (ISBN), abre botão de Cadastro Rápido
+        const limpoNum = termo.replace(/\D/g, "");
+        if (limpoNum.length === 10 || limpoNum.length === 13) {
+          const btnRapido = criarElementoSeguro("button", "➕ Fazer Cadastro Rápido deste ISBN", "btn-login");
+          btnRapido.style.marginTop = "8px";
+          btnRapido.type = "button";
+          btnRapido.onclick = () => iniciarCadastroRapido(limpoNum);
+          boxNaoEncontrado.appendChild(btnRapido);
+        }
+        resContainer.appendChild(boxNaoEncontrado);
       } else if (achados.length === 1) {
         selecionarLivroEmprestimo(achados[0]);
       } else {
         const box = criarElementoSeguro("div");
-        box.appendChild(criarElementoSeguro("p", "Múltiplos livros encontrados. Selecione:"));
+        box.appendChild(criarElementoSeguro("p", "Múltiplos livros encontrados. Selecione o correto:"));
         const select = document.createElement("select");
         achados.forEach((l, idx) => {
           const opt = document.createElement("option");
@@ -710,6 +945,64 @@
       atualizarResumoEmprestimo();
     }
 
+    async function iniciarCadastroRapido(isbn) {
+      document.getElementById("rapidoIsbn").value = isbn;
+      document.getElementById("rapidoTitulo").value = "";
+      document.getElementById("rapidoAutor").value = "";
+      document.getElementById("rapidoEditora").value = "";
+      document.getElementById("rapidoCategoria").value = "";
+      document.getElementById("rapidoQtd").value = "1";
+
+      abrirModal("modalCadastroRapidoLivro");
+
+      // Auto-busca em APIs abertas
+      try {
+        let res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
+        let data = await res.json();
+        if (data.totalItems > 0) {
+          const info = data.items[0].volumeInfo;
+          document.getElementById("rapidoTitulo").value = info.title || "";
+          document.getElementById("rapidoAutor").value = info.authors ? info.authors.join(", ") : "";
+          document.getElementById("rapidoEditora").value = info.publisher || "";
+          document.getElementById("rapidoCategoria").value = info.categories ? info.categories.join(", ") : "";
+        }
+      } catch (e) {}
+    }
+
+    async function salvarLivroCadastroRapido() {
+      const btn = document.getElementById("btnSalvarRapido");
+      btn.disabled = true;
+
+      const livro = {
+        isbn: document.getElementById("rapidoIsbn").value.trim(),
+        titulo: document.getElementById("rapidoTitulo").value.trim(),
+        autor: document.getElementById("rapidoAutor").value.trim(),
+        editora: document.getElementById("rapidoEditora").value.trim(),
+        categoria: document.getElementById("rapidoCategoria").value.trim(),
+        qtdTotal: document.getElementById("rapidoQtd").value
+      };
+
+      try {
+        const res = await fetch(API_URL, {
+          method: "POST",
+          body: JSON.stringify({ action: "cadastrarLivro", token: adminToken, livro })
+        });
+        const json = await res.json();
+        alert(json.message);
+
+        if (json.success) {
+          fecharModal("modalCadastroRapidoLivro");
+          await carregarAcervoGlobal();
+          document.getElementById("empBuscaLivro").value = livro.isbn;
+          buscarLivroEmprestimo();
+        }
+      } catch (e) {
+        alert("Erro ao efetuar cadastro rápido.");
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
     function selecionarLivroEmprestimo(livro) {
       const resContainer = document.getElementById("resLivroEmprestimo");
       resContainer.textContent = "";
@@ -717,11 +1010,11 @@
       const disp = parseInt(livro.Qtd_Disponivel, 10);
       if (disp <= 0) {
         livroEmprestimoSelecionado = null;
-        resContainer.appendChild(criarElementoSeguro("div", `O livro "${livro.Título}" não possui exemplares disponíveis.`, "info-card-alerta"));
+        resContainer.appendChild(criarElementoSeguro("div", `O livro "${livro.Título}" não possui exemplares disponíveis no momento.`, "info-card-alerta"));
       } else {
         livroEmprestimoSelecionado = livro;
         const card = criarElementoSeguro("div", "", "info-card-sucesso");
-        card.appendChild(criarElementoSeguro("strong", "Livro: " + livro.Título));
+        card.appendChild(criarElementoSeguro("strong", "Livro Selecionado: " + livro.Título));
         card.appendChild(criarElementoSeguro("div", `Autor: ${livro.Autor} | Exemplares disponíveis: ${disp}`));
         resContainer.appendChild(card);
       }
@@ -736,14 +1029,14 @@
       box.textContent = "";
 
       if (!leitorEmprestimoSelecionado || !livroEmprestimoSelecionado || !dtDev) {
-        box.textContent = "Complete a seleção do leitor, livro e data para habilitar a confirmação.";
+        box.textContent = "Complete as etapas acima para revisar e confirmar o empréstimo.";
         btn.disabled = true;
         return;
       }
 
       box.appendChild(criarElementoSeguro("p", "👤 Leitor: " + leitorEmprestimoSelecionado.Nome));
       box.appendChild(criarElementoSeguro("p", "📚 Livro: " + livroEmprestimoSelecionado.Título));
-      box.appendChild(criarElementoSeguro("p", "🗓️ Data de Devolução: " + dtDev));
+      box.appendChild(criarElementoSeguro("p", "🗓️ Data de Devolução: " + formatarDataBR(dtDev)));
       btn.disabled = false;
     }
 
@@ -769,8 +1062,8 @@
           rec.textContent = "";
           rec.appendChild(criarElementoSeguro("p", "Leitor: " + json.comprovante.leitor));
           rec.appendChild(criarElementoSeguro("p", "Livro: " + json.comprovante.livro));
-          rec.appendChild(criarElementoSeguro("p", "Data do Empréstimo: " + json.comprovante.dataEmprestimo));
-          rec.appendChild(criarElementoSeguro("p", "Data Prevista Devolução: " + json.comprovante.dataDevolucao));
+          rec.appendChild(criarElementoSeguro("p", "Data do Empréstimo: " + formatarDataBR(json.comprovante.dataEmprestimo)));
+          rec.appendChild(criarElementoSeguro("p", "Data Prevista Devolução: " + formatarDataBR(json.comprovante.dataDevolucao)));
           
           abrirModal("modalRecibo");
           cancelarFluxoEmprestimo();
@@ -780,7 +1073,7 @@
           alert(json.message);
         }
       } catch (e) {
-        alert("Erro no registro do empréstimo.");
+        alert("Erro no envio da requisição de empréstimo.");
       } finally {
         btn.disabled = false;
       }
@@ -811,8 +1104,8 @@
             const tr = document.createElement("tr");
             tr.appendChild(criarElementoSeguro("td", emp.Nome));
             tr.appendChild(criarElementoSeguro("td", emp.Telefone));
-            tr.appendChild(criarElementoSeguro("td", emp.ID_Livro));
-            tr.appendChild(criarElementoSeguro("td", emp.DataVencimento));
+            tr.appendChild(criarElementoSeguro("td", emp.TituloLivro || "Livro não localizado"));
+            tr.appendChild(criarElementoSeguro("td", formatarDataBR(emp.DataVencimento)));
 
             const tdAcao = document.createElement("td");
             const btnDev = criarElementoSeguro("button", "Dar Baixa");
@@ -823,11 +1116,11 @@
             tb.appendChild(tr);
           });
         }
-      } catch (e) { console.error("Erro ao obter empréstimos", e); }
+      } catch (e) {}
     }
 
     async function executarDevolucao(idEmp) {
-      if (!confirm("Confirmar devolução deste exemplar?")) return;
+      if (!confirm("Confirmar a devolução deste livro?")) return;
       try {
         const res = await fetch(API_URL, {
           method: "POST",
@@ -836,7 +1129,7 @@
         const json = await res.json();
         alert(json.message);
         if (json.proximoReserva) {
-          alert("🚨 RESERVA PENDENTE: Entregar o livro para " + json.proximoReserva);
+          alert("🚨 FILA DE RESERVAS: Entregar o exemplar devolvido para: " + json.proximoReserva);
         }
         carregarEmprestimos();
         carregarAcervoGlobal();
@@ -845,8 +1138,8 @@
     }
 
     async function solicitarReservaLeitor(idLivro, titulo) {
-      if (!usuarioLogado) { alert("Faça login novamente."); return; }
-      if (!confirm(`Deseja reservar "${titulo}"?`)) return;
+      if (!usuarioLogado) { alert("Sessão expirada. Faça login novamente."); return; }
+      if (!confirm(`Deseja efetuar a reserva do livro "${titulo}"?`)) return;
 
       try {
         const res = await fetch(API_URL, {
@@ -854,13 +1147,12 @@
           body: JSON.stringify({
             action: "registrarReserva",
             telefone: usuarioLogado.Telefone,
-            perfil: usuarioLogado.Perfil,
             idLivro: idLivro
           })
         });
         const json = await res.json();
         alert(json.message);
-      } catch (e) { alert("Erro ao solicitar reserva."); }
+      } catch (e) { alert("Erro ao registrar reserva."); }
     }
 
     async function carregarReservasAdmin() {
@@ -872,17 +1164,21 @@
         tb.textContent = "";
 
         if (json.success) {
-          json.data.forEach((r, idx) => {
+          // Filtra posições ordenadas apenas para reservas Pendentes
+          let contadorPosicao = 1;
+          json.data.forEach((r) => {
             const tr = document.createElement("tr");
-            tr.appendChild(criarElementoSeguro("td", (idx + 1) + "º"));
+            const isPendente = r.Status === "Pendente";
+            
+            tr.appendChild(criarElementoSeguro("td", isPendente ? `${contadorPosicao++}º` : "—"));
             tr.appendChild(criarElementoSeguro("td", r.Titulo));
             tr.appendChild(criarElementoSeguro("td", r.Nome));
-            tr.appendChild(criarElementoSeguro("td", new Date(r.DataReserva).toLocaleString('pt-BR')));
+            tr.appendChild(criarElementoSeguro("td", formatarDataBR(r.DataReserva, true)));
             tr.appendChild(criarElementoSeguro("td", r.Status));
             tb.appendChild(tr);
           });
         }
-      } catch (e) { console.error(e); }
+      } catch (e) {}
     }
 
     function renderizarTabelaAcervoAdmin(lista) {
@@ -903,11 +1199,11 @@
       const isbn = document.getElementById("cadIsbn").value.replace(/\D/g, "");
       const fb = document.getElementById("feedbackIsbn");
       if (isbn.length !== 10 && isbn.length !== 13) {
-        fb.textContent = "Digite um ISBN válido de 10 ou 13 dígitos.";
+        fb.textContent = "Digite um número de ISBN-10 ou ISBN-13 válido.";
         return;
       }
 
-      fb.textContent = "Consultando base bibliográfica...";
+      fb.textContent = "Consultando serviços bibliográficos...";
       try {
         let res = await fetch(`https://www.googleapis.com/books/v1/volumes?q=isbn:${isbn}`);
         let data = await res.json();
@@ -917,11 +1213,11 @@
           document.getElementById("cadTitulo").value = info.title || "";
           document.getElementById("cadAutor").value = info.authors ? info.authors.join(", ") : "";
           document.getElementById("cadCategoria").value = info.categories ? info.categories.join(", ") : "";
-          fb.textContent = "Dados bibliográficos obtidos com sucesso!";
+          fb.textContent = "Dados bibliográficos recuperados!";
         } else {
-          fb.textContent = "ISBN não localizado. Preencha manualmente.";
+          fb.textContent = "ISBN não localizado em APIs abertas. Preencha manualmente.";
         }
-      } catch (e) { fb.textContent = "Erro na busca externa. Preencha manualmente."; }
+      } catch (e) { fb.textContent = "Erro na consulta externa. Preencha manualmente."; }
     }
 
     async function salvarAutoCadastro() {
@@ -931,8 +1227,8 @@
       const perfil = document.getElementById("autoPerfil").value;
       const turma = document.getElementById("autoTurma").value.trim();
 
-      if (!nome || !tel) { alert("Preencha Nome e Telefone."); return; }
-      if (perfil === "Aluno" && !turma) { alert("Informe a Turma do Aluno."); return; }
+      if (!nome || !tel) { alert("Preencha os campos obrigatórios: Nome e Telefone."); return; }
+      if (perfil === "Aluno" && !turma) { alert("A informação de Turma é obrigatória para Alunos."); return; }
 
       const res = await fetch(API_URL, {
         method: "POST",
@@ -952,7 +1248,11 @@
 
       const res = await fetch(API_URL, {
         method: "POST",
-        body: JSON.stringify({ action: "cadastrarUsuario", usuario: { nome, email, telefone: tel, perfil, turma } })
+        body: JSON.stringify({ 
+          action: "cadastrarUsuario", 
+          token: adminToken, 
+          usuario: { nome, email, telefone: tel, perfil, turma } 
+        })
       });
       const json = await res.json();
       alert(json.message);
